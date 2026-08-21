@@ -20,9 +20,9 @@ test("server-renders the scammer roster", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>오늘의 사기꾼/);
-  assert.match(html, /SCAMMER SELECT/);
+  assert.match(html, /SCAMMER ARCHIVE/);
   assert.match(html, /억만장자가/);
-  assert.match(html, /COMING<br\/>SOON/);
+  assert.match(html, /COMING SOON/);
   assert.match(html, /og\.png/);
 });
 

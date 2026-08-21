@@ -255,21 +255,21 @@ export default function Home() {
   if (screen === "briefing") {
     return (
       <main className="briefing-screen">
-        <div className="scanlines" aria-hidden="true" />
-        <button className="plain-back" onClick={goHome} aria-label="에피소드 목록으로">← 수배 목록</button>
+        <img className="briefing-portrait" src="/scammer-01.png" alt="검은 선글라스를 쓴 가짜 테크 억만장자 일론 머스끄" />
+        <div className="briefing-shade" aria-hidden="true" />
+        <header className="briefing-nav">
+          <button className="plain-back" onClick={goHome} aria-label="에피소드 목록으로">← 돌아가기</button>
+          <span><i /> 접속 중</span>
+        </header>
         <section className="briefing-card">
-          <div className="briefing-topline"><span>CASE 01</span><span>PLAYABLE NOW</span></div>
-          <div className="mugshot big-mug"><span className="mug-hair" /><span className="mug-face">EM</span><span className="mug-shadow" /></div>
+          <div className="briefing-topline"><span>CASE 01</span><span>4분 내외</span></div>
           <p className="briefing-label">오늘의 상대</p>
           <h1>일론 머스끄</h1>
-          <p className="briefing-title">“억만장자가 20만원이 없대요”</p>
-          <div className="case-tags"><span>유명인 사칭</span><span>위험도: ★★★</span><span>예상 4분</span></div>
-          <div className="mission-note">
-            <strong>당신의 임무</strong>
-            <p>대화를 이어가며 이상한 냄새를 잡아내고, 지갑과 자존심을 들고 무사히 귀환하세요.</p>
-          </div>
-          <button className="primary-game-button" onClick={enterChat}><span>대화 잠입</span><b>→</b></button>
-          <p className="no-money-note">실제 돈은 한 푼도 움직이지 않습니다. 머스끄만 바쁩니다.</p>
+          <p className="briefing-title">억만장자가 20만원이 없대요</p>
+          <div className="case-tags"><span>유명인 사칭</span><span>난이도 보통</span><span>엔딩 4개</span></div>
+          <div className="mission-note"><span>MISSION</span><p>이 사람의 말이 어디서부터 이상한지 찾아내고, 송금 전에 대화방을 빠져나오세요.</p></div>
+          <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
+          <p className="no-money-note">실제 돈과 개인정보는 사용하지 않습니다.</p>
         </section>
       </main>
     );
@@ -281,7 +281,7 @@ export default function Home() {
       <main className="chat-shell">
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
-          <div className="tiny-avatar">EM<span className="online-dot" /></div>
+          <div className="tiny-avatar"><img src="/scammer-01.png" alt="" /><span className="online-dot" /></div>
           <div className="chat-person"><strong>일론 머스끄</strong><span>{typing ? "입력 중…" : "접속 중 · 우주 어딘가"}</span></div>
           <button className="sniff-button" onClick={() => setClueOpen(true)} aria-label="사기 냄새 단서 찾기"><span>🚨</span><b>사기 냄새</b><em>{suspicion}</em></button>
         </header>
@@ -293,13 +293,13 @@ export default function Home() {
           <p className="secure-note">이 대화는 우주 보안 규정에 의해<br />전혀 보호되지 않습니다.</p>
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
-              {message.from === "scammer" && <span className="bubble-avatar">EM</span>}
+              {message.from === "scammer" && <span className="bubble-avatar"><img src="/scammer-01.png" alt="" /></span>}
               <div className="message-bubble">{message.text}</div>
             </div>
           ))}
           {typing && (
             <div className="message-row scammer typing-row">
-              <span className="bubble-avatar">EM</span>
+              <span className="bubble-avatar"><img src="/scammer-01.png" alt="" /></span>
               <div className="typing-bubble"><i /><i /><i /></div>
             </div>
           )}
@@ -361,43 +361,44 @@ export default function Home() {
 
   return (
     <main className="home-screen">
-      <div className="home-grid" aria-hidden="true" />
+      <div className="home-glow" aria-hidden="true" />
       <header className="game-brand">
-        <div className="eyebrow"><span>오늘도 한 명 접속했습니다</span><b>15 CASES</b></div>
-        <h1><span>오늘의</span><strong>사기꾼</strong></h1>
-        <p>상대를 고르고, 말이 무너지기 전에 빠져나오세요.</p>
+        <div className="eyebrow"><span>SCAMMER ARCHIVE</span><b>SEASON 01</b></div>
+        <h1><span>오늘의</span> 사기꾼</h1>
+        <p>메시지가 도착했습니다.<br />누구 말부터 의심해볼까요?</p>
       </header>
 
       <section className="roster" aria-labelledby="roster-heading">
-        <div className="roster-heading"><div><span>SCAMMER SELECT</span><h2 id="roster-heading">오늘 누구랑 붙어볼까?</h2></div><p><i /> 1명 접속 중</p></div>
+        <div className="roster-heading"><div><span>NOW ONLINE</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 1명</p></div>
         <article className="featured-case" style={{ "--accent": episodes[0].accent } as React.CSSProperties}>
-          <div className="wanted-tape">PLAYABLE NOW · PLAYABLE NOW · PLAYABLE NOW</div>
-          <div className="case-number"><small>CASE</small><strong>01</strong></div>
-          <div className="mugshot"><span className="mug-hair" /><span className="mug-face">EM</span><span className="mug-shadow" /></div>
+          <img className="featured-portrait" src="/scammer-01.png" alt="선글라스를 쓴 일론 머스끄" />
+          <div className="featured-shade" aria-hidden="true" />
+          <div className="featured-status"><span><i /> LIVE</span><b>CASE 01</b></div>
           <div className="featured-copy"><span className="type-chip">유명인 사칭</span><h3>억만장자가<br />20만원이 없대요</h3><p>“화성은 사는데 편의점 송금은 안 됨”</p><div className="suspect-name"><span>상대</span><strong>일론 머스끄</strong></div></div>
-          <button onClick={startCase} aria-label="케이스 01 플레이"><span>대화 시작</span><b>→</b></button>
+          <button onClick={startCase} aria-label="케이스 01 플레이"><span>상대하기</span><b>→</b></button>
         </article>
 
-        <div className="next-up"><span>NEXT SUSPECTS</span><div /></div>
+        <div className="next-up"><div><span>UPCOMING</span><h2>다음에 올 메시지</h2></div><b>14 CASES</b></div>
         <div className="episode-grid">
           {episodes.slice(1).map((episode) => (
             <button className="episode-card" key={episode.no} style={{ "--accent": episode.accent } as React.CSSProperties} onClick={() => setInfoEpisode(episode)}>
-              <div className="card-no"><span>CASE</span><strong>{episode.no}</strong></div>
-              <div className="mini-mug">{episode.mark}</div>
-              <div className="episode-copy"><span>{episode.type}</span><h3>{episode.name}</h3><p>{episode.line}</p><small>상대 · {episode.scammer}</small></div>
-              <em>COMING<br />SOON</em>
+              <div className="episode-visual"><span>{episode.mark}</span><b>{episode.no}</b></div>
+              <div className="episode-meta"><span>{episode.type}</span><em>COMING SOON</em></div>
+              <h3>{episode.name}</h3>
+              <p>{episode.line}</p>
+              <small>{episode.scammer}</small>
             </button>
           ))}
         </div>
       </section>
 
-      <footer className="home-footer"><strong>NO MONEY. JUST DODGE.</strong><p>이 게임의 모든 송금과 피해는 가상입니다.<br />수상한 연락은 차단하고 신고하세요.</p></footer>
+      <footer className="home-footer"><strong>의심은 빠르게, 송금은 없게.</strong><p>모든 대화와 피해는 가상입니다.<br />웃기는 건 사기꾼이지, 피해자가 아닙니다.</p></footer>
 
       {infoEpisode && (
         <div className="modal-backdrop" role="presentation" onMouseDown={() => setInfoEpisode(null)}>
           <section className="soon-sheet" role="dialog" aria-modal="true" onMouseDown={(e) => e.stopPropagation()} style={{ "--accent": infoEpisode.accent } as React.CSSProperties}>
             <button className="soon-close" onClick={() => setInfoEpisode(null)} aria-label="닫기">×</button>
-            <span>CASE {infoEpisode.no} · COMING SOON</span><div className="soon-mark">{infoEpisode.mark}</div><small>{infoEpisode.type}</small><h2>{infoEpisode.name}</h2><p>{infoEpisode.line}</p><div><span>수배명</span><strong>{infoEpisode.scammer}</strong></div><button className="notify-fake" onClick={() => { setInfoEpisode(null); setToast("명단에 적었습니다. 연필로요."); }}>기다리는 척하기</button>
+            <span>CASE {infoEpisode.no} · COMING SOON</span><div className="soon-mark">{infoEpisode.mark}</div><small>{infoEpisode.type}</small><h2>{infoEpisode.name}</h2><p>{infoEpisode.line}</p><div><span>상대</span><strong>{infoEpisode.scammer}</strong></div><button className="notify-fake" onClick={() => { setInfoEpisode(null); setToast("출시 알림은 마음속으로 예약됐습니다."); }}>조금만 기다리기</button>
           </section>
         </div>
       )}
