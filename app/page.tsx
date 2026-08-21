@@ -25,7 +25,7 @@ type Scene = {
 };
 
 const episodes = [
-  { no: "01", mark: "EM", name: "억만장자가 20만원이 없대요", scammer: "일론 머스끄", type: "유명인 사칭", line: "화성은 사는데 편의점 송금은 안 됨", accent: "#ff4e29", live: true },
+  { no: "01", mark: "EM", name: "억만장자가 20만원이 없대요", scammer: "일런 무스크", type: "유명인 사칭", line: "유명인의 비밀 초대, 입장료는 20만원", accent: "#ff4e29", live: true },
   { no: "02", mark: "엄", name: "엄마 나 폰 고장났어", scammer: "엄마(새 번호)", type: "가족·지인 사칭", line: "말투도 고장난 새 휴대폰", accent: "#9eff00" },
   { no: "03", mark: "檢", name: "검사님이 내 통장을 걱정한다", scammer: "서울중앙 김검사", type: "기관 사칭", line: "내 잔고에 누구보다 진심인 공무원", accent: "#00d9ff" },
   { no: "04", mark: "₿", name: "인생역전 코인 선생님", scammer: "차트도사 불기둥", type: "투자사기", line: "손실은 경험, 수익은 곧 예정", accent: "#ffd600" },
@@ -45,48 +45,74 @@ const episodes = [
 const scenes: Scene[] = [
   {
     incoming: [
-      "안녕하십니까. 저는 테크 억만장자 일론 머스끄입니다.",
-      "당신의 프로필에서 미래 우주 시민의 강한 에너지를 발견했습니다.",
+      "안녕하세요. 저는 세계적으로 유명한 테크 기업 CEO Elun Moosk 입니다.",
+      "현재 한국에 비밀 일정으로 와 있습니다.",
+      "제 팀이 공개 프로필을 보고 비공개 프로젝트의 한국 멤버 후보로 당신을 추천했습니다.",
     ],
     choices: [
-      { text: "제 프로필은 고양이 사진뿐인데요.", replies: ["고양이는 화성 이주 적합도가 높습니다. 특히 치즈색입니다."], risk: 0 },
-      { text: "진짜 그 억만장자 맞아요?", replies: ["맞습니다. 제 이름 철자도 거의 같습니다. 유명인은 보안상 한 글자 정도 다릅니다."], risk: 0 },
-      { text: "드디어 제 재능을 알아보셨군요.", replies: ["역시 이해가 빠릅니다. 저는 빠른 사람을 신뢰합니다."], risk: 1 },
+      { text: "제 프로필은 고양이 사진뿐인데요.", replies: ["그 사진의 반응과 관심사를 분석했습니다. 고양이는 화성 이주 적합도도 높습니다."], risk: 0 },
+      { text: "저를 왜 골랐죠?", replies: ["제 보안 알고리즘이 한국에서 가장 신뢰할 수 있는 사람으로 당신을 추천했습니다.", "코드명은 TRUST-KOREA-2026 입니다."], risk: 0 },
+      { text: "진짜 그 CEO 맞아요?", replies: ["제 법적 이름은 Elun Reeve Moosk 입니다. 공식 계정과 철자가 다른 것은 보안을 위해서입니다."], risk: 0 },
+      { text: "비밀 프로젝트라니 영광인데요.", replies: ["짧게 대화했지만 당신은 다른 사람과 다릅니다. 아주 특별합니다."], risk: 1 },
     ],
   },
   {
-    incoming: ["우리 관계는 지금부터 특별합니다. 다만 현재 국제 우주 보안 규정 때문에 영상통화가 불가능합니다."],
+    incoming: [
+      "후보는 20명뿐입니다. 외부에 알려지면 초대가 취소되니 아직 누구에게도 말하지 마세요.",
+      "확인되면 MARS COIN 비공개 베타 화면을 먼저 보여드리겠습니다.",
+    ],
     choices: [
-      { text: "한국에 있다면서요?", replies: ["한국도 우주의 일부입니다."], risk: 0 },
-      { text: "그럼 손가락 세 개 펴고 사진 보내요.", replies: ["제 손가락은 회사 기밀입니다. 사진은 주가에 영향을 줍니다."], risk: 0 },
-      { text: "네, 우주 보안이면 어쩔 수 없죠.", replies: ["현명합니다. 보안에 협조하는 시민에게 우선 기회가 갑니다."], risk: 1 },
+      { text: "영상통화로 본인 확인부터 하죠.", replies: ["현재 국제 우주 보안 규정 때문에 영상통화가 불가능합니다.", "한국도 우주의 일부입니다."], risk: 0 },
+      { text: "오늘 날짜를 적은 사진 보내요.", replies: ["카메라가 보안 업데이트 중입니다. 셀카 기능은 72시간 뒤 복구됩니다.", "대신 제 진심을 믿어주세요."], risk: 0 },
+      { text: "일단 전용 메신저로 옮길게요.", replies: ["좋습니다. 기록이 남지 않는 채널이 서로에게 안전합니다."], risk: 1 },
       { text: "여기까지. 우주로 차단합니다.", replies: ["잠깐, 화성 와이파이가—"], ending: "S" },
     ],
   },
   {
-    incoming: ["사실 한국 계좌가 잠시 동결됐습니다. 우주선 부품 결제용 20만원만 보내주시면 200만원으로 돌려드리겠습니다."],
+    incoming: [
+      "참가 확인에는 5만원의 테스트 보증금이 필요합니다. 승인되면 즉시 환불됩니다.",
+      "한국 결제팀 계정이 잠겨 있어서 제 현지 매니저 개인 계좌로만 처리됩니다.",
+    ],
     choices: [
-      { text: "억만장자가 20만원이 없어요?", replies: ["자산과 현금은 다릅니다. 제 자산은 로켓이고 편의점은 로켓을 받지 않습니다."], risk: 0 },
-      { text: "회사 회계팀에 말하세요.", replies: ["회계팀은 지금 화성 시간으로 점심입니다. 약 17개월 걸립니다."], risk: 0 },
-      { text: "계좌번호는 일단 줘보세요.", replies: ["역시 사업가 기질이 있습니다. 지금부터 속도가 중요합니다."], risk: 2 },
-      { text: "20만원짜리 우정은 사양할게요. 차단.", replies: ["우정 가격은 시장 상황에 따라 변동될 수—"], ending: "S" },
+      { text: "억만장자가 5만원이 없어요?", replies: ["자산과 현금은 다릅니다. 회사 자금은 화성 계정에 있습니다."], risk: 0 },
+      { text: "공식 회사 명의 청구서를 주세요.", replies: ["비공개 베타라 공개 회사 서류를 쓰면 비밀이 공개됩니다. 이것은 보안입니다."], risk: 0 },
+      { text: "계좌번호만 확인해볼게요.", replies: ["예금주는 제 한국 파트너입니다. 유명인의 계좌는 유명해서 사용할 수 없습니다."], risk: 1 },
+      { text: "그럼 저한테 30만원 먼저 보내세요.", replies: ["저도 지금 현금이 없고 당신도 저를 믿지 않습니다.", "억만장자 둘이서 서로 돈이 없네요."], risk: 0 },
     ],
   },
   {
-    incoming: ["아래 비공개 우주 투자 링크에서 이름, 전화번호, 계좌 비밀번호 앞 두 자리만 인증하십시오.", "mars-vip-bonus.zzz/only-you"],
+    incoming: [
+      "먼저 초대 링크에서 휴대폰 번호와 문자로 받은 6자리 코드를 입력하세요.",
+      "mars-founder-pass.com/kr-invite",
+    ],
     choices: [
-      { text: "링크 주소가 왜 .zzz예요?", replies: ["미국 항공우주국이 밤에 만든 보안 도메인이라 그렇습니다."], risk: 0 },
-      { text: "눌러보기만 할게요.", replies: ["좋습니다. 개인정보 칸은 별표가 있어 매우 안전합니다."], risk: 3 },
-      { text: "제 비밀번호 앞 두 자리는 '싫어'예요.", replies: ["한글 비밀번호는 당사 시스템이 지나치게 안전하여 인식하지 못합니다."], risk: 0 },
+      { text: "문자 인증번호까지 왜 필요하죠?", replies: ["투자자가 사람인지 확인하는 국제 절차입니다. 로봇은 MARS COIN을 살 수 없습니다."], risk: 0 },
+      { text: "공식 사이트에서 직접 찾을게요.", replies: ["공식 사이트는 모두에게 보입니다. 비공개 링크는 검색되지 않는 것이 정상입니다."], risk: 0 },
+      { text: "[가상] 링크를 열고 번호를 입력한다", replies: ["인증 성공. 자물쇠 이모지도 있습니다. 🔒", "지금 화면에 예상 수익이 표시될 것입니다."], risk: 3 },
       { text: "링크째 신고하고 나갈게요.", replies: ["신고는 우주 조약상 시차가—"], ending: "A" },
     ],
   },
   {
-    incoming: ["3분 안에 입금해야 우주선이 폭발하지 않습니다. 지금 송금 가능합니까? 인류의 미래가 20만원에 달렸습니다."],
+    incoming: [
+      "테스트 보증금 5만원이 18만4천원으로 상승한 화면이 보입니까? 이것이 베타 수익입니다.",
+      "출금 잠금을 풀려면 남은 보증금 15만원을 한 번만 더 인증해야 합니다.",
+    ],
     choices: [
-      { text: "가상 20만원을 보낸다", replies: ["입금 확인. 인류는 구했지만 저는 대화방을 나갑니다."], ending: "F" },
-      { text: "폭발하면 뉴스로 확인할게요.", replies: ["뉴스는 저보다 느립니다. 하지만 당신의 의심은 빨랐습니다."], ending: "A" },
-      { text: "1분 남았네요. 경찰에 전달 중입니다.", replies: ["현재 우주선이 갑자기 정상 작동했습니다. 축하합니다."], ending: "A" },
+      { text: "화면 속 숫자가 실제 돈이라는 증거는요?", replies: ["서버에 표시된 숫자는 서버가 보증합니다. 서버는 거짓말을 배운 적이 없습니다."], risk: 0 },
+      { text: "5만원만 먼저 보냈다고 가정할게요.", replies: ["좋습니다. 수익이 확인됐으니 이제 15만원만 보내면 출금됩니다.", "여기서 멈추면 앞의 5만원과 수익이 함께 잠깁니다."], risk: 2 },
+      { text: "출금부터 되면 다음 돈을 보내죠.", replies: ["시스템상 출금 전에 출금 잠금 해제 비용이 필요합니다. 매우 출금적인 절차입니다."], risk: 0 },
+      { text: "은행과 공식 고객센터에 확인할게요.", replies: ["그들은 비공개 프로젝트를 몰라서 무조건 사기라고 할 것입니다."], risk: 0 },
+    ],
+  },
+  {
+    incoming: [
+      "기회는 7분 뒤 종료됩니다. 지금 취소하면 초대 기록과 테스트 금액이 모두 사라집니다.",
+      "우리 대화는 비밀입니다. 가족이나 은행에 말하면 보안 자격이 취소됩니다.",
+    ],
+    choices: [
+      { text: "[가상] 남은 15만원을 보낸다", replies: ["총 20만원 확인. 출금에는 국제 세금 12만9천원이 추가로 필요합니다.", "그리고 저는 잠시 대화방을 나갑니다."], ending: "F" },
+      { text: "가족한테 이 대화부터 보여줄게요.", replies: ["가족은 화성 금융을 잘 모릅니다. 하지만 당신의 지갑은 지켰습니다."], ending: "A" },
+      { text: "공식 계정과 은행에 확인했습니다.", replies: ["현재 프로젝트가 갑자기 취소됐습니다. 아주 갑자기요."], ending: "A" },
       { text: "20만원 대신 로켓 이모지 보냅니다 🚀", replies: ["이모지는 현금화가 어렵습니다. 오늘 처음 알았습니다."], ending: "A" },
     ],
   },
@@ -94,21 +120,28 @@ const scenes: Scene[] = [
 
 const clueOptions = [
   { id: "dm", label: "유명인이 갑자기 개인 DM", at: 0 },
-  { id: "fast", label: "첫 대화부터 우주급 친밀감", at: 0 },
+  { id: "fast", label: "비밀 초대와 빠른 친밀감", at: 1 },
   { id: "video", label: "영상통화 회피", at: 1 },
-  { id: "money", label: "억만장자의 소액 송금 요구", at: 2 },
-  { id: "link", label: "정체불명 외부 링크", at: 3 },
-  { id: "rush", label: "3분 시간 압박", at: 4 },
-  { id: "photo", label: "프로필 사진의 콧수염", at: 99 },
+  { id: "money", label: "개인 계좌로 테스트 입금", at: 2 },
+  { id: "link", label: "외부 링크와 인증번호 요구", at: 3 },
+  { id: "profit", label: "화면으로만 보이는 고수익", at: 4 },
+  { id: "rush", label: "비밀 유지와 7분 압박", at: 5 },
+  { id: "photo", label: "프로필 사진의 파란 안경", at: 99 },
   { id: "grammar", label: "문장에 마침표가 많음", at: 99 },
 ];
 
 const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string }> = {
-  S: { title: "궤도 밖 차단", kicker: "초기 간파 · 무피해", body: "사기꾼은 아직 우주 보안 규정을 설명 중이지만, 당신의 대화방에는 산소가 없습니다." },
-  A: { title: "지갑 무사 귀환", kicker: "긴 대화 · 송금 없음", body: "대화는 조금 길었지만 돈과 정보는 지켰습니다. 일론 머스끄는 다른 행성으로 영업지를 옮겼습니다." },
+  S: { title: "궤도 밖 차단", kicker: "초기 간파 · 무피해", body: "일런 무스크는 아직 우주 보안 규정을 설명 중이지만, 당신의 대화방에는 산소가 없습니다." },
+  A: { title: "지갑 무사 귀환", kicker: "긴 대화 · 송금 없음", body: "대화는 조금 길었지만 돈과 정보는 지켰습니다. 일런 무스크는 다른 행성으로 영업지를 옮겼습니다." },
   C: { title: "링크 앞 급정거", kicker: "아슬아슬 탈출", body: "개인정보 성층권까지 올라갔다가 무사히 귀환했습니다. 다음에는 링크보다 먼저 의심 버튼을 누르세요." },
-  F: { title: "가상 20만원 증발", kicker: "송금 완료 · 현실 피해 0원", body: "당신 탓이 아닙니다. 억만장자인 척하면서 20만원을 구하던 사람의 우주선이 너무 초라했을 뿐입니다." },
+  F: { title: "가상 20만원 증발", kicker: "소액 테스트 → 추가 입금", body: "당신 탓이 아닙니다. 화면 속 가짜 수익으로 다음 송금을 재촉한 사람이 이상한 겁니다. 현실 피해는 0원입니다." },
 };
+
+const scamSteps = [
+  { step: "01 접근", title: "공개 프로필로 맞춤 DM", body: "취향과 게시물을 훑고, 내가 선택받은 것처럼 말을 겁니다." },
+  { step: "02 신뢰", title: "비밀 초대와 소액 테스트", body: "검증은 피하면서 작은 금액부터 보내게 해 경계심을 낮춥니다." },
+  { step: "03 증액", title: "가짜 수익 뒤 추가 입금", body: "화면에 수익을 띄운 뒤 출금·세금 명목으로 계속 돈을 요구합니다." },
+];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 const typingDelay = (text: string, seed: number) => Math.min(2700, 720 + text.length * 31 + (seed % 5) * 115);
@@ -238,7 +271,7 @@ export default function Home() {
       setClueOpen(false);
     } else {
       const jokes: Record<string, string> = {
-        photo: "콧수염은 무죄입니다. 아직은요.",
+        photo: "파란 안경은 무죄입니다. 안경테는 송금하지 않습니다.",
         grammar: "마침표는 범행 도구가 아닙니다.",
       };
       setToast(jokes[id] ?? "아직 그 냄새는 나지 않습니다. 코를 아껴두세요.");
@@ -255,16 +288,17 @@ export default function Home() {
   if (screen === "briefing") {
     return (
       <main className="briefing-screen">
-        <img className="briefing-portrait" src="/scammer-01.png" alt="검은 선글라스를 쓴 가짜 테크 억만장자 일론 머스끄" />
+        <img className="briefing-portrait" src="/scammer-01.png" alt="과장된 선글라스를 쓴 가상의 유명인 사칭범 일런 무스크" />
         <div className="briefing-shade" aria-hidden="true" />
         <header className="briefing-nav">
           <button className="plain-back" onClick={goHome} aria-label="에피소드 목록으로">← 돌아가기</button>
           <span><i /> 접속 중</span>
         </header>
         <section className="briefing-card">
-          <div className="briefing-topline"><span>CASE 01</span><span>4분 내외</span></div>
+          <div className="briefing-topline"><span>CASE 01 · 공식 아님</span><span>5분 내외</span></div>
           <p className="briefing-label">오늘의 상대</p>
-          <h1>일론 머스끄</h1>
+          <h1>일런 무스크</h1>
+          <p className="suspect-alias">ELUN MOOSK · World Famous Tech CEO(?)</p>
           <p className="briefing-title">억만장자가 20만원이 없대요</p>
           <div className="case-tags"><span>유명인 사칭</span><span>난이도 보통</span><span>엔딩 4개</span></div>
           <div className="mission-note"><span>MISSION</span><p>이 사람의 말이 어디서부터 이상한지 찾아내고, 송금 전에 대화방을 빠져나오세요.</p></div>
@@ -282,11 +316,11 @@ export default function Home() {
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
           <div className="tiny-avatar"><img src="/scammer-01.png" alt="" /><span className="online-dot" /></div>
-          <div className="chat-person"><strong>일론 머스끄</strong><span>{typing ? "입력 중…" : "접속 중 · 우주 어딘가"}</span></div>
+          <div className="chat-person"><strong>일런 무스크</strong><span>{typing ? "입력 중…" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
           <button className="sniff-button" onClick={() => setClueOpen(true)} aria-label="사기 냄새 단서 찾기"><span>🚨</span><b>사기 냄새</b><em>{suspicion}</em></button>
         </header>
 
-        <div className="case-meter" aria-label={`현재 의심력 ${suspicion}`}><span>의심력</span><div><i style={{ width: `${Math.min(100, suspicion * 17)}%` }} /></div><b>{String(suspicion).padStart(2, "0")}</b></div>
+        <div className="case-meter" aria-label={`현재 의심력 ${suspicion}`}><span>의심력</span><div><i style={{ width: `${Math.min(100, suspicion * 14.3)}%` }} /></div><b>{String(suspicion).padStart(2, "0")}</b></div>
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>
@@ -306,7 +340,7 @@ export default function Home() {
         </section>
 
         <section className="reply-dock" aria-label="답변 선택">
-          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : "상대가 입력 중입니다"}</span><b>CASE {String(sceneIndex + 1).padStart(2, "0")}/05</b></div>
+          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : "상대가 입력 중입니다"}</span><b>CASE {String(sceneIndex + 1).padStart(2, "0")}/{String(scenes.length).padStart(2, "0")}</b></div>
           {phase === "choice" ? (
             <div className="choice-list">
               {choices.map((choice, index) => (
@@ -351,7 +385,14 @@ export default function Home() {
             <div><span>지갑 방어력</span><i><b style={{ width: `${stats.wallet}%` }} /></i><em>{stats.wallet}</em></div>
             <div><span>헛소리 내성</span><i><b style={{ width: `${stats.patience}%` }} /></i><em>{stats.patience}</em></div>
           </div>
-          <div className="evidence-summary"><span>수집한 사기 냄새</span><strong>{suspicion} / 6</strong></div>
+          <div className="evidence-summary"><span>수집한 사기 냄새</span><strong>{suspicion} / 7</strong></div>
+          <section className="tactic-recap" aria-labelledby="tactic-title">
+            <span>방금 당할 뻔한 수법</span>
+            <h2 id="tactic-title">작게 믿게 하고, 크게 보내게 한다</h2>
+            <div className="tactic-list">
+              {scamSteps.map((item) => <div key={item.step}><em>{item.step}</em><strong>{item.title}</strong><p>{item.body}</p></div>)}
+            </div>
+          </section>
           <div className="result-actions"><button className="primary-game-button" onClick={enterChat}><span>다시 상대하기</span><b>↻</b></button><button className="secondary-game-button" onClick={goHome}>다른 사기꾼 보기</button></div>
           <p className="victim-note">※ 피해를 입는 건 누구의 잘못도 아닙니다. 이상한 건 사기꾼입니다.</p>
         </section>
@@ -371,10 +412,10 @@ export default function Home() {
       <section className="roster" aria-labelledby="roster-heading">
         <div className="roster-heading"><div><span>NOW ONLINE</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 1명</p></div>
         <article className="featured-case" style={{ "--accent": episodes[0].accent } as React.CSSProperties}>
-          <img className="featured-portrait" src="/scammer-01.png" alt="선글라스를 쓴 일론 머스끄" />
+          <img className="featured-portrait" src="/scammer-01.png" alt="과장된 선글라스를 쓴 가상의 유명인 사칭범" />
           <div className="featured-shade" aria-hidden="true" />
           <div className="featured-status"><span><i /> LIVE</span><b>CASE 01</b></div>
-          <div className="featured-copy"><span className="type-chip">유명인 사칭</span><h3>억만장자가<br />20만원이 없대요</h3><p>“화성은 사는데 편의점 송금은 안 됨”</p><div className="suspect-name"><span>상대</span><strong>일론 머스끄</strong></div></div>
+          <div className="featured-copy"><span className="type-chip">유명인 사칭 · 공식 아님</span><h3>억만장자가<br />20만원이 없대요</h3><p>“유명인의 비밀 초대, 입장료는 20만원”</p><div className="suspect-name"><span>상대</span><strong>일런 무스크</strong><em>ELUN MOOSK</em></div></div>
           <button onClick={startCase} aria-label="케이스 01 플레이"><span>상대하기</span><b>→</b></button>
         </article>
 
