@@ -1,6 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#070910",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -11,6 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "오늘의 사기꾼 — 말이 무너지기 전에 탈출하라",
     description: "수상한 사기꾼과 실제 메신저처럼 대화하고, 사기 신호를 찾아 탈출하는 짧은 상황극 게임.",
+    applicationName: "오늘의 사기꾼",
+    formatDetection: { telephone: false, address: false, email: false },
+    appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "오늘의 사기꾼" },
     openGraph: {
       title: "오늘의 사기꾼",
       description: "말이 무너지기 전에 탈출하라",

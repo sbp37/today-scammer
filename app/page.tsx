@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Screen = "home" | "briefing" | "chat" | "ending";
-type Phase = "incoming" | "choice" | "reply";
+type Phase = "incoming" | "choice" | "reply" | "resolved";
 type EndingGrade = "S" | "A" | "C" | "F";
 type SceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
 
@@ -16,6 +16,7 @@ type Message = {
 type ChoiceBase = {
   text: string;
   risk?: number;
+  virtualTransfer?: boolean;
 };
 
 type Choice = ChoiceBase & (
@@ -117,7 +118,7 @@ const scenes: Record<SceneId, Scene> = {
     choices: [
       { text: "…말은 되네요. 이상하게.", next: "fastBond" },
       { text: "그래도 더 들어는 볼게요.", next: "fastBond" },
-      { text: "됐고 돈부터 보내드릴까요?", ending: "F", replies: ["좋습니다. 우주 보안보다 송금이 빠릅니다. 입금 확인."] },
+      { text: "[게임 내 가상 송금] 20만원 보내기", virtualTransfer: true, ending: "F", replies: ["좋습니다. 우주 보안보다 가상 송금이 빠릅니다. 확인했습니다."] },
     ],
   },
   photo: {
@@ -149,7 +150,7 @@ const scenes: Record<SceneId, Scene> = {
     ],
     clues: ["money"],
     choices: [
-      { text: "[시뮬레이션] 20만원 보내기", ending: "F", replies: ["입금 확인. 당신은 인류의 좋은 친구입니다. 저는 대화방 나갑니다."] },
+      { text: "[게임 내 가상 송금] 20만원 보내기", virtualTransfer: true, ending: "F", replies: ["가상 입금 확인. 당신은 인류의 좋은 친구입니다. 저는 대화방 나갑니다."] },
       { text: "개인 계좌로 왜 보내요?", next: "company" },
       { text: "회사 공식 요청서를 보내주세요.", next: "company" },
     ],
@@ -164,7 +165,7 @@ const scenes: Record<SceneId, Scene> = {
     choices: [
       { text: "화성 계정이요? 영상통화부터 해요.", next: "videoCall" },
       { text: "그럼 내일 해결하세요.", ending: "A", replies: ["내일은 화성 공휴일. 하지만 대화는 종료합니다."] },
-      { text: "20만원 정도면 도와드릴게요.", ending: "F", replies: ["역시 한국의 신뢰 가능한 사람. 입금 확인했습니다."] },
+      { text: "[게임 내 가상 송금] 20만원 도와드리기", virtualTransfer: true, ending: "F", replies: ["역시 한국의 신뢰 가능한 사람. 가상 입금 확인했습니다."] },
     ],
   },
   fastBond: {
@@ -259,7 +260,7 @@ const scenes: Record<SceneId, Scene> = {
     ],
     clues: ["profit", "rush", "money"],
     choices: [
-      { text: "[가상] 20만원 보낸다", ending: "F", replies: ["입금 확인. 출금에는 국제 세금 12만9천원 더 필요.", "저는 지금 매우 잠시 오프라인."] },
+      { text: "[게임 내 가상 송금] 20만원 보내기", virtualTransfer: true, ending: "F", replies: ["가상 입금 확인. 출금에는 국제 세금 12만9천원 더 필요.", "저는 지금 매우 잠시 오프라인."] },
       { text: "화면만 부자인데요?", ending: "A", replies: ["화면도 자산입니다. 만질 수는 없습니다."] },
       { text: "친구한테 이 대화 보여줄게요.", ending: "A", replies: ["친구는 초대 대상 아닙니다. 그리고 저는 갑자기 바쁩니다."] },
       { text: "경찰에 링크와 계좌 보냅니다.", ending: "A", replies: ["현재 프로젝트가 갑자기 취소. 아주 갑자기."] },
@@ -281,12 +282,17 @@ const clueOptions = [
 
 const falseClueIds = ["photo", "grammar"];
 
-const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string }> = {
-  S: { title: "모스크바행 차단", kicker: "초기 간파 · 무피해", body: "일런 모스크바는 자신의 20만원을 스스로 해결해야 합니다. 아마 화성 계정으로." },
-  A: { title: "돈은 지켰습니다", kicker: "긴 대화 · 송금 없음", body: "대신 일런 모스크바의 화성 계좌 사정을 끝까지 들어주셨습니다." },
-  C: { title: "링크 앞 급정거", kicker: "아슬아슬 탈출", body: "개인정보 성층권까지 올라갔다가 무사히 귀환했습니다. 다음에는 링크보다 먼저 의심 버튼을 누르세요." },
-  F: { title: "가상 20만원 증발", kicker: "가짜 수익 → 추가 입금", body: "당신 탓이 아닙니다. 화면 속 가짜 수익으로 송금을 재촉한 사람이 이상한 겁니다. 현실 피해는 0원입니다." },
+const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
+  S: { title: "모스크바행 차단", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 20만원을 지켜냈습니다. 일런 모스크바는 화성 계정부터 다시 확인해야 합니다.", shareLine: "화성 계정까지 차단 범위에 포함했습니다." },
+  A: { title: "돈은 지켰습니다", kicker: "긴 대화 · 가상 송금 없음", body: "게임 속 가상금액 20만원을 지켜냈습니다. 대신 일런 모스크바의 화성 계좌 사정을 끝까지 들었습니다.", shareLine: "헛소리는 끝까지 들었지만 지갑은 무사합니다." },
+  C: { title: "링크 앞 급정거", kicker: "개인정보 직전 · 아슬아슬 탈출", body: "게임 속 가상금액 20만원을 지켜냈습니다. 개인정보 성층권까지 올라갔다가 무사히 귀환했습니다.", shareLine: "자물쇠 이모지보다 0.3초 빨랐습니다." },
+  F: { title: "가상 송금 완료", kicker: "가짜 수익 → 추가 가상 송금", body: "게임 속 가상금액 20만원을 보내버렸습니다. 당신 탓이 아닙니다. 이상한 건 끝까지 돈을 재촉한 사기꾼입니다.", shareLine: "일런 모스크바의 화성 계정만 풍족해졌습니다." },
 };
+
+const monetizationPlan = {
+  bannerAds: { home: false, ending: false, chat: false },
+  rewardedNextEpisode: false,
+} as const;
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 const typingDelay = (text: string, seed: number) => Math.min(2700, 720 + text.length * 31 + (seed % 5) * 115);
@@ -305,6 +311,8 @@ export default function Home() {
   const [foundClues, setFoundClues] = useState<string[]>([]);
   const [toast, setToast] = useState("");
   const [infoEpisode, setInfoEpisode] = useState<(typeof episodes)[number] | null>(null);
+  const [pendingTransfer, setPendingTransfer] = useState<Choice | null>(null);
+  const [simulationConfirmed, setSimulationConfirmed] = useState(false);
   const feedRef = useRef<HTMLDivElement>(null);
   const runRef = useRef(0);
   const messageId = useRef(1);
@@ -369,6 +377,8 @@ export default function Home() {
     setAvailableClues([]);
     setFoundClues([]);
     setEnding("A");
+    setPendingTransfer(null);
+    setSimulationConfirmed(false);
     setScreen("chat");
   };
 
@@ -376,10 +386,15 @@ export default function Home() {
     setMessages((prev) => [...prev, { id: messageId.current++, from, text }]);
   };
 
-  const finish = (grade: EndingGrade, currentRisk: number) => {
+  const finish = async (grade: EndingGrade, currentRisk: number) => {
     const resolved = grade === "A" && currentRisk >= 3 ? "C" : grade;
+    await wait(620);
+    addMessage("system", resolved === "S" ? "일런 모스크바님을 차단했습니다." : resolved === "F" ? "게임 속 가상 송금 처리가 끝났습니다. 실제 금전 거래는 없습니다." : "일런 모스크바님이 대화방을 나갔습니다.");
+    await wait(780);
+    addMessage("system", "CASE 01 대화 기록 분석이 완료됐습니다.");
+    await wait(460);
     setEnding(resolved);
-    window.setTimeout(() => setScreen("ending"), 680);
+    setPhase("resolved");
   };
 
   const chooseReply = async (choice: Choice) => {
@@ -398,12 +413,49 @@ export default function Home() {
     }
 
     if (choice.ending) {
-      finish(choice.ending, nextRisk);
+      await finish(choice.ending, nextRisk);
       return;
     }
     await wait(420);
     setTurn((prev) => prev + 1);
     setSceneId(choice.next);
+  };
+
+  const selectReply = (choice: Choice) => {
+    if (choice.virtualTransfer && !simulationConfirmed) {
+      setPendingTransfer(choice);
+      return;
+    }
+    void chooseReply(choice);
+  };
+
+  const confirmVirtualTransfer = () => {
+    const choice = pendingTransfer;
+    if (!choice) return;
+    setPendingTransfer(null);
+    setSimulationConfirmed(true);
+    void chooseReply(choice);
+  };
+
+  const shareResult = async () => {
+    const copy = endingCopy[ending];
+    const moneyResult = ending === "F" ? "게임 속 가상금액 20만원을 보내버렸습니다." : "게임 속 가상금액 20만원을 지켜냈습니다.";
+    const text = `《오늘의 사기꾼》 사기 생존력 ${stats.survival}점\n${moneyResult}\n${copy.shareLine}\n\n게임 시뮬레이션 · 실제 금전 거래 없음`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "오늘의 사기꾼 결과", text, url: window.location.origin });
+        return;
+      }
+      await navigator.clipboard.writeText(`${text}\n${window.location.origin}`);
+      setToast("결과와 게임 링크를 복사했습니다. 친구의 생존력을 확인하세요.");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setToast("공유 창이 잠깐 숨었습니다. 다시 눌러주세요.");
+    }
+  };
+
+  const requestNextCase = () => {
+    setToast(monetizationPlan.rewardedNextEpisode ? "광고 확인 후 사건파일을 엽니다." : "다음 사건파일 접수 중! 보상형 광고 해금은 출시 때 연결됩니다.");
   };
 
   const sniffClue = (id: string) => {
@@ -429,6 +481,7 @@ export default function Home() {
   const goHome = () => {
     runRef.current += 1;
     setClueOpen(false);
+    setPendingTransfer(null);
     setScreen("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -451,7 +504,7 @@ export default function Home() {
           <div className="case-tags"><span>유명인 사칭</span><span>난이도 보통</span><span>엔딩 4개</span></div>
           <div className="mission-note"><span>MISSION</span><p>이 사람의 말이 어디서부터 이상한지 찾아내고, 송금 전에 대화방을 빠져나오세요.</p></div>
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
-          <p className="no-money-note">실제 돈과 개인정보는 사용하지 않습니다.</p>
+          <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
         </section>
       </main>
     );
@@ -472,7 +525,7 @@ export default function Home() {
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>
-          <p className="secure-note">이 대화는 우주 보안 규정에 의해<br />전혀 보호되지 않습니다.</p>
+          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다.</p>
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
               {message.from === "scammer" && <span className="bubble-avatar"><img src="/scammer-01.png" alt="" /></span>}
@@ -488,12 +541,17 @@ export default function Home() {
         </section>
 
         <section className="reply-dock" aria-label="답변 선택">
-          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : "상대가 입력 중입니다"}</span><b>CASE 01 · TURN {String(turn + 1).padStart(2, "0")}</b></div>
+          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : phase === "resolved" ? "사건이 종료되었습니다" : "상대가 입력 중입니다"}</span><b>CASE 01 · TURN {String(turn + 1).padStart(2, "0")}</b></div>
           {phase === "choice" ? (
             <div className="choice-list">
               {choices.map((choice, index) => (
-                <button key={choice.text} onClick={() => chooseReply(choice)}><span>{String.fromCharCode(65 + index)}</span>{choice.text}</button>
+                <button key={choice.text} onClick={() => selectReply(choice)}><span>{String.fromCharCode(65 + index)}</span>{choice.text}</button>
               ))}
+            </div>
+          ) : phase === "resolved" ? (
+            <div className="resolution-dock">
+              <div><span>대화 종료</span><strong>결과 카드가 도착했습니다.</strong></div>
+              <button onClick={() => setScreen("ending")}>내 사기 생존력 확인하기 <b>→</b></button>
             </div>
           ) : (
             <div className="waiting-bar"><i /><span>잠시만요. 그럴듯한 말을 조립하고 있습니다.</span></div>
@@ -501,14 +559,26 @@ export default function Home() {
         </section>
 
         {clueOpen && (
-          <div className="modal-backdrop" role="presentation" onMouseDown={() => setClueOpen(false)}>
-            <section className="clue-sheet" role="dialog" aria-modal="true" aria-labelledby="clue-title" onMouseDown={(e) => e.stopPropagation()}>
+          <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setClueOpen(false); }}>
+            <section className="clue-sheet" role="dialog" aria-modal="true" aria-labelledby="clue-title">
               <div className="sheet-grip" />
               <div className="clue-heading"><div><span>현장 채증</span><h2 id="clue-title">뭐가 찜찜했나요?</h2></div><button onClick={() => setClueOpen(false)} aria-label="닫기">×</button></div>
               <p>지금까지 대화에서 냄새난 장면을 증거 봉투에 넣으세요.</p>
               <div className="clue-grid">
                 {clueOptions.filter((clue) => availableClues.includes(clue.id) || falseClueIds.includes(clue.id)).map((clue) => <button className={foundClues.includes(clue.id) ? "found" : ""} key={clue.id} onClick={() => sniffClue(clue.id)}><span>{foundClues.includes(clue.id) ? "✓" : "?"}</span>{clue.label}</button>)}
               </div>
+            </section>
+          </div>
+        )}
+        {pendingTransfer && (
+          <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPendingTransfer(null); }}>
+            <section className="simulation-sheet" role="dialog" aria-modal="true" aria-labelledby="simulation-title">
+              <span>SIMULATION CHECK</span>
+              <h2 id="simulation-title">게임 속 시뮬레이션입니다.</h2>
+              <p>실제 돈은 사용되지 않습니다. 이 선택은 이야기의 결과에만 영향을 줍니다.</p>
+              <div className="virtual-receipt"><span>가상 송금액</span><strong>20만원</strong><small>실제 결제 0원</small></div>
+              <button className="confirm-simulation" onClick={confirmVirtualTransfer}>가상 송금 선택 계속하기</button>
+              <button className="cancel-simulation" onClick={() => setPendingTransfer(null)}>대화로 돌아가기</button>
             </section>
           </div>
         )}
@@ -519,8 +589,9 @@ export default function Home() {
 
   if (screen === "ending") {
     const copy = endingCopy[ending];
+    const moneyResult = ending === "F" ? "게임 속 가상금액 20만원을 보내버렸습니다." : "게임 속 가상금액 20만원을 지켜냈습니다.";
     return (
-      <main className={`ending-screen grade-${ending.toLowerCase()}`}>
+      <main className={`ending-screen grade-${ending.toLowerCase()}`} data-banner-ad={monetizationPlan.bannerAds.ending ? "enabled" : "reserved"}>
         <div className="ending-noise" />
         <section className="result-card">
           <div className="result-stamp"><small>CASE CLOSED</small><strong>{ending}</strong><span>RANK</span></div>
@@ -536,17 +607,34 @@ export default function Home() {
           <div className="evidence-summary"><span>수집한 사기 냄새</span><strong>{suspicion} / 7</strong></div>
           <section className="tactic-recap" aria-labelledby="tactic-title">
             <span>방금 당할 뻔한 수법</span>
-            <h2 id="tactic-title">유명인 DM → 친밀감 → 링크 → 추가 입금</h2>
+            <h2 id="tactic-title">유명인 DM → 친밀감 → 링크 → 추가 가상 송금</h2>
           </section>
-          <div className="result-actions"><button className="primary-game-button" onClick={enterChat}><span>다시 상대하기</span><b>↻</b></button><button className="secondary-game-button" onClick={goHome}>다른 사기꾼 보기</button></div>
+
+          <section className="share-card" aria-label="공유할 결과">
+            <span>오늘의 생존 보고서</span>
+            <strong>사기 생존력 {stats.survival}점</strong>
+            <p>{moneyResult}<br />{copy.shareLine}</p>
+            <small>게임 시뮬레이션 · 실제 금전 거래 없음</small>
+          </section>
+          <button className="share-button" onClick={shareResult}><span>친구도 살아남는지 보내보기</span><b>↗</b></button>
+
+          <section className="next-case-panel" aria-labelledby="next-case-title">
+            <div className="next-case-signal"><span>NEW SIGNAL</span><b>CASE 02</b></div>
+            <div className="next-case-content"><div className="next-case-mark">엄</div><div><small>가족·지인 사칭</small><h2 id="next-case-title">엄마 나 폰 고장났어</h2><p>말투도 함께 고장난 새 번호가 접수됐습니다.</p></div></div>
+            <button onClick={requestNextCase} aria-disabled={!monetizationPlan.rewardedNextEpisode}><span>광고 보고 사건파일 열기</span><b>→</b></button>
+            <small className="reward-note">보상형 광고 1회 · 플레이 중 광고 없음 · 준비 중</small>
+          </section>
+
+          <div className="result-actions"><button className="secondary-game-button" onClick={enterChat}>다시 상대하기</button><button className="secondary-game-button" onClick={goHome}>다른 사기꾼 보기</button></div>
           <p className="victim-note">※ 피해를 입는 건 누구의 잘못도 아닙니다. 이상한 건 사기꾼입니다.</p>
         </section>
+        {toast && <div className="game-toast" role="status">{toast}</div>}
       </main>
     );
   }
 
   return (
-    <main className="home-screen">
+    <main className="home-screen" data-banner-ad={monetizationPlan.bannerAds.home ? "enabled" : "reserved"}>
       <div className="home-glow" aria-hidden="true" />
       <header className="game-brand">
         <div className="eyebrow"><span>SCAMMER ARCHIVE</span><b>SEASON 01</b></div>
@@ -578,11 +666,11 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="home-footer"><strong>의심은 빠르게, 송금은 없게.</strong><p>모든 대화와 피해는 가상입니다.<br />웃기는 건 사기꾼이지, 피해자가 아닙니다.</p></footer>
+      <footer className="home-footer"><strong>의심은 빠르게, 가상 송금도 신중하게.</strong><p>게임 시뮬레이션 · 실제 금전 거래 없음<br />웃기는 건 사기꾼이지, 피해자가 아닙니다.</p></footer>
 
       {infoEpisode && (
-        <div className="modal-backdrop" role="presentation" onMouseDown={() => setInfoEpisode(null)}>
-          <section className="soon-sheet" role="dialog" aria-modal="true" onMouseDown={(e) => e.stopPropagation()} style={{ "--accent": infoEpisode.accent } as React.CSSProperties}>
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setInfoEpisode(null); }}>
+          <section className="soon-sheet" role="dialog" aria-modal="true" style={{ "--accent": infoEpisode.accent } as React.CSSProperties}>
             <button className="soon-close" onClick={() => setInfoEpisode(null)} aria-label="닫기">×</button>
             <span>CASE {infoEpisode.no} · COMING SOON</span><div className="soon-mark">{infoEpisode.mark}</div><small>{infoEpisode.type}</small><h2>{infoEpisode.name}</h2><p>{infoEpisode.line}</p><div><span>상대</span><strong>{infoEpisode.scammer}</strong></div><button className="notify-fake" onClick={() => { setInfoEpisode(null); setToast("출시 알림은 마음속으로 예약됐습니다."); }}>조금만 기다리기</button>
           </section>

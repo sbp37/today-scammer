@@ -43,7 +43,7 @@ test("conversation graph has no broken, unreachable, or looping branches", async
   let current = null;
 
   for (const line of block.split("\n")) {
-    const node = line.match(/^  ([A-Za-z]+): \{$/);
+    const node = line.match(/^\s{2}([A-Za-z]+): \{$/);
     if (node) {
       current = node[1];
       graph[current] = { next: [], endings: [] };
@@ -83,4 +83,22 @@ test("conversation graph has no broken, unreachable, or looping branches", async
 
   assert.doesNotMatch(block, /카카오페이|Kakao/i);
   assert.match(block, /OO페이/);
+});
+
+test("virtual money, paced ending, sharing, and ad boundaries are explicit", async () => {
+  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const failureChoices = source.match(/^.*ending: "F".*$/gm) ?? [];
+
+  assert.ok(failureChoices.length >= 4);
+  failureChoices.forEach((choice) => {
+    assert.match(choice, /\[게임 내 가상 송금\]/);
+    assert.match(choice, /virtualTransfer: true/);
+  });
+  assert.match(source, /게임 속 시뮬레이션입니다|게임 속 가상 송금입니다/);
+  assert.match(source, /게임 시뮬레이션 · 실제 금전 거래 없음/);
+  assert.match(source, /CASE 01 대화 기록 분석이 완료됐습니다/);
+  assert.match(source, /phase === "resolved"/);
+  assert.match(source, /친구도 살아남는지 보내보기/);
+  assert.match(source, /광고 보고 사건파일 열기/);
+  assert.match(source, /bannerAds: \{ home: false, ending: false, chat: false \}/);
 });
