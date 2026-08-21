@@ -106,6 +106,7 @@ test("conversation graph has no broken, unreachable, or looping branches", async
 test("virtual money, paced ending, sharing, and second episode are explicit", async () => {
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const credentialAsset = await readFile(new URL("../public/fake-credentials-06.webp", import.meta.url));
+  const dubuAsset = await readFile(new URL("../public/seoyun-dubu.webp", import.meta.url));
   const failureChoices = source.match(/^.*ending: "F".*$/gm) ?? [];
 
   assert.ok(failureChoices.length >= 4);
@@ -126,7 +127,8 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /J님이 메시지를 쓰다가 지웠습니다/);
   assert.doesNotMatch(source, /김서윤|KIM SEOYUN/);
   assert.match(source, /autoNext: "seoyunDay8"/);
-  assert.match(source, /foundClues\.length > 0 && <div className="case-meter"/);
+  assert.match(source, /seoyunMontageLater/);
+  assert.match(source, /foundClues\.length > 0 && <div className=\{`case-meter/);
   assert.match(source, /connectedCases = liveEpisodeIds\.filter/);
   assert.match(source, /className="connected-case-card"/);
   assert.match(source, /18만 → 43만 → 120만원/);
@@ -139,16 +141,18 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /사랑은 국경 없고 통관료는 있음/);
   assert.match(source, /사건파일 열기/);
   assert.match(source, /fake-credentials-06\.webp/);
+  assert.match(source, /seoyun-dubu\.webp/);
   assert.match(source, /게임 속 가상 서류 · 실제 자격증 아님/);
   assert.match(source, /virtual-transfer-choice/);
   assert.match(source, /readingPause/);
   assert.match(source, /featuredCaseId/);
   assert.doesNotMatch(source, /서울/);
   assert.ok(credentialAsset.byteLength > 70_000 && credentialAsset.byteLength < 130_000);
+  assert.ok(dubuAsset.byteLength > 20_000 && dubuAsset.byteLength < 100_000);
   assert.doesNotMatch(source, /광고 보고 사건파일 열기|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
 });
 
-test("uses lightweight WebP assets and meaningful live signals", async () => {
+test("uses lightweight WebP assets and deliberate clue signals", async () => {
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const assetDirectory = new URL("../public/", import.meta.url);
@@ -158,19 +162,23 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   assert.ok(assets.filter((name) => name.endsWith(".webp")).length >= 5);
   for (const name of assets.filter((asset) => asset.endsWith(".webp"))) {
     const info = await stat(new URL(name, assetDirectory));
-    assert.ok(info.size < 400_000, `${name} should remain below 400 KB`);
+    assert.ok(info.size < 275_000, `${name} should remain below 275 KB`);
   }
+  assert.match(source, /loading="lazy" decoding="async"/);
+  assert.match(source, /fetchPriority="high"/);
 
-  assert.match(source, /containsMoneyTalk/);
+  assert.match(source, /cluePrompt\?: boolean/);
+  assert.match(source, /highlightedUnfoundClues/);
   assert.match(source, /잡은 증거/);
-  assert.match(source, /새 단서 \$\{unfoundClues\.length\}/);
+  assert.match(source, /결정적 단서 있음/);
   assert.match(source, /today-scammer:clue-hint-seen/);
   assert.match(source, /disabled=\{found \|\| wrong\}/);
   assert.match(source, /function calculateScore/);
   assert.match(source, /wrongPenalty = -wrongClues \* 3/);
   assert.match(source, /오판 \{wrongClues\}/);
-  assert.match(source, /새 단서가 있을지도/);
+  assert.match(source, /지금, 사기 냄새 맡아보기/);
   assert.match(source, /sniff-button sniff-action/);
+  assert.doesNotMatch(source, /moneyAlert|containsMoneyTalk|돈 얘기, 냄새 맡아보기/);
   assert.match(source, /result-confetti/);
   assert.match(source, /후각 만렙/);
   assert.match(source, /window\.addEventListener\("popstate"/);
@@ -181,6 +189,12 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   assert.match(source, /scammer-02\.webp/);
   assert.match(source, /프로필 사진 크게 보기/);
   assert.match(source, /credential\.src = "\/fake-credentials-06\.webp"/);
+  assert.match(source, /dogPhoto\.src = "\/seoyun-dubu\.webp"/);
+  assert.match(source, /VideoCallCard/);
+  assert.match(source, /AI 영상도 신원 보증이 아닙니다/);
+  assert.match(source, /new URLSearchParams\(window\.location\.search\)\.get\("qa"\) === "1"/);
+  assert.match(source, /대화 점검 모드/);
+  assert.match(source, /빠른 재생/);
   assert.match(styles, /onlinePulse/);
   assert.match(styles, /episode-visual\.has-portrait \{ height: 152px/);
   assert.match(styles, /episode-card\.case-02 .*transform: scale\(1\.3\)/);
@@ -188,4 +202,37 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   assert.doesNotMatch(source, /\(뷰티풀\)|very|Very|Only you|coffee 하고|I need person/);
   assert.match(source, /beautiful합니다/);
   assert.match(source, /cold 커피 한잔/);
+});
+
+test("dialogue audit rejects broken clues, premature money replies, and repetitive verification", async () => {
+  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const ep01 = source.slice(source.indexOf("const scenes:"), source.indexOf("const romanceScenes:"));
+  const ep06 = source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:"));
+  const ep02 = source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const clueOptions"));
+  const clueBlock = source.slice(source.indexOf("const clueOptions"), source.indexOf("const clueExplanations"));
+  const definedClues = new Set([...clueBlock.matchAll(/id: "([A-Za-z]+)"/g)].map((match) => match[1]));
+
+  for (const block of [ep01, ep06, ep02]) {
+    for (const match of block.matchAll(/clues: \[([^\]]+)\]/g)) {
+      for (const id of [...match[1].matchAll(/"([A-Za-z]+)"/g)].map((item) => item[1])) {
+        assert.equal(definedClues.has(id), true, `undefined clue id: ${id}`);
+      }
+    }
+    for (const match of block.matchAll(/choices: \[\n([\s\S]*?)\n\s{4}\],/g)) {
+      const labels = [...match[1].matchAll(/\{ text: "([^"]+)"/g)].map((item) => item[1]);
+      assert.equal(new Set(labels).size, labels.length, `duplicate choices in scene: ${labels.join(" / ")}`);
+    }
+  }
+
+  const beforeFirstMoneyAsk = ep02.slice(0, ep02.indexOf("  seoyunDeposit:"));
+  assert.doesNotMatch(beforeFirstMoneyAsk, /\{ text: "[^"]*(?:돈도 못 보내|가상 송금|만원 보내기)/);
+  assert.match(ep02, /그냥\.\.\. 느낌이 좋았어요 ㅎㅎ/);
+  assert.match(ep02, /프로필 사진은 본인 사진 맞죠\?/);
+  assert.match(ep02, /산책 다녀오면 저렇게 소파에서 안 움직여요/);
+  assert.doesNotMatch(ep02, /말투 편해 보여서요|프로필은 직접 쓴 거 맞죠\?|확인 안 되면 돈도 못 보내/);
+
+  const ep01VideoChoices = [...ep01.matchAll(/\{ text: "[^"]*(?:영상통화 한 번 해주세요|영상(?:통화)?[^".]*켜봐요|영상 켜줘)[^"]*"/g)];
+  const ep01NameChoices = [...ep01.matchAll(/\{ text: "[^"]*(?:본명|이름)[^"]*"/g)];
+  assert.ok(ep01VideoChoices.length <= 3, `EP.01 repeats video verification ${ep01VideoChoices.length} times`);
+  assert.ok(ep01NameChoices.length <= 2, `EP.01 repeats name verification ${ep01NameChoices.length} times`);
 });
