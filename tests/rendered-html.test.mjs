@@ -122,7 +122,7 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /readingPause/);
   assert.match(source, /featuredCaseId/);
   assert.doesNotMatch(source, /서울/);
-  assert.ok(credentialAsset.byteLength > 100_000);
+  assert.ok(credentialAsset.byteLength > 70_000 && credentialAsset.byteLength < 130_000);
   assert.doesNotMatch(source, /광고|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
 });
 
@@ -133,16 +133,19 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   const assets = await readdir(assetDirectory);
 
   assert.equal(assets.some((name) => /\.(png|jpe?g)$/i.test(name)), false);
-  assert.ok(assets.filter((name) => name.endsWith(".webp")).length >= 4);
+  assert.ok(assets.filter((name) => name.endsWith(".webp")).length >= 5);
   for (const name of assets.filter((asset) => asset.endsWith(".webp"))) {
     const info = await stat(new URL(name, assetDirectory));
     assert.ok(info.size < 400_000, `${name} should remain below 400 KB`);
   }
 
   assert.match(source, /containsMoneyTalk/);
-  assert.match(source, /moneyAlert \? "돈 냄새" : "단서"/);
-  assert.match(source, /\{suspicion\}\/\{activeCase\.clueTotal\}/);
-  assert.match(source, /briefing-image-hitbox/);
+  assert.match(source, /moneyAlert \? "돈 냄새" : "사기 냄새"/);
+  assert.doesNotMatch(source, /<em>\{suspicion\}\/\{activeCase\.clueTotal\}<\/em>/);
+  assert.doesNotMatch(source, /briefing-image-hitbox|전체 이미지 보기/);
+  assert.match(source, /logo-oneul\.webp/);
+  assert.match(source, /프로필 사진 크게 보기/);
+  assert.match(source, /credential\.src = "\/fake-credentials-06\.webp"/);
   assert.match(styles, /onlinePulse/);
   assert.match(styles, /episode-visual\.has-portrait \{ height: 152px/);
   assert.doesNotMatch(source, /\(뷰티풀\)|very|Very|Only you|coffee 하고|I need person/);

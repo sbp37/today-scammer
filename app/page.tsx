@@ -285,9 +285,8 @@ const scenes: Record<ElunSceneId, Scene> = {
 const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceStart: {
     incoming: [
-      "안녕하세요. 갑작스러운 DM은 미안합니다.",
-      "해외 의료부대 외과의사 Dr. James Choi입니다.",
-      "프로필을 보고 따뜻한 사람이라 느꼈습니다.",
+      "안녕하세요. 갑작스러운 DM이라 놀랐죠?",
+      "해외 의료부대 외과의사 Dr. James Choi입니다. 프로필을 보고 연락했어요.",
     ],
     clues: ["stranger"],
     choices: [
@@ -298,8 +297,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceWhy: {
     incoming: [
-      "의료부대 와이파이가 당신을 추천했습니다. 의학적 설명은 불가능.",
-      "당신 눈이 정직해 보였습니다. 조금 많이.",
+      "추천 목록에 떴어요. 그런데 눈이 참 정직해 보이더군요. 조금 많이.",
     ],
     choices: [
       { text: "사진은 사기꾼도 올릴 수 있죠.", next: "romanceVideo" },
@@ -321,9 +319,8 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceProfile: {
     incoming: [
-      "프로필 사진은 보안 규정 전. 지금은 제가 더 보안.",
-      "5년 전 배우자를 잃고 혼자입니다.",
-      "어머니는 한국인. 한국은 늘 두 번째 고향.",
+      "프로필 사진은 파병 오기 전에 찍었어요.",
+      "5년 전 아내를 잃었습니다. 어머니가 한국인이라 한국은 늘 마음의 고향이고요.",
     ],
     choices: [
       { text: "말로 말고 자격증 한번 줘봐요.", next: "romanceCredential" },
@@ -333,9 +330,8 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceCredential: {
     incoming: [
-      "자격증을 원합니까? 아주 신중한 사람.",
-      "원래 외부 전송은 금지. 당신이라 특별히.",
-      "당신만 보세요. 어디에도 유출 금지.",
+      "확인하고 싶은 마음, 이해합니다.",
+      "원래 외부 전송은 금지인데 당신이라 특별히 보내요. 어디에도 유출하면 안 됩니다.",
       { text: "제 야전외과 등록증과 군의관 자격증입니다.", image: "/fake-credentials-06.webp", alt: "이름 수정 스티커와 엉뚱한 직인이 있는 가상의 군의관 자격증 일러스트" },
     ],
     clues: ["credential"],
@@ -348,8 +344,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceCertificateCheck: {
     incoming: [
       "MEDICL은 작전 영어. 급하면 A가 먼저 철수합니다.",
-      "2031 발급, 2028 만료는 군용 달력이 가끔 거꾸로 갑니다.",
-      "종이보다 신뢰가 중요합니다.",
+      "2031 발급인데 2028 만료인 건… 군용 달력이 가끔 거꾸로 갑니다. 종이보다 신뢰가 중요해요.",
     ],
     clues: ["credential"],
     choices: [
@@ -361,8 +356,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceDay: {
     incoming: [
       "오늘 14시간 수술. 식사는 cold 커피 한잔.",
-      "그래도 휴대폰에서 먼저 찾은 건 당신 메시지.",
-      "밥은 먹었습니까? 당신 끼니도 걱정됩니다.",
+      "그래도 휴대폰에서 먼저 찾은 건 당신 메시지네요. 밥은 먹었어요?",
     ],
     choices: [
       { text: "저는 먹었어요. 당신도 뭐라도 먹어요.", next: "romanceFlirt", risk: 1 },
@@ -372,8 +366,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceHeart: {
     incoming: [
-      "외과의사지만 제 마음은 수술 불가능.",
-      "당신과 말하면 조금 회복. +1 ♥",
+      "외과의사지만 제 마음은 수술이 안 되네요. 당신과 말하면 조금 회복. +1 ♥",
     ],
     clues: ["love"],
     choices: [
@@ -408,8 +401,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romancePromise: {
     incoming: [
-      "임무 후 한국에서 커피 마시고 싶습니다.",
-      "당신 돈도 계좌도 필요 없습니다. 사람이 필요합니다.",
+      "임무가 끝나면 한국에서 커피 마시고 싶어요. 당신 돈도 계좌도 필요 없습니다. 사람이 필요해요.",
       "사랑이 빠르면 '나의 사람'이라고 부르겠습니다. 이것도 빠릅니까?",
     ],
     clues: ["love"],
@@ -436,8 +428,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     incoming: [
       "임무 종료 정산품이 든 봉인 상자가 있습니다.",
       "위험수당 35만 달러, 퇴역 서류, 아버지 시계가 안에 있습니다.",
-      "현지 은행은 정지. 군 재정실은 외교 화물만 허용.",
-      "믿을 수 있는 수령인으로 당신을 등록하고 싶습니다. 비밀로.",
+      "현지 은행은 막혔고 군 재정실은 외교 화물만 허용합니다. 믿을 수 있는 수령인으로 당신을 등록하고 싶어요. 비밀로.",
     ],
     clues: ["parcel", "love"],
     choices: [
@@ -448,10 +439,9 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceBoxDetails: {
     incoming: [
-      "선물 아닌 임시 보관입니다. 한국 가면 직접 찾습니다.",
-      "계좌는 작전 위치 노출. 그래서 현금 봉인이 안전하다고 합니다.",
-      "감사 선물 10%도 생각. 하지만 당신 마음은 가격 없음.",
-      "운송사가 곧 따로 연락합니다.",
+      "선물이 아니라 잠깐 보관만 부탁하는 겁니다. 한국에 가면 제가 직접 찾을게요.",
+      "계좌는 작전 위치가 노출돼서 현금 봉인이 더 안전하답니다. 운송사가 곧 연락할 거예요.",
+      "감사 선물 10%도 생각했습니다. 하지만 당신 마음은 가격 없음.",
     ],
     clues: ["parcel"],
     choices: [
@@ -462,9 +452,8 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceProof: {
     incoming: [
-      "소속 확인 사이트는 작전망 안쪽에 있습니다.",
-      "영상은 위치 노출. 자격증 이미지는 특별히 가능.",
-      "원래 보내면 안 됩니다. 하지만 신뢰가 보안보다 조금 강함.",
+      "소속 확인 사이트는 부대 작전망 안에서만 열립니다.",
+      "영상통화는 위치가 노출돼요. 대신 자격증 이미지는 당신에게만 특별히 보낼 수 있습니다.",
     ],
     clues: ["video"],
     choices: [
@@ -477,8 +466,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     incoming: [
       "[GLOBAL HEART CARGO] 봉인 상자가 세관에 도착했습니다.",
       "GH-LOVE-350K · 18.4kg · 개인 문서와 기념품.",
-      "게임 속 가상 통관비 48만원 필요. 90분 후 추가 비용.",
-      "동료의 임시 계정이 가장 빠릅니다.",
+      "게임 속 가상 통관비 48만원이 필요합니다. 90분이 지나면 추가 비용. 동료의 임시 계정이 가장 빠릅니다.",
     ],
     clues: ["customs", "thirdParty"],
     choices: [
@@ -490,8 +478,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceLink: {
     incoming: [
       "global-heart-cargo.example/secure-love-box",
-      "조회에는 이름, 생년월일, 휴대폰 번호 필요.",
-      "주소가 아주 낭만적으로 안전해 보입니다.",
+      "조회하려면 이름, 생년월일, 휴대폰 번호가 필요합니다. 주소도 아주 낭만적으로 안전해 보이죠.",
     ],
     clues: ["link"],
     choices: [
@@ -503,8 +490,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceFinal: {
     incoming: [
       "조회 완료. 상자 가치 4억8천만원 표시.",
-      "게임 속 가상 통관비 48만원이면 안전.",
-      "남은 시간 09:59. 우리 미래를 늦추지 마세요.",
+      "게임 속 가상 통관비 48만원이면 끝납니다. 남은 시간 09:59. 우리 미래를 늦추지 마세요.",
     ],
     clues: ["customs", "love"],
     choices: [
@@ -551,7 +537,7 @@ const romanceEndingCopy: Record<EndingGrade, { title: string; kicker: string; bo
 const getScene = (caseId: CaseId, sceneId: SceneId): Scene => caseId === "ep01" ? scenes[sceneId as ElunSceneId] : romanceScenes[sceneId as RomanceSceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-const typingDelay = (text: string, seed: number) => Math.min(3400, 880 + text.length * 34 + (seed % 5) * 130);
+const typingDelay = (text: string, seed: number) => Math.min(2700, 620 + text.length * 27 + (seed % 5) * 80);
 const containsMoneyTalk = (text: string) => /(만원|억원|달러|통관비|송금|비용|보증금|수익|투자|계좌|현금|돈)/.test(text);
 
 export default function Home() {
@@ -621,10 +607,10 @@ export default function Home() {
         setTyping(false);
         setMessages((prev) => [...prev, { id: messageId.current++, from: "scammer", ...(typeof incoming === "string" ? { text: incoming } : incoming) }]);
         if (containsMoneyTalk(line)) setMoneyAlert(true);
-        await wait(520 + (line.length % 4) * 105);
+        await wait(330 + (line.length % 4) * 70);
       }
       if (runRef.current === currentRun) {
-        const readingPause = 1150 + Math.min(900, scene.incoming.reduce((sum, incoming) => sum + (typeof incoming === "string" ? incoming.length : (incoming.text?.length ?? 12)), 0) * 7);
+        const readingPause = 750 + Math.min(550, scene.incoming.reduce((sum, incoming) => sum + (typeof incoming === "string" ? incoming.length : (incoming.text?.length ?? 12)), 0) * 5);
         await wait(readingPause);
         if (runRef.current !== currentRun) return;
         setAvailableClues((prev) => [...new Set([...prev, ...(scene.clues ?? [])])]);
@@ -646,6 +632,11 @@ export default function Home() {
   }, [ending, risk, suspicion, turn]);
 
   const startCase = (caseId: CaseId) => {
+    if (caseId === "ep06") {
+      const credential = new Image();
+      credential.decoding = "async";
+      credential.src = "/fake-credentials-06.webp";
+    }
     setActiveCaseId(caseId);
     setScreen("briefing");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -694,13 +685,13 @@ export default function Home() {
     setRisk(nextRisk);
 
     for (const line of choice.replies ?? []) {
-      await wait(520);
+      await wait(360);
       setTyping(true);
       await wait(typingDelay(line, messageId.current));
       setTyping(false);
       addMessage("scammer", line);
       if (containsMoneyTalk(line)) setMoneyAlert(true);
-      await wait(560);
+      await wait(360);
     }
 
     if (choice.ending) {
@@ -792,7 +783,6 @@ export default function Home() {
       <main className={`briefing-screen case-${activeCase.no}`}>
         <img className="briefing-portrait" src={activeCase.portrait} alt={`${activeCase.scammer} 가상 캐릭터`} width="1024" height="1536" decoding="async" fetchPriority="high" />
         <div className="briefing-shade" aria-hidden="true" />
-        <button className="briefing-image-hitbox" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 캐릭터 전체 이미지 보기`}><span>전체 이미지 보기 ↗</span></button>
         <header className="briefing-nav">
           <button className="plain-back" onClick={goHome} aria-label="에피소드 목록으로">← 돌아가기</button>
           <span><i /> 접속 중</span>
@@ -808,15 +798,6 @@ export default function Home() {
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
           <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
         </section>
-        {portraitOpen && (
-          <div className="modal-backdrop portrait-preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPortraitOpen(false); }}>
-            <section className="portrait-preview" role="dialog" aria-modal="true" aria-labelledby="portrait-preview-title">
-              <div><span>가상 캐릭터 일러스트</span><h2 id="portrait-preview-title">{activeCase.scammer}</h2></div>
-              <button onClick={() => setPortraitOpen(false)} aria-label="전체 이미지 닫기">×</button>
-              <img src={activeCase.portrait} alt={`${activeCase.scammer} 캐릭터 전체 일러스트`} width="1024" height="1536" decoding="async" />
-            </section>
-          </div>
-        )}
       </main>
     );
   }
@@ -827,9 +808,9 @@ export default function Home() {
       <main className="chat-shell">
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
-          <div className="tiny-avatar"><img src={activeCase.portrait} alt="" /><span className="online-dot" /></div>
+          <button className="avatar-button tiny-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /><span className="online-dot" /></button>
           <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
-          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 단서 ${suspicion}/${activeCase.clueTotal}개 수집${moneyAlert ? " · 돈 요구 감지" : ""}`}><span className="siren-icon">🚨</span><b>{moneyAlert ? "돈 냄새" : "단서"}</b><em>{suspicion}/{activeCase.clueTotal}</em></button>
+          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 냄새 단서 찾기${moneyAlert ? " · 돈 관련 대화 감지" : ""}`}><span className="siren-icon">🚨</span><b>{moneyAlert ? "돈 냄새" : "사기 냄새"}</b></button>
         </header>
 
         <div className="case-meter" aria-label={`현재 의심력 ${suspicion}`}><span>의심력</span><div><i style={{ width: `${Math.min(100, suspicion * 14.3)}%` }} /></div><b>{String(suspicion).padStart(2, "0")}</b></div>
@@ -839,11 +820,11 @@ export default function Home() {
           <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
-              {message.from === "scammer" && <span className="bubble-avatar"><img src={activeCase.portrait} alt="" /></span>}
+              {message.from === "scammer" && <button className="avatar-button bubble-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /></button>}
               <div className={`message-bubble${message.image ? " has-image" : ""}`}>
                 {message.image && (
                   <button className="message-image-button" onClick={() => setPreviewImage({ src: message.image!, alt: message.alt ?? "전송된 이미지" })} aria-label="전송된 자격증 일러스트 크게 보기">
-                    <img src={message.image} alt={message.alt ?? "전송된 이미지"} width="1402" height="1122" loading="lazy" decoding="async" />
+                    <img src={message.image} alt={message.alt ?? "전송된 이미지"} width="1120" height="896" decoding="async" fetchPriority="high" />
                     <span><b>전송된 파일</b> 눌러서 단서 확대하기</span>
                   </button>
                 )}
@@ -853,7 +834,7 @@ export default function Home() {
           ))}
           {typing && (
             <div className="message-row scammer typing-row">
-              <span className="bubble-avatar"><img src={activeCase.portrait} alt="" /></span>
+              <button className="avatar-button bubble-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /></button>
               <div className="typing-bubble"><i /><i /><i /></div>
             </div>
           )}
@@ -907,8 +888,17 @@ export default function Home() {
           <div className="modal-backdrop image-preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPreviewImage(null); }}>
             <section className="evidence-preview" role="dialog" aria-modal="true" aria-labelledby="evidence-preview-title">
               <div className="evidence-preview-head"><div><span>전송된 파일 · 가상 서류</span><h2 id="evidence-preview-title">자격증 이미지(?)</h2></div><button onClick={() => setPreviewImage(null)} aria-label="이미지 닫기">×</button></div>
-              <img src={previewImage.src} alt={previewImage.alt} width="1402" height="1122" decoding="async" />
+              <img src={previewImage.src} alt={previewImage.alt} width="1120" height="896" decoding="async" />
               <p><strong>게임 속 가상 서류 · 실제 자격증 아님</strong><br />수정 스티커, 철자, 날짜, 직인을 자세히 보세요. 이미지가 공식 확인을 대신할 수는 없습니다.</p>
+            </section>
+          </div>
+        )}
+        {portraitOpen && (
+          <div className="modal-backdrop avatar-preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPortraitOpen(false); }}>
+            <section className="avatar-preview" role="dialog" aria-modal="true" aria-labelledby="avatar-preview-title">
+              <div><span>프로필 사진 · 가상 캐릭터</span><h2 id="avatar-preview-title">{activeCase.scammer}</h2></div>
+              <button onClick={() => setPortraitOpen(false)} aria-label="프로필 사진 닫기">×</button>
+              <img src={activeCase.portrait} alt={`${activeCase.scammer} 얼굴 일러스트`} width="1024" height="1536" decoding="async" />
             </section>
           </div>
         )}
@@ -971,7 +961,7 @@ export default function Home() {
       <div className="home-glow" aria-hidden="true" />
       <header className="game-brand">
         <div className="eyebrow"><span>SCAMMER ARCHIVE</span><b>SEASON 01</b></div>
-        <h1><span>오늘의</span> 사기꾼</h1>
+        <h1><img className="brand-logo" src="/logo-oneul.webp" alt="오늘의 사기꾼" width="800" height="375" decoding="async" fetchPriority="high" /></h1>
         <p>메시지가 도착했습니다.<br />누구 말부터 의심해볼까요?</p>
       </header>
 
