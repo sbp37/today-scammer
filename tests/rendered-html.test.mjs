@@ -55,7 +55,7 @@ test("conversation graph has no broken, unreachable, or looping branches", async
         continue;
       }
       if (!current) continue;
-      const next = line.match(/next: "([A-Za-z]+)"/);
+      const next = line.match(/(?:next|autoNext): "([A-Za-z]+)"/);
       const ending = line.match(/ending: "([SACF])"/);
       if (next) graph[current].next.push(next[1]);
       if (ending) graph[current].endings.push(ending[1]);
@@ -123,7 +123,12 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /엄마가 갑자기 수술해야 한대요/);
   assert.match(source, /부모님이랑 제주도/);
   assert.match(source, /아빠는 돌아가셨고/);
-  assert.match(source, /서윤님이 메시지를 쓰다가 지웠습니다/);
+  assert.match(source, /J님이 메시지를 쓰다가 지웠습니다/);
+  assert.doesNotMatch(source, /김서윤|KIM SEOYUN/);
+  assert.match(source, /autoNext: "seoyunDay8"/);
+  assert.match(source, /foundClues\.length > 0 && <div className="case-meter"/);
+  assert.match(source, /connectedCases = liveEpisodeIds\.filter/);
+  assert.match(source, /className="connected-case-card"/);
   assert.match(source, /18만 → 43만 → 120만원/);
   assert.match(source, /없어요\. 그냥 없어요\./);
   assert.match(source, /에이, 거짓말~/);
@@ -131,7 +136,7 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.doesNotMatch(source, /첫날부터 끼니 걱정하게 하네/);
   assert.match(source, /왜 이렇게 꼬치꼬치 물어/);
   assert.match(source, /당신 잊지 않을게요\. goodbuy/);
-  assert.match(source, /사랑은 국경 없고 통관료는 있습니다/);
+  assert.match(source, /사랑은 국경 없고 통관료는 있음/);
   assert.match(source, /사건파일 열기/);
   assert.match(source, /fake-credentials-06\.webp/);
   assert.match(source, /게임 속 가상 서류 · 실제 자격증 아님/);
@@ -157,9 +162,10 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   }
 
   assert.match(source, /containsMoneyTalk/);
-  assert.match(source, /의심력 \+20/);
+  assert.match(source, /잡은 증거/);
   assert.match(source, /새 단서 \$\{unfoundClues\.length\}/);
-  assert.match(source, /moneyAlert \? "돈 냄새" : "사기 냄새"/);
+  assert.match(source, /today-scammer:clue-hint-seen/);
+  assert.match(source, /disabled=\{found\}/);
   assert.doesNotMatch(source, /<em>\{suspicion\}\/\{activeCase\.clueTotal\}<\/em>/);
   assert.doesNotMatch(source, /briefing-image-hitbox|전체 이미지 보기/);
   assert.match(source, /logo-oneul\.webp/);
