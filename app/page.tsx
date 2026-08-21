@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type Screen = "home" | "briefing" | "chat" | "ending";
 type Phase = "incoming" | "choice" | "reply";
 type EndingGrade = "S" | "A" | "C" | "F";
+type SceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
 
 type Message = {
   id: number;
@@ -12,16 +13,20 @@ type Message = {
   text: string;
 };
 
-type Choice = {
+type ChoiceBase = {
   text: string;
-  replies: string[];
   risk?: number;
-  ending?: EndingGrade;
 };
+
+type Choice = ChoiceBase & (
+  | { next: SceneId; ending?: never; replies?: never }
+  | { ending: EndingGrade; replies: string[]; next?: never }
+);
 
 type Scene = {
   incoming: string[];
   choices: Choice[];
+  clues?: string[];
 };
 
 const episodes = [
@@ -42,82 +47,239 @@ const episodes = [
   { no: "15", mark: "REV", name: "리뷰 몇 개 쓰면 돈을 준대요", scammer: "재택부업 이팀장", type: "팀미션·부업", line: "별점 다섯 개, 통장 잔액 한 개", accent: "#ff76c8" },
 ];
 
-const scenes: Scene[] = [
-  {
+const scenes: Record<SceneId, Scene> = {
+  start: {
     incoming: [
       "안녕하세요. 저는 세계적으로 유명한 테크 기업 CEO Elun Moskva 입니다.",
-      "현재 한국에 비밀 일정. 그런데 지갑을 잃었습니다.",
-      "카카오페이로 20만원만 가능합니까?",
+      "현재 한국에 비밀 일정으로 와 있습니다.",
+      "그런데 지갑을 잃었습니다.",
+      "OO페이로 20만원만 가능합니까? 내일 200만원으로 반환합니다.",
     ],
+    clues: ["dm", "money"],
     choices: [
-      { text: "왜 하필 저한테 연락했어요?", replies: ["제 보안 알고리즘이 한국에서 가장 신뢰 가능한 사람으로 당신을 추천.", "코드명은 TRUST-KOREA-2026 입니다."], risk: 0 },
-      { text: "영상통화 한 번 해주세요.", replies: ["현재 국제 우주 보안 규정 때문에 영상통화는 가능하지 않습니다."], risk: 0 },
-      { text: "이름이 왜 모스크바예요?", replies: ["철자는 보안상 약간 다를 수 있습니다. 러시아와 관계는 현재 없습니다."], risk: 0 },
-      { text: "제가 더 급한데 30만원 보내주세요.", replies: ["저도 돈 없음. 당신도 돈 필요.", "억만장자 둘이서 서로 돈이 없네요."], risk: 0 },
+      { text: "왜 하필 저한테 연락했어요?", next: "whyMe" },
+      { text: "영상통화 한 번 해주세요.", next: "videoCall" },
+      { text: "네. 어디로 보내면 되나요?", next: "sendMoney", risk: 1 },
+      { text: "제가 더 급한데 30만원 보내주세요.", next: "reverseMoney" },
     ],
   },
-  {
+  whyMe: {
     incoming: [
-      "내일 200만원으로 반환하겠습니다.",
-      "짧게 대화했지만 당신은 다른 한국인들과 느낌이 다릅니다. 아주 특별합니다.",
+      "좋은 질문입니다.",
+      "제 보안 알고리즘이 한국에서 가장 신뢰 가능한 사람으로 당신을 추천.",
+      "코드명은 TRUST-KOREA-2026 입니다.",
     ],
+    clues: ["fast"],
     choices: [
-      { text: "우주 보안이요? 한국에 있다면서요?", replies: ["한국도 우주의 일부입니다."], risk: 0 },
-      { text: "우리 대화 시작한 지 2분 됐는데요.", replies: ["시간은 상대적입니다. 특히 진짜 친구는."], risk: 0 },
-      { text: "지금 찍은 사진이라도 보내요.", replies: ["카메라가 보안 업데이트 중. 셀카는 72시간 후 가능합니다.", "대신 제 진심을 믿어주세요."], risk: 0 },
-      { text: "여기까지. 우주로 차단합니다.", replies: ["잠깐, 화성 와이파이가—"], ending: "S" },
+      { text: "그래도 영상통화부터 해주세요.", next: "videoCall" },
+      { text: "그래서 20만원은 어디로 보내죠?", next: "sendMoney", risk: 1 },
+      { text: "저도 제가 좀 특별하다고 생각해요.", next: "fastBond", risk: 1 },
     ],
   },
-  {
+  reverseMoney: {
     incoming: [
+      "저도 현재 자금 사정이 어렵습니다.",
+      "그래서 당신에게 20만원을 요청한 것입니다. 이해를 요청합니다.",
+    ],
+    choices: [
+      { text: "억만장자 둘이서 서로 돈이 없네요.", next: "reverseJoke" },
+      { text: "회사 직원한테 부탁하세요.", next: "company" },
+      { text: "알겠어요. 계좌 주세요.", next: "sendMoney", risk: 1 },
+    ],
+  },
+  reverseJoke: {
+    incoming: [
+      "정확한 상황 분석입니다.",
+      "하지만 저는 20만원만 더 없습니다.",
+    ],
+    choices: [
+      { text: "그럼 영상통화로 본인 확인해요.", next: "videoCall" },
+      { text: "회사 직원한테 부탁하세요.", next: "company" },
+      { text: "정말 20만원만요?", next: "sendMoney", risk: 1 },
+    ],
+  },
+  videoCall: {
+    incoming: ["현재 국제 우주 보안 규정 때문에 영상통화는 가능하지 않습니다."],
+    clues: ["video"],
+    choices: [
+      { text: "한국에 있다면서요?", next: "space" },
+      { text: "사진이라도 지금 찍어 보내요.", next: "photo" },
+      { text: "그럴 수 있죠. 이해합니다.", next: "fastBond", risk: 1 },
+      { text: "그 우주 규정째 차단할게요.", ending: "S", replies: ["잠깐. 화성 와이파이가—"] },
+    ],
+  },
+  space: {
+    incoming: [
+      "한국도 우주의 일부입니다.",
+      "중요 인물의 보안은 장소를 가리지 않습니다.",
+    ],
+    clues: ["video"],
+    choices: [
+      { text: "…말은 되네요. 이상하게.", next: "fastBond" },
+      { text: "그래도 더 들어는 볼게요.", next: "fastBond" },
+      { text: "됐고 돈부터 보내드릴까요?", ending: "F", replies: ["좋습니다. 우주 보안보다 송금이 빠릅니다. 입금 확인."] },
+    ],
+  },
+  photo: {
+    incoming: [
+      "카메라는 현재 보안 업데이트 중입니다.",
+      "셀카는 72시간 후 가능합니다.",
+      "대신 제 진심을 믿어주세요.",
+    ],
+    clues: ["video"],
+    choices: [
+      { text: "카메라도 지갑과 같이 잃었나요?", next: "photoJoke" },
+      { text: "진심을 믿어볼게요.", next: "fastBond", risk: 1 },
+      { text: "이 정도면 그냥 차단할래요.", ending: "S", replies: ["진심 전송이 실패했습니다."] },
+    ],
+  },
+  photoJoke: {
+    incoming: ["둘은 다른 분실입니다. 카메라는 분실하지 않고 보안만 고장."],
+    choices: [
+      { text: "알겠어요. 더 들어볼게요.", next: "fastBond" },
+      { text: "그 진심이라는 걸 믿어볼게요.", next: "fastBond", risk: 1 },
+      { text: "설명까지 고장났네요. 차단.", ending: "S", replies: ["설명 복구는 72시간 후—"] },
+    ],
+  },
+  sendMoney: {
+    incoming: [
+      "당신은 정말 친절한 사람입니다.",
       "송금은 제 한국 매니저의 임시 안전계정으로 해주세요.",
       "[게임용 가상계좌] 000-오늘의사기꾼-001",
     ],
+    clues: ["money"],
     choices: [
-      { text: "개인 계좌로 왜 보내요?", replies: ["회사 자금은 현재 화성 계정에 묶여 있습니다. 한국 원화는 어렵습니다."], risk: 0 },
-      { text: "회사 공식 요청서를 보내세요.", replies: ["사업자 등록지는 화성입니다. 지구 서류는 아직 준비 중."], risk: 0 },
-      { text: "[시뮬레이션] 20만원 보내기", replies: ["입금 확인. 당신은 인류의 좋은 친구입니다. 저는 대화방 나갑니다."], ending: "F" },
-      { text: "돈 말고 더 중요한 건 없어요?", replies: ["있습니다. 그래서 지금부터 중요한 이야기."], risk: 1 },
+      { text: "[시뮬레이션] 20만원 보내기", ending: "F", replies: ["입금 확인. 당신은 인류의 좋은 친구입니다. 저는 대화방 나갑니다."] },
+      { text: "개인 계좌로 왜 보내요?", next: "company" },
+      { text: "회사 공식 요청서를 보내주세요.", next: "company" },
     ],
   },
-  {
+  company: {
     incoming: [
-      "당신에게만 MARS COIN 사전 투자 기회가 있습니다.",
-      "5만원이 오늘 밤 50만원. 다른 사람에게는 비밀.",
+      "공식 회사 계정과 요청서는 비밀 일정에 사용 불가능.",
+      "회사 자금은 현재 화성 계정에 묶여 있습니다.",
+      "한국 원화로 바로 인출은 어렵습니다.",
+    ],
+    clues: ["money"],
+    choices: [
+      { text: "화성 계정이요? 영상통화부터 해요.", next: "videoCall" },
+      { text: "그럼 내일 해결하세요.", ending: "A", replies: ["내일은 화성 공휴일. 하지만 대화는 종료합니다."] },
+      { text: "20만원 정도면 도와드릴게요.", ending: "F", replies: ["역시 한국의 신뢰 가능한 사람. 입금 확인했습니다."] },
+    ],
+  },
+  fastBond: {
+    incoming: [
+      "솔직히 돈보다 중요한 것이 있습니다.",
+      "짧게 대화했지만 당신은 다른 사람과 다릅니다. 아주 특별합니다.",
+      "저는 한국에 진짜 친구가 생긴 기분.",
+    ],
+    clues: ["fast"],
+    choices: [
+      { text: "2분 친구면 본명도 알려주나요?", next: "realName" },
+      { text: "운명이라면 본명부터 말해봐요.", next: "realName", risk: 1 },
+      { text: "그럼 본명부터 정확히 말해봐요.", next: "realName" },
+    ],
+  },
+  realName: {
+    incoming: [
+      "제 법적 이름은 Elun Reeve Moskva 입니다.",
+      "철자는 보안상 약간 다를 수 있습니다. 러시아와 관계는 현재 없습니다.",
+      "그리고 당신에게만 좋은 기회가 있습니다.",
+    ],
+    choices: [
+      { text: "철자가 보안상 달라진다고요?", next: "nameExcuse" },
+      { text: "무슨 기회인데요?", next: "investment" },
+      { text: "이쯤에서 차단합니다.", ending: "S", replies: ["좋은 기회가 매우 빠르게 종료—"] },
+    ],
+  },
+  nameExcuse: {
+    incoming: ["철자가 같으면 해커가 저를 찾습니다. 지금도 거의 찾았습니다."],
+    choices: [
+      { text: "그래서 좋은 기회가 뭔데요?", next: "investment" },
+      { text: "해커보다 제가 먼저 차단할게요.", ending: "S", replies: ["해커보다 빠른 사람은 처음—"] },
+    ],
+  },
+  investment: {
+    incoming: [
+      "제가 비밀 준비 중인 MARS COIN 사전 투자입니다.",
+      "5만원이 오늘 밤 50만원.",
+      "당신은 특별 초대 대상. 다른 사람에게는 절대 말하지 마세요.",
       "mars-vip-bonus.com/only-you",
     ],
+    clues: ["fast", "link"],
     choices: [
-      { text: "900%면 본인이 전재산 넣어요.", replies: ["제 전재산은 이미 저의 전재산입니다. 추가 입금은 불가능."], risk: 0 },
-      { text: "공식 사이트에서 찾을게요.", replies: ["비공개 링크는 검색되지 않는 것이 정상입니다. 검색되면 비공개 실패."], risk: 0 },
-      { text: "[가상] 링크를 눌러본다", replies: ["본인 인증은 생년월일과 휴대폰 번호 필요.", "매우 안전합니다. 자물쇠 이모지도 있습니다. 🔒"], risk: 3 },
-      { text: "비밀이면 저도 모르는 걸로 할게요.", replies: ["당신은 비밀 유지에 매우 적극적. 하지만 투자는 종료."], ending: "A" },
+      { text: "900%면 본인이 전재산 넣어요.", next: "selfInvest" },
+      { text: "[가상] 링크를 눌러볼게요.", next: "fakeLink", risk: 3 },
+      { text: "사업자 정보랑 공식 사이트 주세요.", next: "companyInfo" },
+      { text: "비밀이면 저도 모르는 걸로 할게요.", ending: "A", replies: ["당신은 비밀 유지에 매우 적극적. 하지만 투자도 종료."] },
     ],
   },
-  {
+  selfInvest: {
     incoming: [
-      "체험 화면의 5만원이 18만4천원 됐습니다. 보이지요?",
-      "실전 출금은 보증금 20만원만 필요. 기회는 7분 남았습니다.",
+      "제 전재산은 이미 저의 전재산입니다.",
+      "그리고 회사 돈은 화성 계정. 제가 저에게 송금은 불가능.",
     ],
     choices: [
-      { text: "[가상] 20만원 보낸다", replies: ["입금 확인. 출금에는 국제 세금 12만9천원 더 필요.", "저는 지금 매우 잠시 오프라인."], ending: "F" },
-      { text: "화면만 부자인데요?", replies: ["화면도 자산입니다. 만질 수는 없습니다."], ending: "A" },
-      { text: "친구한테 이 대화 보여줄게요.", replies: ["친구는 MARS COIN 초대 대상 아닙니다. 그리고 저는 갑자기 바쁩니다."], ending: "A" },
-      { text: "경찰에 링크와 계좌 보냅니다.", replies: ["현재 프로젝트가 갑자기 취소. 아주 갑자기."], ending: "A" },
+      { text: "그럼 사업자 정보부터 주세요.", next: "companyInfo" },
+      { text: "[가상] 링크나 볼게요.", next: "fakeLink", risk: 3 },
+      { text: "그 투자, 혼자 많이 하세요.", ending: "A", replies: ["혼자는 비밀 유지에 가장 안전합니다."] },
     ],
   },
-];
+  companyInfo: {
+    incoming: [
+      "사업자 등록지는 화성입니다.",
+      "지구 관할에는 아직 서류가 없습니다.",
+      "그리고 이 기회는 7분 안에 종료.",
+    ],
+    clues: ["rush"],
+    choices: [
+      { text: "7분 뒤 부자가 되는 건 포기할게요.", ending: "A", replies: ["가난 유지 선택을 확인했습니다."] },
+      { text: "그래도 5만원 정도는…", next: "fakeLink", risk: 3 },
+      { text: "그냥 지금 차단.", ending: "S", replies: ["화성 사업자 조회가 완료되기 전에—"] },
+    ],
+  },
+  fakeLink: {
+    incoming: [
+      "참여 전에 본인 인증이 먼저 필요합니다.",
+      "본인 인증은 생년월일과 휴대폰 번호가 필요.",
+      "걱정하지 마세요. 매우 안전합니다.",
+      "자물쇠 이모지도 있습니다. 🔒",
+    ],
+    clues: ["link"],
+    choices: [
+      { text: "[가상] 개인정보를 입력한다.", next: "finalPitch", risk: 3 },
+      { text: "자물쇠 이모지가 보안 인증은 아니죠.", ending: "A", replies: ["이모지가 국제 인증이 아닙니까? 오늘 처음 알았습니다."] },
+      { text: "여기서 차단한다.", ending: "C", replies: ["자물쇠가 있는데 왜 차단을—"] },
+    ],
+  },
+  finalPitch: {
+    incoming: [
+      "축하합니다. 체험 화면의 5만원이 18만4천원 됐습니다.",
+      "출금 보증금 20만원만 필요. 남은 시간 07:00.",
+    ],
+    clues: ["profit", "rush", "money"],
+    choices: [
+      { text: "[가상] 20만원 보낸다", ending: "F", replies: ["입금 확인. 출금에는 국제 세금 12만9천원 더 필요.", "저는 지금 매우 잠시 오프라인."] },
+      { text: "화면만 부자인데요?", ending: "A", replies: ["화면도 자산입니다. 만질 수는 없습니다."] },
+      { text: "친구한테 이 대화 보여줄게요.", ending: "A", replies: ["친구는 초대 대상 아닙니다. 그리고 저는 갑자기 바쁩니다."] },
+      { text: "경찰에 링크와 계좌 보냅니다.", ending: "A", replies: ["현재 프로젝트가 갑자기 취소. 아주 갑자기."] },
+    ],
+  },
+};
 
 const clueOptions = [
-  { id: "dm", label: "유명인이 갑자기 개인 DM", at: 0 },
-  { id: "fast", label: "비밀 초대와 빠른 친밀감", at: 1 },
-  { id: "video", label: "영상통화 회피", at: 1 },
-  { id: "money", label: "개인 계좌로 20만원 요구", at: 2 },
-  { id: "link", label: "외부 링크와 인증번호 요구", at: 3 },
-  { id: "profit", label: "화면으로만 보이는 고수익", at: 4 },
-  { id: "rush", label: "비밀 유지와 7분 압박", at: 4 },
-  { id: "photo", label: "프로필 사진의 파란 안경", at: 99 },
-  { id: "grammar", label: "조금 어색한 한국어", at: 99 },
+  { id: "dm", label: "유명인이 갑자기 개인 DM" },
+  { id: "fast", label: "비밀 초대와 빠른 친밀감" },
+  { id: "video", label: "영상통화 회피" },
+  { id: "money", label: "첫 대화부터 20만원 요구" },
+  { id: "link", label: "외부 링크와 개인정보 요구" },
+  { id: "profit", label: "화면으로만 보이는 고수익" },
+  { id: "rush", label: "비밀 유지와 7분 압박" },
+  { id: "photo", label: "프로필 사진의 파란 안경" },
+  { id: "grammar", label: "조금 어색한 한국어" },
 ];
+
+const falseClueIds = ["photo", "grammar"];
 
 const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string }> = {
   S: { title: "모스크바행 차단", kicker: "초기 간파 · 무피해", body: "일런 모스크바는 자신의 20만원을 스스로 해결해야 합니다. 아마 화성 계정으로." },
@@ -131,12 +293,13 @@ const typingDelay = (text: string, seed: number) => Math.min(2700, 720 + text.le
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("home");
-  const [sceneIndex, setSceneIndex] = useState(0);
+  const [sceneId, setSceneId] = useState<SceneId>("start");
+  const [turn, setTurn] = useState(0);
   const [phase, setPhase] = useState<Phase>("incoming");
   const [messages, setMessages] = useState<Message[]>([]);
   const [typing, setTyping] = useState(false);
   const [risk, setRisk] = useState(0);
-  const [evidenceStage, setEvidenceStage] = useState(-1);
+  const [availableClues, setAvailableClues] = useState<string[]>([]);
   const [ending, setEnding] = useState<EndingGrade>("A");
   const [clueOpen, setClueOpen] = useState(false);
   const [foundClues, setFoundClues] = useState<string[]>([]);
@@ -165,7 +328,7 @@ export default function Home() {
     const currentRun = ++runRef.current;
     const deliver = async () => {
       setPhase("incoming");
-      for (const line of scenes[sceneIndex].incoming) {
+      for (const line of scenes[sceneId].incoming) {
         setTyping(true);
         await wait(typingDelay(line, messageId.current));
         if (runRef.current !== currentRun) return;
@@ -174,13 +337,13 @@ export default function Home() {
         await wait(390 + (line.length % 4) * 90);
       }
       if (runRef.current === currentRun) {
-        setEvidenceStage(sceneIndex);
+        setAvailableClues((prev) => [...new Set([...prev, ...(scenes[sceneId].clues ?? [])])]);
         setPhase("choice");
       }
     };
     deliver();
     return () => { runRef.current += 1; };
-  }, [sceneIndex, screen]);
+  }, [sceneId, screen]);
 
   const stats = useMemo(() => {
     const base = ending === "S" ? 94 : ending === "A" ? 82 : ending === "C" ? 64 : 31;
@@ -188,9 +351,9 @@ export default function Home() {
       survival: Math.max(18, Math.min(99, base + suspicion * 2 - risk * 2)),
       doubt: Math.min(99, 46 + suspicion * 9),
       wallet: ending === "F" ? 0 : 100,
-      patience: Math.max(12, 91 - sceneIndex * 11),
+      patience: Math.max(12, 91 - turn * 8),
     };
-  }, [ending, risk, sceneIndex, suspicion]);
+  }, [ending, risk, suspicion, turn]);
 
   const startCase = () => setScreen("briefing");
 
@@ -198,11 +361,12 @@ export default function Home() {
     runRef.current += 1;
     messageId.current = 1;
     setMessages([]);
-    setSceneIndex(0);
+    setSceneId("start");
+    setTurn(0);
     setPhase("incoming");
     setTyping(false);
     setRisk(0);
-    setEvidenceStage(-1);
+    setAvailableClues([]);
     setFoundClues([]);
     setEnding("A");
     setScreen("chat");
@@ -225,7 +389,7 @@ export default function Home() {
     const nextRisk = risk + (choice.risk ?? 0);
     setRisk(nextRisk);
 
-    for (const line of choice.replies) {
+    for (const line of choice.replies ?? []) {
       await wait(360);
       setTyping(true);
       await wait(typingDelay(line, messageId.current));
@@ -238,7 +402,8 @@ export default function Home() {
       return;
     }
     await wait(420);
-    setSceneIndex((prev) => prev + 1);
+    setTurn((prev) => prev + 1);
+    setSceneId(choice.next);
   };
 
   const sniffClue = (id: string) => {
@@ -248,7 +413,7 @@ export default function Home() {
       setToast("이미 증거 봉투에 넣었습니다. 봉투가 빵빵합니다.");
       return;
     }
-    if (clue.at <= evidenceStage) {
+    if (availableClues.includes(id)) {
       setFoundClues((prev) => [...prev, id]);
       setToast(`의심력 +1 · “${clue.label}”`);
       setClueOpen(false);
@@ -293,7 +458,7 @@ export default function Home() {
   }
 
   if (screen === "chat") {
-    const choices = scenes[sceneIndex]?.choices ?? [];
+    const choices = scenes[sceneId].choices;
     return (
       <main className="chat-shell">
         <header className="chat-header">
@@ -323,7 +488,7 @@ export default function Home() {
         </section>
 
         <section className="reply-dock" aria-label="답변 선택">
-          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : "상대가 입력 중입니다"}</span><b>CASE {String(sceneIndex + 1).padStart(2, "0")}/{String(scenes.length).padStart(2, "0")}</b></div>
+          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : "상대가 입력 중입니다"}</span><b>CASE 01 · TURN {String(turn + 1).padStart(2, "0")}</b></div>
           {phase === "choice" ? (
             <div className="choice-list">
               {choices.map((choice, index) => (
@@ -342,7 +507,7 @@ export default function Home() {
               <div className="clue-heading"><div><span>현장 채증</span><h2 id="clue-title">뭐가 찜찜했나요?</h2></div><button onClick={() => setClueOpen(false)} aria-label="닫기">×</button></div>
               <p>지금까지 대화에서 냄새난 장면을 증거 봉투에 넣으세요.</p>
               <div className="clue-grid">
-                {clueOptions.filter((clue) => clue.at <= evidenceStage || clue.at === 99).map((clue) => <button className={foundClues.includes(clue.id) ? "found" : ""} key={clue.id} onClick={() => sniffClue(clue.id)}><span>{foundClues.includes(clue.id) ? "✓" : "?"}</span>{clue.label}</button>)}
+                {clueOptions.filter((clue) => availableClues.includes(clue.id) || falseClueIds.includes(clue.id)).map((clue) => <button className={foundClues.includes(clue.id) ? "found" : ""} key={clue.id} onClick={() => sniffClue(clue.id)}><span>{foundClues.includes(clue.id) ? "✓" : "?"}</span>{clue.label}</button>)}
               </div>
             </section>
           </div>
