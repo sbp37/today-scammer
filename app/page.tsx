@@ -7,14 +7,18 @@ type Phase = "incoming" | "choice" | "reply" | "resolved";
 type EndingGrade = "S" | "A" | "C" | "F";
 type CaseId = "ep01" | "ep06";
 type ElunSceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
-type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceHeart" | "romanceHeartJoke" | "romanceBond" | "romanceParcel" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
+type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceCredential" | "romanceCertificateCheck" | "romanceDay" | "romanceHeart" | "romanceHeartJoke" | "romanceFlirt" | "romancePromise" | "romanceBond" | "romanceParcel" | "romanceBoxDetails" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
 type SceneId = ElunSceneId | RomanceSceneId;
 
 type Message = {
   id: number;
   from: "scammer" | "player" | "system";
-  text: string;
+  text?: string;
+  image?: string;
+  alt?: string;
 };
+
+type IncomingMessage = string | { text?: string; image: string; alt: string };
 
 type ChoiceBase = {
   text: string;
@@ -28,7 +32,7 @@ type Choice = ChoiceBase & (
 );
 
 type Scene = {
-  incoming: string[];
+  incoming: IncomingMessage[];
   choices: Choice[];
   clues?: string[];
 };
@@ -53,7 +57,7 @@ const episodes = [
 
 const caseProfiles = {
   ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.png", duration: "4분 내외", start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
-  ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.png", duration: "5분 내외", start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 빠른 애정 → 선물 상자 → 통관비 가상 송금", clueTotal: 7 },
+  ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.png", duration: "7분 내외", start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
 } as const;
 
 const scenes: Record<ElunSceneId, Scene> = {
@@ -298,7 +302,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     ],
     choices: [
       { text: "사진은 사기꾼도 올릴 수 있죠.", next: "romanceVideo" },
-      { text: "본인 이야기를 더 해봐요.", next: "romanceProfile" },
+      { text: "의사 자격증이나 군의관 증명 보여줘요.", next: "romanceCredential" },
       { text: "제 눈이 그렇게 특별해요?", next: "romanceHeart", risk: 1 },
     ],
   },
@@ -309,7 +313,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     ],
     clues: ["video"],
     choices: [
-      { text: "프로필 사진은 어떻게 찍었는데요?", next: "romanceProfile" },
+      { text: "프로필 사진은 어떻게 찍었는데요?", next: "romanceCredential" },
       { text: "마음 위치 말고 신분부터 확인해요.", next: "romanceProof" },
       { text: "마지막 문장 때문에 더 수상해요. 차단.", ending: "S", replies: ["제 마음 GPS가 연결을 잃었습니다."] },
     ],
@@ -321,9 +325,49 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
       "어머니는 한국인이었고, 그래서 한국은 늘 제 두 번째 고향입니다.",
     ],
     choices: [
-      { text: "처음 보는 사람한테 이야기가 빠르네요.", next: "romanceBond" },
+      { text: "의사 자격증과 군의관 증명 보여줘요.", next: "romanceCredential" },
       { text: "외과의사면 마음도 수술하나요?", next: "romanceHeart" },
-      { text: "소속과 신분을 확인할 방법 주세요.", next: "romanceProof" },
+      { text: "오늘은 어떤 환자를 봤어요?", next: "romanceDay" },
+    ],
+  },
+  romanceCredential: {
+    incoming: [
+      "의사 자격증과 군의관 등록증을 원합니까?",
+      "원래 작전 인원의 문서는 외부 전송 금지입니다.",
+      "하지만 당신이니까 특별히 보냅니다. 어디에도 유출하면 안 됩니다.",
+      { text: "제 국제 야전외과 등록증과 군의관 자격증입니다.", image: "/fake-credentials-06.png", alt: "GAME PROP 표시가 크게 있는 가상의 군의관 자격증 일러스트" },
+    ],
+    clues: ["credential"],
+    choices: [
+      { text: "잠깐, 기관 이름과 날짜가 이상한데요?", next: "romanceCertificateCheck" },
+      { text: "이 정도면 믿을게요.", next: "romanceDay", risk: 1 },
+      { text: "사진 말고 공식 경로로 확인할게요.", ending: "A", replies: ["공식 경로는 지금 매우 비공식적으로 닫혀 있습니다."] },
+    ],
+  },
+  romanceCertificateCheck: {
+    incoming: [
+      "MEDICL 철자는 작전 지역식 영어입니다. 의료가 급하면 A를 생략합니다.",
+      "발급일과 만료일 순서가 이상한 것은 군용 달력이 가끔 뒤로 흐르기 때문.",
+      "중요한 것은 종이가 아니라 제가 당신에게 보여준 신뢰입니다.",
+    ],
+    clues: ["credential"],
+    choices: [
+      { text: "달력까지 파병 갔네요. 차단할게요.", ending: "S", replies: ["군용 달력이 오늘도 한 사람을 잃었습니다."] },
+      { text: "설명은 이상하지만 더 들어볼게요.", next: "romanceDay", risk: 1 },
+      { text: "공식 기관에 직접 물어볼게요.", ending: "A", replies: ["기관은 시차 때문에 영원히 업무 전입니다."] },
+    ],
+  },
+  romanceDay: {
+    incoming: [
+      "오늘 14시간 수술했습니다. 식사는 차가운 커피 하나.",
+      "그런데 휴대폰을 켜고 가장 먼저 보고 싶은 것은 당신 메시지였습니다.",
+      "당신은 오늘 밥 먹었습니까? 저는 사람을 살리지만 당신 끼니도 걱정.",
+    ],
+    choices: [
+      { text: "저는 먹었어요. 당신도 뭐라도 먹어요.", next: "romanceFlirt", risk: 1 },
+      { text: "다른 사람한테도 똑같이 보내는 말 아니죠?", next: "romanceFlirt" },
+      { text: "다정하긴 한데 너무 빠르네요.", next: "romancePromise" },
+      { text: "낯선 사람과는 여기까지만 할게요.", ending: "A", replies: ["제 차가운 커피가 오늘 더 차가워졌습니다."] },
     ],
   },
   romanceHeart: {
@@ -334,7 +378,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     clues: ["love"],
     choices: [
       { text: "마음은 정형외과에 가보세요.", next: "romanceHeartJoke" },
-      { text: "저도 이상하게 편하네요.", next: "romanceBond", risk: 1 },
+      { text: "저도 이상하게 편하네요.", next: "romanceFlirt", risk: 1 },
       { text: "초진이 너무 빠릅니다. 여기까지.", ending: "S", replies: ["진료 예약이 갑자기 취소되었습니다."] },
     ],
   },
@@ -344,54 +388,99 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
       "하지만 당신의 유머는 매우 좋은 치료.",
     ],
     choices: [
-      { text: "치료비 대신 신분 확인부터요.", next: "romanceProof" },
-      { text: "그럼 조금 더 얘기해봐요.", next: "romanceBond" },
+      { text: "치료비 대신 자격증부터요.", next: "romanceCredential" },
+      { text: "그럼 조금 더 얘기해봐요.", next: "romanceFlirt" },
       { text: "무료 진료는 여기까지입니다.", ending: "A", replies: ["제 마음은 다시 대기 환자가 되었습니다."] },
+    ],
+  },
+  romanceFlirt: {
+    incoming: [
+      "저는 원래 사랑을 빨리 말하는 남자 아닙니다.",
+      "다만 아침에는 당신의 밤을 생각하고, 밤에는 당신의 아침을 기다립니다.",
+      "번역기가 운명을 조금 이상하게 번역해도 제 심장은 정확합니다.",
+    ],
+    clues: ["love"],
+    choices: [
+      { text: "심장보다 속도를 좀 늦춰요.", next: "romancePromise" },
+      { text: "말은 정말 잘하네요.", next: "romancePromise", risk: 1 },
+      { text: "전 아직 당신을 모르는데요.", next: "romancePromise" },
+      { text: "이 속도는 부담스러워요. 그만할게요.", ending: "A", replies: ["제 심장이 저속 모드에 들어갑니다."] },
+    ],
+  },
+  romancePromise: {
+    incoming: [
+      "임무가 끝나면 한국에서 당신과 커피를 마시고 싶습니다.",
+      "저는 당신 돈도 계좌도 필요 없습니다. 사람이 필요합니다.",
+      "아직 너무 빠르면 사랑 대신 '나의 사람'이라고 부르겠습니다. 이것도 빠릅니까?",
+    ],
+    clues: ["love"],
+    choices: [
+      { text: "그 말은 조금 설레긴 하네요.", next: "romanceBond", risk: 1 },
+      { text: "커피 약속까지만 믿어볼게요.", next: "romanceBond" },
+      { text: "돈 필요 없다더니 나중에 필요하겠죠?", next: "romanceBond" },
+      { text: "네, 그것도 빠릅니다. 여기까지.", ending: "A", replies: ["저의 사람 후보 명단이 다시 0명입니다."] },
     ],
   },
   romanceBond: {
     incoming: [
-      "저는 임무가 끝나면 한국에 가고 싶습니다.",
-      "조용한 카페에서 당신과 커피. 너무 빠른 상상입니까? 하지만 인생은 짧습니다.",
-      "사실 당신에게만 부탁할 일이 하나 있습니다.",
+      "나는 마음속 귀국 도시를 이미 서울로 변경했습니다.",
+      "수술 장갑으로 종이 장미도 접었습니다. 조금 찌그러졌지만 사랑은 멸균 완료.",
+      "그리고 당신에게만 말할 수 있는 개인 문제가 하나 있습니다.",
     ],
     clues: ["love"],
     choices: [
       { text: "부탁이 뭔데요?", next: "romanceParcel" },
-      { text: "커피보다 신분 확인이 먼저예요.", next: "romanceProof" },
+      { text: "혹시 이제 돈 얘기 나오나요?", next: "romanceParcel" },
       { text: "미래 계획은 혼자 계속 세우세요.", ending: "A", replies: ["우리 카페 예약을 마음속에서 취소합니다."] },
     ],
   },
   romanceParcel: {
     incoming: [
-      "임무 종료 보상금과 개인 훈장이 든 외교 상자가 있습니다.",
-      "작전 지역에는 둘 수 없어 믿을 사람 주소로 먼저 보내야 합니다.",
-      "이 일은 보안상 우리 둘만 알아야 합니다.",
+      "제 임무 종료 정산품이 든 봉인 상자가 있습니다.",
+      "안에는 위험수당 저축금 미화 35만 달러, 퇴역 보상 서류, 돌아가신 아버지의 시계가 있습니다.",
+      "현지 은행 접근이 중단돼 군 재정실이 계약 외교 화물로만 개인 상자를 내보냅니다.",
+      "제가 믿는 수령인으로 당신을 등록하고 싶습니다. 이 일은 우리 둘만 알아야 안전.",
+    ],
+    clues: ["parcel", "love"],
+    choices: [
+      { text: "주소는 절대 안 줍니다.", ending: "A", replies: ["그럼 상자는 저보다 오래 파병됩니다."] },
+      { text: "현금이 왜 상자에 들어가요?", next: "romanceBoxDetails" },
+      { text: "어느 운송사인지 먼저 알려줘요.", next: "romanceCourier", risk: 1 },
+      { text: "[게임 내 가상정보] 주소를 알려준다.", next: "romanceBoxDetails", risk: 3 },
+    ],
+  },
+  romanceBoxDetails: {
+    incoming: [
+      "선물이 아닙니다. 제가 한국에 갈 때까지 잠시 보관하는 정산 상자.",
+      "공식 계좌로 보내면 작전 위치가 금융에 노출됩니다. 그래서 현금 봉인이 더 안전하다고 군 재정실이 말했습니다.",
+      "당신이 받아주면 제가 직접 찾으러 갑니다. 감사 선물 10%도 생각했지만 당신 마음은 가격 없음.",
+      "운송사가 곧 별도 메시지를 보낼 것입니다.",
     ],
     clues: ["parcel"],
     choices: [
-      { text: "주소는 절대 안 줍니다.", ending: "A", replies: ["그럼 상자는 저보다 오래 파병됩니다."] },
-      { text: "상자와 소속 증명부터 보여줘요.", next: "romanceProof" },
-      { text: "[게임 내 가상정보] 주소를 알려준다.", next: "romanceCourier", risk: 3 },
+      { text: "설명할수록 더 이상해요. 거절합니다.", ending: "A", replies: ["상자 설명이 상자보다 무거워졌습니다."] },
+      { text: "운송사 메시지만 확인해볼게요.", next: "romanceCourier", risk: 1 },
+      { text: "제 주소 등록도 취소하고 차단할게요.", ending: "S", replies: ["외교 상자의 외교가 실패했습니다."] },
     ],
   },
   romanceProof: {
     incoming: [
       "소속 확인 사이트는 작전 보안망 안에 있습니다.",
-      "사진, 영상, 서류 모두 위치 노출 위험. 저를 확인하려면 저를 믿어야 합니다.",
-      "하지만 상자 운송장만은 곧 발급할 수 있습니다.",
+      "영상은 위치를 노출합니다. 그러나 당신이 계속 의심하면 자격증 사진은 특별히 보낼 수 있습니다.",
+      "원래 이런 문서는 보내면 안 되지만 신뢰는 보안보다 조금 강합니다.",
     ],
     clues: ["video"],
     choices: [
       { text: "확인 못 하는 신분은 신분이 아니죠. 차단.", ending: "S", replies: ["논리적으로 매우 차가운 작별입니다."] },
-      { text: "운송장은 한번 볼게요.", next: "romanceCourier", risk: 1 },
-      { text: "상자 얘기부터 수상해졌어요.", ending: "A", replies: ["상자는 아직 아무 말도 하지 않았습니다."] },
+      { text: "의사·군의관 자격증을 보내주세요.", next: "romanceCredential" },
+      { text: "그냥 오늘 일 이야기나 해봐요.", next: "romanceDay" },
     ],
   },
   romanceCourier: {
     incoming: [
-      "[GLOBAL HEART CARGO] 고객님의 외교 상자가 세관에 도착했습니다.",
-      "게임 속 가상 통관 예치금 48만원이 필요합니다. 90분 후 상자는 반송.",
+      "[GLOBAL HEART CARGO] J. CHOI님의 봉인 정산 상자가 세관 보류 구역에 도착했습니다.",
+      "운송번호 GH-LOVE-350K · 중량 18.4kg · 신고품: 개인 문서 및 기념품.",
+      "게임 속 가상 통관 예치금 48만원이 필요합니다. 90분 후 보관료가 추가됩니다.",
       "제 동료의 임시 안전계정으로 처리하면 가장 빠릅니다.",
     ],
     clues: ["customs", "thirdParty"],
@@ -440,6 +529,7 @@ const clueOptions = [
   { id: "rush", label: "비밀 유지와 7분 압박" },
   { id: "stranger", label: "낯선 외국인이 갑자기 개인 DM" },
   { id: "love", label: "빠른 애정 표현과 미래 약속" },
+  { id: "credential", label: "유출 금지라며 보낸 엉성한 자격증" },
   { id: "parcel", label: "고가의 선물 상자와 비밀 부탁" },
   { id: "customs", label: "선물 수령 전 통관비 요구" },
   { id: "thirdParty", label: "동료 명의의 제3자 계정" },
@@ -484,6 +574,7 @@ export default function Home() {
   const [infoEpisode, setInfoEpisode] = useState<(typeof episodes)[number] | null>(null);
   const [pendingTransfer, setPendingTransfer] = useState<Choice | null>(null);
   const [simulationConfirmed, setSimulationConfirmed] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
   const runRef = useRef(0);
   const messageId = useRef(1);
@@ -511,12 +602,13 @@ export default function Home() {
     const scene = getScene(activeCaseId, sceneId);
     const deliver = async () => {
       setPhase("incoming");
-      for (const line of scene.incoming) {
+      for (const incoming of scene.incoming) {
+        const line = typeof incoming === "string" ? incoming : incoming.text ?? "사진을 보냈습니다.";
         setTyping(true);
         await wait(typingDelay(line, messageId.current));
         if (runRef.current !== currentRun) return;
         setTyping(false);
-        setMessages((prev) => [...prev, { id: messageId.current++, from: "scammer", text: line }]);
+        setMessages((prev) => [...prev, { id: messageId.current++, from: "scammer", ...(typeof incoming === "string" ? { text: incoming } : incoming) }]);
         await wait(390 + (line.length % 4) * 90);
       }
       if (runRef.current === currentRun) {
@@ -557,6 +649,7 @@ export default function Home() {
     setFoundClues([]);
     setEnding("A");
     setPendingTransfer(null);
+    setPreviewImage(null);
     setSimulationConfirmed(false);
     setScreen("chat");
   };
@@ -667,6 +760,7 @@ export default function Home() {
     runRef.current += 1;
     setClueOpen(false);
     setPendingTransfer(null);
+    setPreviewImage(null);
     setScreen("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -714,7 +808,15 @@ export default function Home() {
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
               {message.from === "scammer" && <span className="bubble-avatar"><img src={activeCase.portrait} alt="" /></span>}
-              <div className="message-bubble">{message.text}</div>
+              <div className={`message-bubble${message.image ? " has-image" : ""}`}>
+                {message.image && (
+                  <button className="message-image-button" onClick={() => setPreviewImage({ src: message.image!, alt: message.alt ?? "전송된 이미지" })} aria-label="전송된 자격증 일러스트 크게 보기">
+                    <img src={message.image} alt={message.alt ?? "전송된 이미지"} />
+                    <span><b>GAME PROP</b> 눌러서 단서 확대하기</span>
+                  </button>
+                )}
+                {message.text && <span className="message-text">{message.text}</span>}
+              </div>
             </div>
           ))}
           {typing && (
@@ -764,6 +866,15 @@ export default function Home() {
               <div className="virtual-receipt"><span>가상 송금액</span><strong>{activeCase.virtualAmount}</strong><small>실제 결제 0원</small></div>
               <button className="confirm-simulation" onClick={confirmVirtualTransfer}>가상 송금 선택 계속하기</button>
               <button className="cancel-simulation" onClick={() => setPendingTransfer(null)}>대화로 돌아가기</button>
+            </section>
+          </div>
+        )}
+        {previewImage && (
+          <div className="modal-backdrop image-preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPreviewImage(null); }}>
+            <section className="evidence-preview" role="dialog" aria-modal="true" aria-labelledby="evidence-preview-title">
+              <div className="evidence-preview-head"><div><span>전송된 파일 · 게임 소품</span><h2 id="evidence-preview-title">자격증 이미지(?)</h2></div><button onClick={() => setPreviewImage(null)} aria-label="이미지 닫기">×</button></div>
+              <img src={previewImage.src} alt={previewImage.alt} />
+              <p><strong>GAME PROP · 실제 자격증 아님</strong><br />기관명, 철자, 날짜가 어딘가 이상합니다. 그럴듯한 이미지도 공식 확인을 대신할 수 없어요.</p>
             </section>
           </div>
         )}

@@ -93,6 +93,7 @@ test("conversation graph has no broken, unreachable, or looping branches", async
 
 test("virtual money, paced ending, sharing, and second episode are explicit", async () => {
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const credentialAsset = await readFile(new URL("../public/fake-credentials-06.png", import.meta.url));
   const failureChoices = source.match(/^.*ending: "F".*$/gm) ?? [];
 
   assert.ok(failureChoices.length >= 4);
@@ -108,5 +109,8 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /romanceScenes/);
   assert.match(source, /사랑은 국경 없고 통관료는 있습니다/);
   assert.match(source, /사건파일 열기/);
+  assert.match(source, /fake-credentials-06\.png/);
+  assert.match(source, /GAME PROP · 실제 자격증 아님/);
+  assert.ok(credentialAsset.byteLength > 100_000);
   assert.doesNotMatch(source, /광고|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
 });
