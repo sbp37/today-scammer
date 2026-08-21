@@ -26,13 +26,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "오늘의 사기꾼",
       description: "말이 무너지기 전에 탈출하라",
       type: "website",
-      images: [{ url: `${origin}/og.png`, width: 1727, height: 911, alt: "오늘의 사기꾼 CASE 01 캐릭터 셀렉트" }],
+      images: [{ url: `${origin}/og.webp`, width: 1727, height: 911, alt: "오늘의 사기꾼 CASE 01 캐릭터 셀렉트" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "오늘의 사기꾼",
       description: "말이 무너지기 전에 탈출하라",
-      images: [`${origin}/og.png`],
+      images: [`${origin}/og.webp`],
     },
   };
 }

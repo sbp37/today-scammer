@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import test from "node:test";
 
 async function render() {
@@ -24,7 +24,7 @@ test("server-renders the scammer roster", async () => {
   assert.match(html, /SCAMMER ARCHIVE/);
   assert.match(html, /억만장자가/);
   assert.match(html, /COMING SOON/);
-  assert.match(html, /og\.png/);
+  assert.match(html, /og\.webp/);
 });
 
 test("ships without starter preview residue", async () => {
@@ -100,7 +100,7 @@ test("conversation graph has no broken, unreachable, or looping branches", async
 
 test("virtual money, paced ending, sharing, and second episode are explicit", async () => {
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  const credentialAsset = await readFile(new URL("../public/fake-credentials-06.png", import.meta.url));
+  const credentialAsset = await readFile(new URL("../public/fake-credentials-06.webp", import.meta.url));
   const failureChoices = source.match(/^.*ending: "F".*$/gm) ?? [];
 
   assert.ok(failureChoices.length >= 4);
@@ -116,7 +116,7 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /romanceScenes/);
   assert.match(source, /사랑은 국경 없고 통관료는 있습니다/);
   assert.match(source, /사건파일 열기/);
-  assert.match(source, /fake-credentials-06\.png/);
+  assert.match(source, /fake-credentials-06\.webp/);
   assert.match(source, /게임 속 가상 서류 · 실제 자격증 아님/);
   assert.match(source, /virtual-transfer-choice/);
   assert.match(source, /readingPause/);
@@ -124,4 +124,28 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.doesNotMatch(source, /서울/);
   assert.ok(credentialAsset.byteLength > 100_000);
   assert.doesNotMatch(source, /광고|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
+});
+
+test("uses lightweight WebP assets and meaningful live signals", async () => {
+  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const assetDirectory = new URL("../public/", import.meta.url);
+  const assets = await readdir(assetDirectory);
+
+  assert.equal(assets.some((name) => /\.(png|jpe?g)$/i.test(name)), false);
+  assert.ok(assets.filter((name) => name.endsWith(".webp")).length >= 4);
+  for (const name of assets.filter((asset) => asset.endsWith(".webp"))) {
+    const info = await stat(new URL(name, assetDirectory));
+    assert.ok(info.size < 400_000, `${name} should remain below 400 KB`);
+  }
+
+  assert.match(source, /containsMoneyTalk/);
+  assert.match(source, /moneyAlert \? "돈 냄새" : "단서"/);
+  assert.match(source, /\{suspicion\}\/\{activeCase\.clueTotal\}/);
+  assert.match(source, /briefing-image-hitbox/);
+  assert.match(styles, /onlinePulse/);
+  assert.match(styles, /episode-visual\.has-portrait \{ height: 152px/);
+  assert.doesNotMatch(source, /\(뷰티풀\)|very|Very|Only you|coffee 하고|I need person/);
+  assert.match(source, /beautiful합니다/);
+  assert.match(source, /cold 커피 한잔/);
 });

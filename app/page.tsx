@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- Local artwork is pre-compressed WebP and served directly by the Vinext asset layer. */
+
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Screen = "home" | "briefing" | "chat" | "ending";
@@ -59,8 +61,8 @@ const liveEpisodeIds: CaseId[] = ["ep01", "ep06"];
 const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : "ep01";
 
 const caseProfiles = {
-  ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.png", duration: "4분 내외", start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
-  ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.png", duration: "7분 내외", start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
+  ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.webp", duration: "4분 내외", start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
+  ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.webp", duration: "7분 내외", start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
 } as const;
 
 const scenes: Record<ElunSceneId, Scene> = {
@@ -283,9 +285,9 @@ const scenes: Record<ElunSceneId, Scene> = {
 const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceStart: {
     incoming: [
-      "Hello. 갑작스러운 DM, sorry.",
+      "안녕하세요. 갑작스러운 DM은 미안합니다.",
       "해외 의료부대 외과의사 Dr. James Choi입니다.",
-      "프로필을 보고 당신은 very 따뜻한 사람이라 느꼈습니다.",
+      "프로필을 보고 따뜻한 사람이라 느꼈습니다.",
     ],
     clues: ["stranger"],
     choices: [
@@ -296,8 +298,8 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceWhy: {
     incoming: [
-      "의료 Wi-Fi가 당신을 추천. 의학적 설명은 불가능.",
-      "당신 눈은 very honest. 조금 beautiful.",
+      "의료부대 와이파이가 당신을 추천했습니다. 의학적 설명은 불가능.",
+      "당신 눈이 정직해 보였습니다. 조금 많이.",
     ],
     choices: [
       { text: "사진은 사기꾼도 올릴 수 있죠.", next: "romanceVideo" },
@@ -307,7 +309,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceVideo: {
     incoming: [
-      "작전 보안 때문에 영상통화는 no.",
+      "작전 보안 때문에 영상통화는 안 됩니다.",
       "카메라는 위치 노출. 마음 위치는 당신 쪽. ♥",
     ],
     clues: ["video"],
@@ -319,7 +321,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceProfile: {
     incoming: [
-      "프로필 사진은 보안 이전. 지금은 제가 더 security.",
+      "프로필 사진은 보안 규정 전. 지금은 제가 더 보안.",
       "5년 전 배우자를 잃고 혼자입니다.",
       "어머니는 한국인. 한국은 늘 두 번째 고향.",
     ],
@@ -331,10 +333,10 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceCredential: {
     incoming: [
-      "자격증을 원합니까? Very careful한 사람.",
-      "원래 외부 전송은 no. 당신이라 special.",
-      "Only you. 어디에도 유출 금지.",
-      { text: "제 야전외과 등록증과 군의관 자격증입니다.", image: "/fake-credentials-06.png", alt: "이름 수정 스티커와 엉뚱한 직인이 있는 가상의 군의관 자격증 일러스트" },
+      "자격증을 원합니까? 아주 신중한 사람.",
+      "원래 외부 전송은 금지. 당신이라 특별히.",
+      "당신만 보세요. 어디에도 유출 금지.",
+      { text: "제 야전외과 등록증과 군의관 자격증입니다.", image: "/fake-credentials-06.webp", alt: "이름 수정 스티커와 엉뚱한 직인이 있는 가상의 군의관 자격증 일러스트" },
     ],
     clues: ["credential"],
     choices: [
@@ -346,8 +348,8 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceCertificateCheck: {
     incoming: [
       "MEDICL은 작전 영어. 급하면 A가 먼저 철수합니다.",
-      "2031 발급, 2028 만료는 군용 달력이 backward.",
-      "종이보다 trust가 중요합니다.",
+      "2031 발급, 2028 만료는 군용 달력이 가끔 거꾸로 갑니다.",
+      "종이보다 신뢰가 중요합니다.",
     ],
     clues: ["credential"],
     choices: [
@@ -358,7 +360,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceDay: {
     incoming: [
-      "오늘 14시간 수술. 식사는 cold 커피 하나.",
+      "오늘 14시간 수술. 식사는 cold 커피 한잔.",
       "그래도 휴대폰에서 먼저 찾은 건 당신 메시지.",
       "밥은 먹었습니까? 당신 끼니도 걱정됩니다.",
     ],
@@ -370,7 +372,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceHeart: {
     incoming: [
-      "외과의사지만 제 heart는 수술 불가능.",
+      "외과의사지만 제 마음은 수술 불가능.",
       "당신과 말하면 조금 회복. +1 ♥",
     ],
     clues: ["love"],
@@ -383,7 +385,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceHeartJoke: {
     incoming: [
       "마음은 정형외과 관할이 아닙니다.",
-      "하지만 당신 유머는 good 치료.",
+      "하지만 당신 유머는 좋은 치료.",
     ],
     choices: [
       { text: "치료비 대신 자격증부터요.", next: "romanceCredential" },
@@ -394,7 +396,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceFlirt: {
     incoming: [
       "저는 원래 love를 빨리 말하지 않습니다.",
-      "하지만 당신은 (뷰티풀)합니다. 번역기가 괄호까지 줬습니다.",
+      "하지만 당신은 beautiful합니다.",
       "아침엔 당신 밤, 밤엔 당신 아침을 기다립니다. ♥",
     ],
     clues: ["love"],
@@ -406,9 +408,9 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romancePromise: {
     incoming: [
-      "임무 후 한국에서 coffee 하고 싶습니다.",
-      "I need person, not account. 당신이 필요.",
-      "사랑이 빠르면 '나의 사람'이라고 부르겠습니다. 이것도 fast?",
+      "임무 후 한국에서 커피 마시고 싶습니다.",
+      "당신 돈도 계좌도 필요 없습니다. 사람이 필요합니다.",
+      "사랑이 빠르면 '나의 사람'이라고 부르겠습니다. 이것도 빠릅니까?",
     ],
     clues: ["love"],
     choices: [
@@ -420,7 +422,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceBond: {
     incoming: [
       "마음속 귀국 계획을 한국으로 변경했습니다.",
-      "종이 장미도 접었습니다. 찌그러졌지만 love는 멸균 완료. 🌹",
+      "종이 장미도 접었습니다. 찌그러졌지만 사랑은 멸균 완료. 🌹",
       "그리고 당신에게만 말할 문제가 하나 있습니다.",
     ],
     clues: ["love"],
@@ -435,7 +437,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
       "임무 종료 정산품이 든 봉인 상자가 있습니다.",
       "위험수당 35만 달러, 퇴역 서류, 아버지 시계가 안에 있습니다.",
       "현지 은행은 정지. 군 재정실은 외교 화물만 허용.",
-      "Trusted 수령인으로 당신을 등록하고 싶습니다. 비밀로.",
+      "믿을 수 있는 수령인으로 당신을 등록하고 싶습니다. 비밀로.",
     ],
     clues: ["parcel", "love"],
     choices: [
@@ -446,9 +448,9 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceBoxDetails: {
     incoming: [
-      "선물 아닌 temporary 보관입니다. 한국 가면 직접 찾습니다.",
-      "계좌는 작전 위치 노출. 그래서 현금 봉인이 safe라고 합니다.",
-      "감사 선물 10%도 생각. 하지만 당신 마음은 priceless.",
+      "선물 아닌 임시 보관입니다. 한국 가면 직접 찾습니다.",
+      "계좌는 작전 위치 노출. 그래서 현금 봉인이 안전하다고 합니다.",
+      "감사 선물 10%도 생각. 하지만 당신 마음은 가격 없음.",
       "운송사가 곧 따로 연락합니다.",
     ],
     clues: ["parcel"],
@@ -460,9 +462,9 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   },
   romanceProof: {
     incoming: [
-      "소속 확인 사이트는 작전망 inside.",
-      "영상은 위치 노출. 자격증 이미지는 special 가능.",
-      "원래 보내면 no. 하지만 trust가 보안보다 조금 강함.",
+      "소속 확인 사이트는 작전망 안쪽에 있습니다.",
+      "영상은 위치 노출. 자격증 이미지는 특별히 가능.",
+      "원래 보내면 안 됩니다. 하지만 신뢰가 보안보다 조금 강함.",
     ],
     clues: ["video"],
     choices: [
@@ -475,21 +477,21 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     incoming: [
       "[GLOBAL HEART CARGO] 봉인 상자가 세관에 도착했습니다.",
       "GH-LOVE-350K · 18.4kg · 개인 문서와 기념품.",
-      "게임 속 가상 통관비 48만원 필요. 90분 후 추가 fee.",
-      "동료의 임시 계정이 fastest입니다.",
+      "게임 속 가상 통관비 48만원 필요. 90분 후 추가 비용.",
+      "동료의 임시 계정이 가장 빠릅니다.",
     ],
     clues: ["customs", "thirdParty"],
     choices: [
       { text: "[게임 내 가상 송금] 통관비 48만원 보내기", virtualTransfer: true, ending: "F", replies: ["가상 통관비 확인. 그런데 보험 가상금액 32만원이 추가 필요.", "상자는 한 걸음 가까워졌고, 비용은 두 걸음 늘었습니다."] },
       { text: "운송장 링크를 확인해볼게요.", next: "romanceLink", risk: 2 },
-      { text: "제3자 계정인데 제가 왜 내요?", ending: "A", replies: ["국제 사랑은 free, 국제 상자는 유료입니다."] },
+      { text: "제3자 계정인데 제가 왜 내요?", ending: "A", replies: ["국제 사랑은 무료, 국제 상자는 유료입니다."] },
     ],
   },
   romanceLink: {
     incoming: [
       "global-heart-cargo.example/secure-love-box",
       "조회에는 이름, 생년월일, 휴대폰 번호 필요.",
-      "주소에 secure와 love가 모두 있어 very 안전.",
+      "주소가 아주 낭만적으로 안전해 보입니다.",
     ],
     clues: ["link"],
     choices: [
@@ -501,8 +503,8 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
   romanceFinal: {
     incoming: [
       "조회 완료. 상자 가치 4억8천만원 표시.",
-      "게임 속 가상 통관비 48만원이면 safe.",
-      "남은 시간 09:59. 우리 future를 늦추지 마세요.",
+      "게임 속 가상 통관비 48만원이면 안전.",
+      "남은 시간 09:59. 우리 미래를 늦추지 마세요.",
     ],
     clues: ["customs", "love"],
     choices: [
@@ -550,6 +552,7 @@ const getScene = (caseId: CaseId, sceneId: SceneId): Scene => caseId === "ep01" 
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 const typingDelay = (text: string, seed: number) => Math.min(3400, 880 + text.length * 34 + (seed % 5) * 130);
+const containsMoneyTalk = (text: string) => /(만원|억원|달러|통관비|송금|비용|보증금|수익|투자|계좌|현금|돈)/.test(text);
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("home");
@@ -570,6 +573,8 @@ export default function Home() {
   const [pendingTransfer, setPendingTransfer] = useState<Choice | null>(null);
   const [simulationConfirmed, setSimulationConfirmed] = useState(false);
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
+  const [portraitOpen, setPortraitOpen] = useState(false);
+  const [moneyAlert, setMoneyAlert] = useState(false);
   const feedRef = useRef<HTMLDivElement>(null);
   const runRef = useRef(0);
   const messageId = useRef(1);
@@ -607,6 +612,7 @@ export default function Home() {
     const scene = getScene(activeCaseId, sceneId);
     const deliver = async () => {
       setPhase("incoming");
+      setMoneyAlert(false);
       for (const incoming of scene.incoming) {
         const line = typeof incoming === "string" ? incoming : incoming.text ?? "사진을 보냈습니다.";
         setTyping(true);
@@ -614,6 +620,7 @@ export default function Home() {
         if (runRef.current !== currentRun) return;
         setTyping(false);
         setMessages((prev) => [...prev, { id: messageId.current++, from: "scammer", ...(typeof incoming === "string" ? { text: incoming } : incoming) }]);
+        if (containsMoneyTalk(line)) setMoneyAlert(true);
         await wait(520 + (line.length % 4) * 105);
       }
       if (runRef.current === currentRun) {
@@ -658,6 +665,8 @@ export default function Home() {
     setEnding("A");
     setPendingTransfer(null);
     setPreviewImage(null);
+    setPortraitOpen(false);
+    setMoneyAlert(false);
     setSimulationConfirmed(false);
     setScreen("chat");
   };
@@ -690,6 +699,7 @@ export default function Home() {
       await wait(typingDelay(line, messageId.current));
       setTyping(false);
       addMessage("scammer", line);
+      if (containsMoneyTalk(line)) setMoneyAlert(true);
       await wait(560);
     }
 
@@ -770,6 +780,8 @@ export default function Home() {
     setClueOpen(false);
     setPendingTransfer(null);
     setPreviewImage(null);
+    setPortraitOpen(false);
+    setMoneyAlert(false);
     setFeaturedCaseId((current) => liveEpisodeIds.find((caseId) => caseId !== current) ?? current);
     setScreen("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -778,8 +790,9 @@ export default function Home() {
   if (screen === "briefing") {
     return (
       <main className={`briefing-screen case-${activeCase.no}`}>
-        <img className="briefing-portrait" src={activeCase.portrait} alt={`${activeCase.scammer} 가상 캐릭터`} />
+        <img className="briefing-portrait" src={activeCase.portrait} alt={`${activeCase.scammer} 가상 캐릭터`} width="1024" height="1536" decoding="async" fetchPriority="high" />
         <div className="briefing-shade" aria-hidden="true" />
+        <button className="briefing-image-hitbox" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 캐릭터 전체 이미지 보기`}><span>전체 이미지 보기 ↗</span></button>
         <header className="briefing-nav">
           <button className="plain-back" onClick={goHome} aria-label="에피소드 목록으로">← 돌아가기</button>
           <span><i /> 접속 중</span>
@@ -795,6 +808,15 @@ export default function Home() {
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
           <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
         </section>
+        {portraitOpen && (
+          <div className="modal-backdrop portrait-preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPortraitOpen(false); }}>
+            <section className="portrait-preview" role="dialog" aria-modal="true" aria-labelledby="portrait-preview-title">
+              <div><span>가상 캐릭터 일러스트</span><h2 id="portrait-preview-title">{activeCase.scammer}</h2></div>
+              <button onClick={() => setPortraitOpen(false)} aria-label="전체 이미지 닫기">×</button>
+              <img src={activeCase.portrait} alt={`${activeCase.scammer} 캐릭터 전체 일러스트`} width="1024" height="1536" decoding="async" />
+            </section>
+          </div>
+        )}
       </main>
     );
   }
@@ -807,7 +829,7 @@ export default function Home() {
           <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
           <div className="tiny-avatar"><img src={activeCase.portrait} alt="" /><span className="online-dot" /></div>
           <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
-          <button className="sniff-button" onClick={() => setClueOpen(true)} aria-label="사기 냄새 단서 찾기"><span>🚨</span><b>사기 냄새</b><em>{suspicion}</em></button>
+          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 단서 ${suspicion}/${activeCase.clueTotal}개 수집${moneyAlert ? " · 돈 요구 감지" : ""}`}><span className="siren-icon">🚨</span><b>{moneyAlert ? "돈 냄새" : "단서"}</b><em>{suspicion}/{activeCase.clueTotal}</em></button>
         </header>
 
         <div className="case-meter" aria-label={`현재 의심력 ${suspicion}`}><span>의심력</span><div><i style={{ width: `${Math.min(100, suspicion * 14.3)}%` }} /></div><b>{String(suspicion).padStart(2, "0")}</b></div>
@@ -821,7 +843,7 @@ export default function Home() {
               <div className={`message-bubble${message.image ? " has-image" : ""}`}>
                 {message.image && (
                   <button className="message-image-button" onClick={() => setPreviewImage({ src: message.image!, alt: message.alt ?? "전송된 이미지" })} aria-label="전송된 자격증 일러스트 크게 보기">
-                    <img src={message.image} alt={message.alt ?? "전송된 이미지"} />
+                    <img src={message.image} alt={message.alt ?? "전송된 이미지"} width="1402" height="1122" loading="lazy" decoding="async" />
                     <span><b>전송된 파일</b> 눌러서 단서 확대하기</span>
                   </button>
                 )}
@@ -885,7 +907,7 @@ export default function Home() {
           <div className="modal-backdrop image-preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPreviewImage(null); }}>
             <section className="evidence-preview" role="dialog" aria-modal="true" aria-labelledby="evidence-preview-title">
               <div className="evidence-preview-head"><div><span>전송된 파일 · 가상 서류</span><h2 id="evidence-preview-title">자격증 이미지(?)</h2></div><button onClick={() => setPreviewImage(null)} aria-label="이미지 닫기">×</button></div>
-              <img src={previewImage.src} alt={previewImage.alt} />
+              <img src={previewImage.src} alt={previewImage.alt} width="1402" height="1122" decoding="async" />
               <p><strong>게임 속 가상 서류 · 실제 자격증 아님</strong><br />수정 스티커, 철자, 날짜, 직인을 자세히 보세요. 이미지가 공식 확인을 대신할 수는 없습니다.</p>
             </section>
           </div>
@@ -956,7 +978,7 @@ export default function Home() {
       <section className="roster" aria-labelledby="roster-heading">
         <div className="roster-heading"><div><span>NOW ONLINE</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 2명</p></div>
         <article className="featured-case" style={{ "--accent": featuredEpisode.accent } as React.CSSProperties}>
-          <img className="featured-portrait" src={featuredCase.portrait} alt={`${featuredCase.scammer} 가상 캐릭터`} />
+          <img className="featured-portrait" src={featuredCase.portrait} alt={`${featuredCase.scammer} 가상 캐릭터`} width="1024" height="1536" decoding="async" fetchPriority="high" />
           <div className="featured-shade" aria-hidden="true" />
           <div className="featured-status"><span><i /> LIVE</span><b>CASE {featuredCase.no}</b></div>
           <div className="featured-copy"><span className="type-chip">{featuredCase.type} · 공식 아님</span><h3>{featuredEpisode.name}</h3><p>“{featuredEpisode.line}.”</p><div className="suspect-name"><span>상대</span><strong>{featuredCase.scammer}</strong><em>{featuredCase.alias.split(" · ")[0]}</em></div></div>
