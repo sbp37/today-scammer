@@ -10,7 +10,7 @@ type EndingGrade = "S" | "A" | "C" | "F";
 type CaseId = "ep01" | "ep02" | "ep06";
 type ElunSceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
 type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceCredential" | "romanceCertificateCheck" | "romanceDay" | "romanceHeart" | "romanceHeartJoke" | "romanceFlirt" | "romancePromise" | "romanceBond" | "romanceParcel" | "romanceBoxDetails" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
-type SeoyunSceneId = "seoyunStart" | "seoyunWhy" | "seoyunWork" | "seoyunDinner" | "seoyunDog" | "seoyunDay2" | "seoyunDay4" | "seoyunDay6" | "seoyunOppa" | "seoyunDay8" | "seoyunHospital" | "seoyunDelete" | "seoyunConfide" | "seoyunDeposit" | "seoyunFamily" | "seoyunVerify" | "seoyunFirstTransfer" | "seoyunSecondAsk" | "seoyunVideo" | "seoyunHallway" | "seoyunSecondTransfer" | "seoyunFinal";
+type SeoyunSceneId = "seoyunStart" | "seoyunWhy" | "seoyunWork" | "seoyunDog" | "seoyunMontage" | "seoyunDay8" | "seoyunHospital" | "seoyunDelete" | "seoyunConfide" | "seoyunDeposit" | "seoyunFamily" | "seoyunVerify" | "seoyunFirstTransfer" | "seoyunSecondAsk" | "seoyunVideo" | "seoyunHallway" | "seoyunSecondTransfer" | "seoyunFinal";
 type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId;
 
 type Message = {
@@ -19,12 +19,14 @@ type Message = {
   text?: string;
   image?: string;
   alt?: string;
+  imageFallback?: string;
 };
 
 type IncomingMessage = string | {
   text?: string;
   image?: string;
   alt?: string;
+  imageFallback?: string;
   from?: "scammer" | "system";
   pauseBefore?: number;
   typingMs?: number;
@@ -47,13 +49,15 @@ type Choice = ChoiceBase & {
 
 type Scene = {
   incoming: IncomingMessage[];
-  choices: Choice[];
+  choices?: Choice[];
   clues?: string[];
+  autoNext?: SceneId;
+  autoDelay?: number;
 };
 
 const episodes = [
   { no: "01", mark: "EM", name: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", type: "유명인 사칭", line: "지갑은 분실, 자신감은 보유 중", accent: "#ff4e29", live: true },
-  { no: "02", mark: "SY", name: "엄마가 갑자기 수술해야 한대요", scammer: "김서윤 · 26", type: "소개팅 DM", line: "두부 사진으로 시작된 여덟 번의 밤", accent: "#ff7fac", live: true },
+  { no: "02", mark: "J", name: "엄마가 갑자기 수술해야 한대요", scammer: "J · 26", type: "소개팅 DM", line: "평범한 DM은 8일 뒤 부탁이 됐다", accent: "#ff7fac", live: true },
   { no: "03", mark: "檢", name: "검사님이 내 통장을 걱정한다", scammer: "중앙수사 김검사", type: "기관 사칭", line: "내 잔고에 누구보다 진심인 공무원", accent: "#00d9ff" },
   { no: "04", mark: "₿", name: "인생역전 코인 선생님", scammer: "차트도사 불기둥", type: "투자사기", line: "손실은 경험, 수익은 곧 예정", accent: "#ffd600" },
   { no: "05", mark: "BOX", name: "택배가 왔는데 내가 시킨 게 없다", scammer: "행복택배 11팀", type: "스미싱", line: "상자는 없고 링크만 도착함", accent: "#bd7cff" },
@@ -74,7 +78,7 @@ const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : no ==
 
 const caseProfiles = {
   ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.webp", duration: "4분 내외", start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
-  ep02: { no: "02", title: "엄마가 갑자기 수술해야 한대요", scammer: "김서윤", alias: "KIM SEOYUN · 26 · MARKETING", type: "로맨스스캠", portrait: "/scammer-02.webp", duration: "8분 내외", start: "seoyunStart" as SceneId, virtualAmount: "총 181만원", tactic: "평범한 소개팅 DM → 8일 친밀감 → 가족 위기 → 소액 부탁 → 금액 상승", clueTotal: 7 },
+  ep02: { no: "02", title: "엄마가 갑자기 수술해야 한대요", scammer: "J", alias: "J · 26 · 마케팅 회사 · 두부 보호자", type: "로맨스스캠", portrait: "/scammer-02.webp", duration: "4~5분", start: "seoyunStart" as SceneId, virtualAmount: "총 181만원", tactic: "평범한 소개팅 DM → 8일 친밀감 → 가족 위기 → 소액 부탁 → 금액 상승", clueTotal: 7 },
   ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.webp", duration: "7분 내외", start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
 } as const;
 
@@ -529,7 +533,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
   seoyunWhy: {
     incoming: ["ㅋㅋㅋㅋ 자신감 뭐예요. 근데 진짜 말투 편해 보여서요."],
     choices: [
-      { text: "서윤 씨도 편해 보이네요.", next: "seoyunWork", replies: ["다행이다 ㅎㅎ 저 은근 낯가리는데 오늘은 말이 잘 나오네요."] },
+      { text: "J님도 편해 보이네요.", next: "seoyunWork", replies: ["다행이다 ㅎㅎ 저 은근 낯가리는데 오늘은 말이 잘 나오네요."] },
       { text: "프로필은 직접 쓴 거 맞죠?", next: "seoyunWork", replies: ["네 ㅋㅋ 맵찔이도, 퇴근 후 맛있는 거 찾는 것도 다 저예요.", "강아지 이름은 두부예요. 이건 나중에 사진 인증 가능 🐶"] },
       { text: "벌써 웃겼으면 반은 성공했네요.", next: "seoyunWork", replies: ["그럼 남은 반은 대화로 채워봐요 ㅋㅋ"] },
     ],
@@ -537,79 +541,41 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
   seoyunWork: {
     incoming: [
       "오늘 퇴근했어요?",
-      "저는 아직요 ㅠ 팀장이 갑자기 자료 다시 해달래서...",
-      "이런 얘기 처음 보는 사람한테 왜 하고 있지 ㅋㅋ",
+      "저는 마케팅 회사 다녀요. 팀장이 문구를 또 고쳐달래서 아직 회사 ㅠ",
+      "'조금만 더'를 세 시간째 듣고 있어요 ㅋㅋ",
     ],
     choices: [
-      { text: "처음 보는 사람이라 더 편할 때도 있죠.", next: "seoyunDinner", replies: ["맞아요. 아는 사람한텐 괜히 걱정시킬까 봐 말 못 할 때도 있고."] },
-      { text: "마케팅 회사도 야근이 많네요.", next: "seoyunDinner", replies: ["광고는 늘 급하고 팀장은 늘 더 급해요 ㅠ 오늘 문구만 세 번째 수정 중."] },
-      { text: "팀장님께 제 느낌이 안 좋다고 전해주세요.", next: "seoyunDinner", replies: ["ㅋㅋㅋㅋ 오늘 처음 연락한 분의 촉까지 보고서에 넣어볼게요."] },
-    ],
-  },
-  seoyunDinner: {
-    incoming: ["저녁 뭐 먹었어요? 저는 맵찔이라 오늘도 순한 것만 찾는 중 ㅎㅎ"],
-    choices: [
-      { text: "김치찌개 먹었어요.", next: "seoyunDog", replies: ["부럽다... 저는 김치 한 조각에 물 세 잔 마시는 사람인데 ㅋㅋ"] },
-      { text: "아직 안 먹었어요.", next: "seoyunDog", replies: ["그럼 뭐라도 챙겨 먹어요. 빈속이면 대화도 재미없잖아요 ㅠ"] },
-      { text: "왜요, 사주려고요?", next: "seoyunDog", replies: ["그럼 첫 커피는 제가 살게요 ㅋㅋ 대신 디저트는 오빠가 사기 ☕"] },
+      { text: "마케팅 회사도 야근이 많네요.", next: "seoyunDog", replies: ["광고는 늘 급하고 팀장은 늘 더 급해요 ㅠ"] },
+      { text: "퇴근하면 저녁부터 챙겨요.", next: "seoyunDog", replies: ["오, 첫날부터 잔소리해주는 사람 처음이에요 ㅎㅎ"] },
+      { text: "그 '조금' 지금 실종된 것 같은데요.", next: "seoyunDog", replies: ["ㅋㅋㅋㅋ 내일 실종 신고부터 해야겠다."] },
     ],
   },
   seoyunDog: {
     incoming: [
-      { from: "system", text: "🐶 두부가 산책하다가 안 간다고 버티는 사진", pauseBefore: 450 },
+      { image: "/seoyun-dubu.webp", alt: "소파에 앉은 말티푸 두부", imageFallback: "🐶 두부가 산책하다가 안 간다고 버티는 사진", pauseBefore: 450 },
       "얘가 저보다 성격 더 안 좋아요. 집 가기 싫으면 갑자기 돌이 됩니다 🐶",
-    ],
-    choices: [
-      { text: "두부는 얼굴로 이미 무죄네요.", next: "seoyunDay2", replies: ["판사님 판결 감사합니다. 간식형으로 종결할게요 ㅋㅋ"] },
-      { text: "강아지 사진은 반칙인데요.", next: "seoyunDay2", replies: ["제 프로필보다 두부 반응이 더 좋네. 조금 질투 나는데요?"] },
-      { text: "커피 약속, 두부도 같이 오는 거죠?", next: "seoyunDay2", replies: ["두부 면접부터 통과하면요. 간식 지참 필수 ㅎㅎ"] },
-    ],
-  },
-  seoyunDay2: {
-    incoming: [
-      { from: "system", text: "DAY 2 · 별일 없는 대화가 계속됐습니다.", pauseBefore: 650 },
-      "나 원래 연락 진짜 안 하는데 오빠랑은 이상하게 계속 하게 되네.",
-      "아, 오빠라고 해도 되죠?",
       "근데 여자친구는 없어요?",
     ],
-    clues: ["rapidIntimacy"],
     choices: [
-      { text: "없어요.", next: "seoyunDay4", replies: ["에이, 거짓말~ 프로필은 멀쩡한데?"] },
-      { text: "없어요. 그냥 없어요.", next: "seoyunDay4", replies: ["ㅋㅋㅋㅋ 왜 두 번 말해요. 갑자기 아주 확실해졌네."] },
-      { text: "왜요, 지원하시게요?", next: "seoyunDay4", replies: ["서류부터 봐야죠 ㅎㅎ 일단 연락 성실도는 합격. ♥"] },
+      { text: "없어요.", next: "seoyunMontage", replies: ["에이, 거짓말~ 두부도 안 믿는 표정인데? 🐶"] },
+      { text: "없어요. 그냥 없어요.", next: "seoyunMontage", replies: ["ㅋㅋㅋㅋ 왜 두 번 말해요. 갑자기 아주 확실해졌네."] },
+      { text: "왜요, 지원하시게요?", next: "seoyunMontage", replies: ["서류부터 봐야죠 ㅎㅎ 일단 연락 성실도는 합격. ♥"] },
     ],
   },
-  seoyunDay4: {
+  seoyunMontage: {
     incoming: [
-      { from: "system", text: "DAY 4 · 대화는 아침과 밤의 습관이 됐습니다.", pauseBefore: 700 },
-      "이번 주말에는 부모님이랑 제주도 가기로 했어요.",
-      "우리 약속은 또 미뤄서 미안해요. 다음 주엔 진짜 봐요 ㅠ",
-    ],
-    clues: ["postponedMeeting"],
-    choices: [
-      { text: "가족 여행 잘 다녀와요.", next: "seoyunDay6", replies: ["고마워요. 엄마가 사진 백 장 찍을 예정이래요 ㅋㅋ"] },
-      { text: "다음 주엔 진짜 커피 사는 거죠?", next: "seoyunDay6", replies: ["네. 이번엔 팀장이 제주도까지 따라오지 않는 이상 꼭 ☕"] },
-      { text: "부모님이랑 친한가 봐요.", next: "seoyunDay6", replies: ["네, 두 분이랑 여행도 자주 가요. 이번엔 제가 코스 다 짰어요."] },
-    ],
-  },
-  seoyunDay6: {
-    incoming: [
+      { from: "system", text: "DAY 2 · 별일 없는 대화가 계속됐습니다.", pauseBefore: 650 },
+      { text: "나 원래 연락 잘 안 하는데 오빠랑은 이상하게 계속 하게 되네 ㅎㅎ", typingMs: 1350 },
+      { from: "system", text: "DAY 4 · 아침과 밤의 인사가 습관이 됐습니다.", pauseBefore: 700 },
+      { text: "이번 주말엔 부모님이랑 제주도 가요.", typingMs: 1200 },
+      { text: "엄마가 사진 백 장 찍을 준비 중이에요 ㅋㅋ", typingMs: 1250 },
+      { text: "우리 약속 또 미뤄서 미안해요. 다음 주엔 진짜 봐요 ㅠ", typingMs: 1450 },
       { from: "system", text: "DAY 6 · 서로의 하루를 꽤 많이 알게 됐습니다.", pauseBefore: 700 },
-      "다음 주 토요일 뭐해요? 이번엔 진짜 시간 빼둘게요.",
+      { text: "다음 주 토요일은 진짜 봐요 ☕ 이번엔 제가 커피 살게요.", typingMs: 1450 },
     ],
-    choices: [
-      { text: "드디어 만나자는 건가요?", next: "seoyunDay8", replies: ["네 ㅎㅎ 화면 밖에서도 말 잘하는지 확인해야죠."] },
-      { text: "일정 한번 봐야 돼요.", next: "seoyunDay8", replies: ["튕기는 거예요? 저도 그럼 두부 일정부터 확인할게요."] },
-      { text: "벌써 오빠예요?", next: "seoyunOppa" },
-    ],
-  },
-  seoyunOppa: {
-    incoming: ["싫으면 아저씨라고 할게요."],
-    choices: [
-      { text: "오빠로 빠르게 합의하죠.", next: "seoyunDay8", replies: ["협상 속도 마음에 드는데요 ㅋㅋ"] },
-      { text: "그건 협박인데요 ㅋㅋ", next: "seoyunDay8", replies: ["효과는 있었잖아요. 오빠라고 할게요 ㅎㅎ"] },
-      { text: "일단 토요일에 보고 정해요.", next: "seoyunDay8", replies: ["좋아요. 현장 심사 준비할게요."] },
-    ],
+    clues: ["rapidIntimacy", "postponedMeeting"],
+    autoNext: "seoyunDay8",
+    autoDelay: 650,
   },
   seoyunDay8: {
     incoming: [
@@ -639,7 +605,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
   seoyunDelete: {
     incoming: [
       { abortTyping: true, typingMs: 2700, pauseBefore: 700 },
-      { from: "system", text: "서윤님이 메시지를 쓰다가 지웠습니다.", pauseBefore: 450 },
+      { from: "system", text: "J님이 메시지를 쓰다가 지웠습니다.", pauseBefore: 450 },
       { abortTyping: true, typingMs: 1900, pauseBefore: 650 },
       { text: "아니다. 이건 내가 알아서 해야지.", typingMs: 1500 },
     ],
@@ -672,7 +638,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     choices: [
       { text: "[게임 내 가상 송금] 18만원 보내기", virtualTransfer: true, virtualAmount: "18만원", virtualLoss: 180000, next: "seoyunFirstTransfer", risk: 2 },
       { text: "왜 가족이나 친구한테 안 빌려?", next: "seoyunFamily" },
-      { text: "병원 이름이 볼드모트예요? 대표번호 줘요.", next: "seoyunVerify" },
+      { text: "병원 이름이랑 대표번호 알려줘. 내가 확인해볼게.", next: "seoyunVerify" },
     ],
   },
   seoyunFamily: {
@@ -755,7 +721,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
     clues: ["amountEscalation"],
     choices: [
-      { text: "병원비가 다음 화 예고처럼 나오네. 얼마야?", next: "seoyunFinal", replies: ["이번 게 진짜 마지막이야. 이 뒤는 없어."] },
+      { text: "또 비용이 필요한 거야? 얼마인데?", next: "seoyunFinal", replies: ["이번 게 진짜 마지막이야. 이 뒤는 없어."] },
       { text: "여기서 멈출게. 더는 못 믿어.", ending: "C", replies: ["진짜 마지막인데... 61만원까지 도와주고 왜 지금 멈춰?"] },
       { text: "병원에 직접 확인할게.", ending: "C", replies: ["오늘은 병원 전체가... 외부 확인을 쉬는 날이래."] },
     ],
@@ -768,8 +734,8 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     clues: ["amountEscalation", "emotionalPressure"],
     choices: [
       { text: "[게임 내 가상 송금] 120만원 보내기", virtualTransfer: true, virtualAmount: "120만원", virtualLoss: 1200000, ending: "F", replies: ["정말 고마워. 그런데 퇴원 수속 보증금이 하나만 더—"] },
-      { text: "서윤아, 우리 아직 한 번도 만난 적 없잖아.", ending: "C", replies: ["그래서 만나려고 지금 이걸 해결하는 거잖아..."] },
-      { text: "병원비가 구독제예요? 확인하고 차단.", ending: "C", replies: ["대표번호보다 우리 8일을 믿어주면 안 돼?"] },
+      { text: "J, 우리 아직 한 번도 만난 적 없잖아.", ending: "C", replies: ["그래서 만나려고 지금 이걸 해결하는 거잖아..."] },
+      { text: "보증금이 계속 추가되네요. 확인하고 차단할게요.", ending: "C", replies: ["대표번호보다 우리 8일을 믿어주면 안 돼?"] },
     ],
   },
 };
@@ -818,10 +784,10 @@ const romanceEndingCopy: Record<EndingGrade, { title: string; kicker: string; bo
 };
 
 const seoyunEndingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
-  S: { title: "사랑보다 확인이 빨랐습니다", kicker: "모순 포착 · 가상 피해 0원", body: "게임 속 가상금액 피해 0원, 개인정보 유출 0건. 서윤 씨는 결국 토요일 약속에도 나타나지 않았습니다.", shareLine: "제주도 복선을 기억한 사람이 병원 복도보다 빨랐습니다." },
+  S: { title: "사랑보다 확인이 빨랐습니다", kicker: "모순 포착 · 가상 피해 0원", body: "게임 속 가상금액 피해 0원, 개인정보 유출 0건. J는 결국 토요일 약속에도 나타나지 않았습니다.", shareLine: "제주도 복선을 기억한 사람이 병원 복도보다 빨랐습니다." },
   A: { title: "마음은 줬지만 돈은 안 줬습니다", kicker: "8일 대화 · 가상 송금 없음", body: "8일 동안 매일 연락했지만 게임 속 가상금액 피해는 0원입니다. 두부 사진은 저장했고 지갑은 지켰습니다.", shareLine: "커피 약속은 사라졌지만 가상 잔액은 그대로입니다." },
   C: { title: "첫 부탁 뒤에 멈췄습니다", kicker: "소액 가상 송금 · 추가 요구 전 탈출", body: "작은 부탁으로 시작한 금액이 커지는 순간 대화를 멈췄습니다. 실제 금전 거래는 없었습니다.", shareLine: "18만원 다음에 43만원이 오는 속도는 연애보다 빨랐습니다." },
-  F: { title: "서윤의 가족이 되었습니다", kicker: "세 번의 가상 송금 · 아직 만남 0회", body: "게임 속 가상금액 총 181만원을 보냈습니다. 그런데 아직 실제로 만난 적은 없습니다.", shareLine: "서윤의 병원은 끝까지 비공개였고 보증금만 세 번 출근했습니다." },
+  F: { title: "J의 가족이 되었습니다", kicker: "세 번의 가상 송금 · 아직 만남 0회", body: "게임 속 가상금액 총 181만원을 보냈습니다. 그런데 아직 실제로 만난 적은 없습니다.", shareLine: "J의 병원은 끝까지 비공개였고 보증금만 세 번 출근했습니다." },
 };
 
 const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
@@ -851,6 +817,18 @@ const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve,
 const typingDelay = (text: string, seed: number) => Math.min(2700, 620 + text.length * 27 + (seed % 5) * 80);
 const containsMoneyTalk = (text: string) => /(만원|억원|달러|통관비|송금|비용|보증금|수익|투자|계좌|현금|돈)/.test(text);
 
+function MessageImage({ message, onOpen }: { message: Message; onOpen: (image: { src: string; alt: string }) => void }) {
+  const [failed, setFailed] = useState(false);
+  if (!message.image || failed) return <span className="message-text image-fallback">{message.imageFallback ?? "전송된 이미지를 불러오지 못했습니다."}</span>;
+  const alt = message.alt ?? "전송된 이미지";
+  return (
+    <button className="message-image-button" onClick={() => onOpen({ src: message.image!, alt })} aria-label={`${alt} 크게 보기`}>
+      <img src={message.image} alt={alt} width="1120" height="896" decoding="async" fetchPriority="high" onError={() => setFailed(true)} />
+      <span><b>전송된 파일</b> 눌러서 확대하기</span>
+    </button>
+  );
+}
+
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("home");
   const [activeCaseId, setActiveCaseId] = useState<CaseId>("ep01");
@@ -873,9 +851,11 @@ export default function Home() {
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
   const [portraitOpen, setPortraitOpen] = useState(false);
   const [moneyAlert, setMoneyAlert] = useState(false);
+  const [clueHintVisible, setClueHintVisible] = useState(false);
   const feedRef = useRef<HTMLDivElement>(null);
   const runRef = useRef(0);
   const messageId = useRef(1);
+  const clueHintShownRef = useRef(false);
 
   const activeCase = caseProfiles[activeCaseId];
   const featuredCase = caseProfiles[featuredCaseId];
@@ -885,11 +865,11 @@ export default function Home() {
     .sort((left, right) => Number(Boolean(right.live)) - Number(Boolean(left.live)) || Number(left.no) - Number(right.no));
   const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : activeCaseId === "ep02" ? seoyunEndingCopy : romanceEndingCopy;
   const transcriptText = messages.map((message) => message.text ?? "").join(" ");
+  const dubuWasShown = messages.some((message) => message.image?.includes("seoyun-dubu") || message.imageFallback?.includes("두부"));
   const falseClueIds = activeCaseId === "ep01" ? ["photo", "grammar"] : activeCaseId === "ep02"
-    ? ["normalDm", ...(transcriptText.includes("두부가 산책") ? ["dogPhoto"] : []), ...(transcriptText.includes("평소보다 답장이 늦") ? ["lateReply"] : [])]
+    ? ["normalDm", ...(dubuWasShown ? ["dogPhoto"] : []), ...(transcriptText.includes("평소보다 답장이 늦") ? ["lateReply"] : [])]
     : ["uniform", "grammar"];
   const suspicion = foundClues.length;
-  const suspicionPoints = Math.min(100, suspicion * 20);
   const unfoundClues = availableClues.filter((id) => !foundClues.includes(id));
 
   useEffect(() => {
@@ -908,6 +888,23 @@ export default function Home() {
     const id = window.setTimeout(() => setToast(""), 2300);
     return () => window.clearTimeout(id);
   }, [toast]);
+
+  useEffect(() => {
+    if (screen !== "chat" || unfoundClues.length === 0 || clueHintShownRef.current) return;
+    try {
+      if (window.localStorage.getItem("today-scammer:clue-hint-seen")) {
+        clueHintShownRef.current = true;
+        return;
+      }
+      window.localStorage.setItem("today-scammer:clue-hint-seen", "1");
+    } catch {
+      // Storage can be unavailable in private browsers; the hint still works for this play.
+    }
+    clueHintShownRef.current = true;
+    const showId = window.setTimeout(() => setClueHintVisible(true), 0);
+    const hideId = window.setTimeout(() => setClueHintVisible(false), 2100);
+    return () => { window.clearTimeout(showId); window.clearTimeout(hideId); };
+  }, [screen, unfoundClues.length]);
 
   useEffect(() => {
     if (screen !== "chat") return;
@@ -937,7 +934,14 @@ export default function Home() {
         await wait(detail.typingMs ?? typingDelay(line, messageId.current));
         if (runRef.current !== currentRun) return;
         setTyping(false);
-        setMessages((prev) => [...prev, { id: messageId.current++, from: "scammer", ...(typeof incoming === "string" ? { text: incoming } : incoming) }]);
+        setMessages((prev) => [...prev, {
+          id: messageId.current++,
+          from: "scammer",
+          text: typeof incoming === "string" ? incoming : incoming.text,
+          image: typeof incoming === "string" ? undefined : incoming.image,
+          alt: typeof incoming === "string" ? undefined : incoming.alt,
+          imageFallback: typeof incoming === "string" ? undefined : incoming.imageFallback,
+        }]);
         if (containsMoneyTalk(line)) setMoneyAlert(true);
         await wait(330 + (line.length % 4) * 70);
       }
@@ -946,6 +950,13 @@ export default function Home() {
         await wait(readingPause);
         if (runRef.current !== currentRun) return;
         setAvailableClues((prev) => [...new Set([...prev, ...(scene.clues ?? [])])]);
+        if (scene.autoNext) {
+          await wait(scene.autoDelay ?? 600);
+          if (runRef.current !== currentRun) return;
+          setTurn((prev) => prev + 1);
+          setSceneId(scene.autoNext);
+          return;
+        }
         setPhase("choice");
       }
     };
@@ -994,6 +1005,7 @@ export default function Home() {
     setPreviewImage(null);
     setPortraitOpen(false);
     setMoneyAlert(false);
+    setClueHintVisible(false);
     setSimulationConfirmed(false);
     setScreen("chat");
   };
@@ -1091,19 +1103,6 @@ export default function Home() {
     }
   };
 
-  const openNextCase = () => {
-    if (activeCaseId === "ep01") {
-      startCase("ep06");
-      return;
-    }
-    if (activeCaseId === "ep06") {
-      startCase("ep02");
-      return;
-    }
-    setInfoEpisode(episodes[2]);
-    setScreen("home");
-  };
-
   const sniffClue = (id: string) => {
     const clue = clueOptions.find((item) => item.id === id);
     if (!clue) return;
@@ -1113,7 +1112,7 @@ export default function Home() {
     }
     if (availableClues.includes(id)) {
       setFoundClues((prev) => [...prev, id]);
-      setToast(`의심력 +20 · “${clue.label}”`);
+      setToast(`증거 ${foundClues.length + 1} / ${activeCase.clueTotal} · “${clue.label}”`);
       setClueOpen(false);
     } else {
       const jokes: Record<string, string> = {
@@ -1159,23 +1158,25 @@ export default function Home() {
           <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : activeCaseId === "ep02" ? "평범한 소개팅 대화 속에서 8일 전의 말과 오늘의 말이 어긋나는 순간을 기억하세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
           <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
+          <p className="fictional-note">등장인물과 대화는 게임을 위해 만든 가상 설정입니다.</p>
         </section>
       </main>
     );
   }
 
   if (screen === "chat") {
-    const choices = getScene(activeCaseId, sceneId).choices;
+    const choices = getScene(activeCaseId, sceneId).choices ?? [];
     return (
       <main className="chat-shell">
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
           <button className="avatar-button tiny-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /><span className="online-dot" /></button>
           <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
-          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}${unfoundClues.length ? " clue-ready" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 냄새 단서 찾기${moneyAlert ? " · 돈 관련 대화 감지" : ""}${unfoundClues.length ? ` · 새 단서 ${unfoundClues.length}개` : ""}`}><span className="siren-icon">🚨</span><b>{moneyAlert ? "돈 냄새" : "사기 냄새"}</b></button>
+          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}${unfoundClues.length ? " clue-ready" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 냄새 단서 찾기${moneyAlert ? " · 돈 관련 대화 감지" : ""}${unfoundClues.length ? ` · 새 단서 ${unfoundClues.length}개` : ""}`}><span className="siren-icon">🚨</span><b>{unfoundClues.length ? `새 단서 ${unfoundClues.length}` : moneyAlert ? "돈 냄새" : "사기 냄새"}</b></button>
         </header>
 
-        <div className={`case-meter${unfoundClues.length ? " clue-ready" : ""}`} aria-label={`현재 의심력 ${suspicionPoints}`}><span>의심력<small>{unfoundClues.length ? `새 단서 ${unfoundClues.length}` : suspicionPoints ? "채증 완료" : "🚨에서 단서 찾기"}</small></span><div><i style={{ width: `${suspicionPoints}%` }} /></div><b key={suspicionPoints}>{String(suspicionPoints).padStart(2, "0")}</b></div>
+        {clueHintVisible && <div className="clue-tutorial" role="status"><span>🚨</span><p>뭔가 이상한 말이 나오면<br /><b>사기 냄새</b>를 눌러 증거를 찾아보세요.</p></div>}
+        {foundClues.length > 0 && <div className="case-meter" aria-label={`잡은 증거 ${foundClues.length}개, 전체 ${activeCase.clueTotal}개`}><span>잡은 증거<small>{unfoundClues.length ? `새 단서 ${unfoundClues.length}` : "대화에서 더 찾기"}</small></span><div><i style={{ width: `${Math.min(100, foundClues.length / activeCase.clueTotal * 100)}%` }} /></div><b key={foundClues.length}>{foundClues.length} / {activeCase.clueTotal}</b></div>}
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>
@@ -1184,12 +1185,7 @@ export default function Home() {
             <div className={`message-row ${message.from}`} key={message.id}>
               {message.from === "scammer" && <button className="avatar-button bubble-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /></button>}
               <div className={`message-bubble${message.image ? " has-image" : ""}`}>
-                {message.image && (
-                  <button className="message-image-button" onClick={() => setPreviewImage({ src: message.image!, alt: message.alt ?? "전송된 이미지" })} aria-label="전송된 자격증 일러스트 크게 보기">
-                    <img src={message.image} alt={message.alt ?? "전송된 이미지"} width="1120" height="896" decoding="async" fetchPriority="high" />
-                    <span><b>전송된 파일</b> 눌러서 단서 확대하기</span>
-                  </button>
-                )}
+                {message.image && <MessageImage message={message} onOpen={setPreviewImage} />}
                 {message.text && <span className="message-text">{message.text}</span>}
               </div>
             </div>
@@ -1228,7 +1224,10 @@ export default function Home() {
               <div className="clue-heading"><div><span>현장 채증</span><h2 id="clue-title">뭐가 찜찜했나요?</h2></div><button onClick={() => setClueOpen(false)} aria-label="닫기">×</button></div>
               <p>{activeCaseId === "ep02" && availableClues.length === 0 ? "아직 뚜렷한 사기 신호는 없습니다. 사람과 대화하는 것 자체는 범죄가 아닙니다." : "지금까지 대화에서 냄새난 장면을 증거 봉투에 넣으세요."}</p>
               <div className="clue-grid">
-                {clueOptions.filter((clue) => availableClues.includes(clue.id) || falseClueIds.includes(clue.id)).map((clue) => <button className={foundClues.includes(clue.id) ? "found" : ""} key={clue.id} onClick={() => sniffClue(clue.id)}><span>{foundClues.includes(clue.id) ? "✓" : "?"}</span>{clue.label}</button>)}
+                {clueOptions.filter((clue) => availableClues.includes(clue.id) || falseClueIds.includes(clue.id)).map((clue) => {
+                  const found = foundClues.includes(clue.id);
+                  return <button className={found ? "found" : ""} key={clue.id} disabled={found} onClick={() => sniffClue(clue.id)}><span>{found ? "✓" : "?"}</span>{found ? `${clue.label} · 확보` : clue.label}</button>;
+                })}
               </div>
             </section>
           </div>
@@ -1275,11 +1274,7 @@ export default function Home() {
     const endingBody = activeCaseId === "ep02" && ending === "C" && virtualMoneyLost > 0
       ? `게임 속 가상금액 ${virtualMoneyLost.toLocaleString("ko-KR")}원을 보냈지만, 다음 요구에서 멈췄습니다. 실제 금전 거래는 없었습니다.`
       : copy.body;
-    const nextCase = activeCaseId === "ep01"
-      ? { no: "06", mark: "♥", type: "로맨스스캠", title: "해외 파병 군의관", line: "사랑은 국경 없고 통관료는 있습니다." }
-      : activeCaseId === "ep06"
-        ? { no: "02", mark: "SY", type: "로맨스스캠", title: "엄마가 갑자기 수술해야 한대요", line: "평범했던 8일째 대화에 처음 나온 부탁입니다." }
-        : { no: "03", mark: "檢", type: "기관 사칭", title: "검사님이 내 통장을 걱정한다", line: "내 잔고에 누구보다 진심인 공무원이 접수됐습니다." };
+    const connectedCases = liveEpisodeIds.filter((caseId) => caseId !== activeCaseId);
     return (
       <main className={`ending-screen grade-${ending.toLowerCase()}`}>
         <div className="ending-noise" />
@@ -1310,9 +1305,21 @@ export default function Home() {
           <button className="share-button" onClick={shareResult}><span>친구도 살아남는지 보내보기</span><b>↗</b></button>
 
           <section className="next-case-panel" aria-labelledby="next-case-title">
-            <div className="next-case-signal"><span>NEW SIGNAL</span><b>CASE {nextCase.no}</b></div>
-            <div className="next-case-content"><div className="next-case-mark">{nextCase.mark}</div><div><small>{nextCase.type}</small><h2 id="next-case-title">{nextCase.title}</h2><p>{nextCase.line}</p></div></div>
-            <button onClick={openNextCase}><span>사건파일 열기</span><b>→</b></button>
+            <div className="next-case-signal"><span>CONNECTED CASES</span><b>PLAY NOW</b></div>
+            <h2 id="next-case-title" className="next-case-heading">바로 이어서 상대할 사기꾼</h2>
+            <div className="connected-case-list">
+              {connectedCases.map((caseId) => {
+                const profile = caseProfiles[caseId];
+                const episode = episodes.find((item) => item.no === profile.no)!;
+                return (
+                  <button className="connected-case-card" key={caseId} onClick={() => startCase(caseId)} aria-label={`${profile.title} 사건파일 열기`}>
+                    <img src={profile.portrait} alt="" loading="lazy" decoding="async" />
+                    <span><small>CASE {profile.no} · {profile.type}</small><strong>{profile.title}</strong><em>{episode.scammer}</em></span>
+                    <b aria-hidden="true">→</b>
+                  </button>
+                );
+              })}
+            </div>
           </section>
 
           <div className="result-actions"><button className="secondary-game-button" onClick={enterChat}>다시 상대하기</button><button className="secondary-game-button" onClick={goHome}>다른 사기꾼 보기</button></div>
