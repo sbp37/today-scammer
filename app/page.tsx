@@ -39,10 +39,11 @@ type ChoiceBase = {
   virtualLoss?: number;
 };
 
-type Choice = ChoiceBase & (
-  | { next: SceneId; ending?: never; replies?: never }
-  | { ending: EndingGrade; replies: string[]; next?: never }
-);
+type Choice = ChoiceBase & {
+  next?: SceneId;
+  ending?: EndingGrade;
+  replies?: string[];
+};
 
 type Scene = {
   incoming: IncomingMessage[];
@@ -304,7 +305,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     choices: [
       { text: "제 프로필을 어디서 봤어요?", next: "romanceWhy" },
       { text: "그럼 영상통화로 인사해요.", next: "romanceVideo" },
-      { text: "파병지에서 고생 많으시겠어요.", next: "romanceProfile", risk: 1 },
+      { text: "파병지에서 고생 많으시겠어요.", next: "romanceProfile", risk: 1, replies: ["감사합니다. 외로운 곳이라 평범한 대화가 더 귀합니다."] },
     ],
   },
   romanceWhy: {
@@ -312,7 +313,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
       "추천 목록에 떴어요. 그런데 눈이 참 정직해 보이더군요. 조금 많이.",
     ],
     choices: [
-      { text: "사진은 사기꾼도 올릴 수 있죠.", next: "romanceVideo" },
+      { text: "사진은 사기꾼도 올릴 수 있죠.", next: "romanceVideo", replies: ["맞습니다. 의심은 이해합니다. 하지만 제 상황에는 작은 문제가 있습니다."] },
       { text: "그럼 의사·군의관 자격증 줘봐요.", next: "romanceCredential" },
       { text: "제 눈이 그렇게 특별해요?", next: "romanceHeart", risk: 1 },
     ],
@@ -349,7 +350,7 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
     clues: ["credential"],
     choices: [
       { text: "잠깐, 기관 이름과 날짜가 이상한데요?", next: "romanceCertificateCheck" },
-      { text: "이 정도면 믿을게요.", next: "romanceDay", risk: 1 },
+      { text: "이 정도면 믿을게요.", next: "romanceDay", risk: 1, replies: ["당신의 신뢰, 아주 소중히 보관하겠습니다."] },
       { text: "사진 말고 공식 경로로 확인할게요.", ending: "A", replies: ["공식 경로는 지금 매우 비공식적으로 닫혀 있습니다."] },
     ],
   },
@@ -371,8 +372,8 @@ const romanceScenes: Record<RomanceSceneId, Scene> = {
       "그래도 휴대폰에서 먼저 찾은 건 당신 메시지네요. 밥은 먹었어요?",
     ],
     choices: [
-      { text: "저는 먹었어요. 당신도 뭐라도 먹어요.", next: "romanceFlirt", risk: 1 },
-      { text: "다른 사람한테도 똑같이 보내는 말 아니죠?", next: "romanceFlirt" },
+      { text: "저는 먹었어요. 당신도 뭐라도 먹어요.", next: "romanceFlirt", risk: 1, replies: ["저를 걱정하는 메시지는 오늘 처음입니다. 마음이 조금 따뜻해졌습니다."] },
+      { text: "다른 사람한테도 똑같이 보내는 말 아니죠?", next: "romanceFlirt", replies: ["같은 문장은 없습니다. 번역기가 가끔 비슷한 마음만 만듭니다."] },
       { text: "낯선 사람과는 여기까지만 할게요.", ending: "A", replies: ["제 차가운 커피가 오늘 더 차가워졌습니다."] },
     ],
   },
@@ -521,16 +522,16 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
     choices: [
       { text: "안녕하세요 ㅋㅋ 뭐가 좋았는데요?", next: "seoyunWhy" },
-      { text: "저 이런 연락 잘 안 믿는데.", next: "seoyunWhy" },
+      { text: "저 이런 연락 잘 안 믿는데.", next: "seoyunWork", replies: ["그럴 수 있죠 ㅎㅎ 저라도 낯선 DM은 조금 경계할 것 같아요.", "그냥 천천히 얘기해봐요. 부담 주기 싫어요."] },
       { text: "제가 원래 느낌이 좀 좋습니다.", next: "seoyunWhy" },
     ],
   },
   seoyunWhy: {
     incoming: ["ㅋㅋㅋㅋ 자신감 뭐예요. 근데 진짜 말투 편해 보여서요."],
     choices: [
-      { text: "서윤 씨도 편해 보이네요.", next: "seoyunWork" },
-      { text: "프로필은 직접 쓴 거 맞죠?", next: "seoyunWork" },
-      { text: "벌써 웃겼으면 반은 성공했네요.", next: "seoyunWork" },
+      { text: "서윤 씨도 편해 보이네요.", next: "seoyunWork", replies: ["다행이다 ㅎㅎ 저 은근 낯가리는데 오늘은 말이 잘 나오네요."] },
+      { text: "프로필은 직접 쓴 거 맞죠?", next: "seoyunWork", replies: ["네 ㅋㅋ 맵찔이도, 퇴근 후 맛있는 거 찾는 것도 다 저예요.", "강아지 이름은 두부예요. 이건 나중에 사진 인증 가능 🐶"] },
+      { text: "벌써 웃겼으면 반은 성공했네요.", next: "seoyunWork", replies: ["그럼 남은 반은 대화로 채워봐요 ㅋㅋ"] },
     ],
   },
   seoyunWork: {
@@ -540,29 +541,28 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
       "이런 얘기 처음 보는 사람한테 왜 하고 있지 ㅋㅋ",
     ],
     choices: [
-      { text: "처음 보는 사람이라 더 편할 때도 있죠.", next: "seoyunDinner" },
-      { text: "마케팅 회사도 야근이 많네요.", next: "seoyunDinner" },
-      { text: "팀장님께 제 느낌이 안 좋다고 전해주세요.", next: "seoyunDinner" },
+      { text: "처음 보는 사람이라 더 편할 때도 있죠.", next: "seoyunDinner", replies: ["맞아요. 아는 사람한텐 괜히 걱정시킬까 봐 말 못 할 때도 있고."] },
+      { text: "마케팅 회사도 야근이 많네요.", next: "seoyunDinner", replies: ["광고는 늘 급하고 팀장은 늘 더 급해요 ㅠ 오늘 문구만 세 번째 수정 중."] },
+      { text: "팀장님께 제 느낌이 안 좋다고 전해주세요.", next: "seoyunDinner", replies: ["ㅋㅋㅋㅋ 오늘 처음 연락한 분의 촉까지 보고서에 넣어볼게요."] },
     ],
   },
   seoyunDinner: {
     incoming: ["저녁 뭐 먹었어요? 저는 맵찔이라 오늘도 순한 것만 찾는 중 ㅎㅎ"],
     choices: [
-      { text: "김치찌개 먹었어요.", next: "seoyunDog" },
-      { text: "아직 안 먹었어요.", next: "seoyunDog" },
-      { text: "왜요, 사주려고요?", next: "seoyunDog" },
+      { text: "김치찌개 먹었어요.", next: "seoyunDog", replies: ["부럽다... 저는 김치 한 조각에 물 세 잔 마시는 사람인데 ㅋㅋ"] },
+      { text: "아직 안 먹었어요.", next: "seoyunDog", replies: ["그럼 뭐라도 챙겨 먹어요. 빈속이면 대화도 재미없잖아요 ㅠ"] },
+      { text: "왜요, 사주려고요?", next: "seoyunDog", replies: ["그럼 첫 커피는 제가 살게요 ㅋㅋ 대신 디저트는 오빠가 사기 ☕"] },
     ],
   },
   seoyunDog: {
     incoming: [
-      "ㅋㅋㅋㅋ 첫날부터 얻어먹으려고 하네. 진짜 만나면 제가 커피는 살게요.",
       { from: "system", text: "🐶 두부가 산책하다가 안 간다고 버티는 사진", pauseBefore: 450 },
-      "얘가 저보다 성격 더 안 좋아요.",
+      "얘가 저보다 성격 더 안 좋아요. 집 가기 싫으면 갑자기 돌이 됩니다 🐶",
     ],
     choices: [
-      { text: "두부는 얼굴로 이미 무죄네요.", next: "seoyunDay2" },
-      { text: "강아지 사진은 반칙인데요.", next: "seoyunDay2" },
-      { text: "커피 약속, 두부도 같이 오는 거죠?", next: "seoyunDay2" },
+      { text: "두부는 얼굴로 이미 무죄네요.", next: "seoyunDay2", replies: ["판사님 판결 감사합니다. 간식형으로 종결할게요 ㅋㅋ"] },
+      { text: "강아지 사진은 반칙인데요.", next: "seoyunDay2", replies: ["제 프로필보다 두부 반응이 더 좋네. 조금 질투 나는데요?"] },
+      { text: "커피 약속, 두부도 같이 오는 거죠?", next: "seoyunDay2", replies: ["두부 면접부터 통과하면요. 간식 지참 필수 ㅎㅎ"] },
     ],
   },
   seoyunDay2: {
@@ -570,12 +570,13 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
       { from: "system", text: "DAY 2 · 별일 없는 대화가 계속됐습니다.", pauseBefore: 650 },
       "나 원래 연락 진짜 안 하는데 오빠랑은 이상하게 계속 하게 되네.",
       "아, 오빠라고 해도 되죠?",
+      "근데 여자친구는 없어요?",
     ],
     clues: ["rapidIntimacy"],
     choices: [
-      { text: "아직 이틀인데 빠르긴 하네요.", next: "seoyunDay4" },
-      { text: "괜찮아요. 저도 연락 기다렸어요.", next: "seoyunDay4", risk: 1 },
-      { text: "두부 보호자님이라고 부를게요.", next: "seoyunDay4" },
+      { text: "없어요.", next: "seoyunDay4", replies: ["에이, 거짓말~ 프로필은 멀쩡한데?"] },
+      { text: "없어요. 그냥 없어요.", next: "seoyunDay4", replies: ["ㅋㅋㅋㅋ 왜 두 번 말해요. 갑자기 아주 확실해졌네."] },
+      { text: "왜요, 지원하시게요?", next: "seoyunDay4", replies: ["서류부터 봐야죠 ㅎㅎ 일단 연락 성실도는 합격. ♥"] },
     ],
   },
   seoyunDay4: {
@@ -586,9 +587,9 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
     clues: ["postponedMeeting"],
     choices: [
-      { text: "가족 여행 잘 다녀와요.", next: "seoyunDay6" },
-      { text: "다음 주엔 진짜 커피 사는 거죠?", next: "seoyunDay6" },
-      { text: "부모님이랑 친한가 봐요.", next: "seoyunDay6" },
+      { text: "가족 여행 잘 다녀와요.", next: "seoyunDay6", replies: ["고마워요. 엄마가 사진 백 장 찍을 예정이래요 ㅋㅋ"] },
+      { text: "다음 주엔 진짜 커피 사는 거죠?", next: "seoyunDay6", replies: ["네. 이번엔 팀장이 제주도까지 따라오지 않는 이상 꼭 ☕"] },
+      { text: "부모님이랑 친한가 봐요.", next: "seoyunDay6", replies: ["네, 두 분이랑 여행도 자주 가요. 이번엔 제가 코스 다 짰어요."] },
     ],
   },
   seoyunDay6: {
@@ -597,17 +598,17 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
       "다음 주 토요일 뭐해요? 이번엔 진짜 시간 빼둘게요.",
     ],
     choices: [
-      { text: "드디어 만나자는 건가요?", next: "seoyunDay8" },
-      { text: "일정 한번 봐야 돼요.", next: "seoyunDay8" },
+      { text: "드디어 만나자는 건가요?", next: "seoyunDay8", replies: ["네 ㅎㅎ 화면 밖에서도 말 잘하는지 확인해야죠."] },
+      { text: "일정 한번 봐야 돼요.", next: "seoyunDay8", replies: ["튕기는 거예요? 저도 그럼 두부 일정부터 확인할게요."] },
       { text: "벌써 오빠예요?", next: "seoyunOppa" },
     ],
   },
   seoyunOppa: {
     incoming: ["싫으면 아저씨라고 할게요."],
     choices: [
-      { text: "오빠로 빠르게 합의하죠.", next: "seoyunDay8" },
-      { text: "그건 협박인데요 ㅋㅋ", next: "seoyunDay8" },
-      { text: "일단 토요일에 보고 정해요.", next: "seoyunDay8" },
+      { text: "오빠로 빠르게 합의하죠.", next: "seoyunDay8", replies: ["협상 속도 마음에 드는데요 ㅋㅋ"] },
+      { text: "그건 협박인데요 ㅋㅋ", next: "seoyunDay8", replies: ["효과는 있었잖아요. 오빠라고 할게요 ㅎㅎ"] },
+      { text: "일단 토요일에 보고 정해요.", next: "seoyunDay8", replies: ["좋아요. 현장 심사 준비할게요."] },
     ],
   },
   seoyunDay8: {
@@ -619,9 +620,9 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
     clues: ["familyCrisis"],
     choices: [
-      { text: "많이 다치셨어?", next: "seoyunHospital" },
-      { text: "괜찮아?", next: "seoyunHospital" },
-      { text: "어느 병원이야?", next: "seoyunHospital" },
+      { text: "많이 다치셨어?", next: "seoyunHospital", replies: ["외상은 아닌데 갑자기 의식을 잃었어. 너무 무서워 ㅠㅠ"] },
+      { text: "괜찮아?", next: "seoyunHospital", replies: ["나는 괜찮은데 엄마가 아직 검사실에 있어..."] },
+      { text: "어느 병원이야?", next: "seoyunHospital", replies: ["지금 접수처랑 검사실 오가느라 정신없어. 조금 있다 알려줄게."] },
     ],
   },
   seoyunHospital: {
@@ -630,9 +631,9 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
       "나 지금 정신이 하나도 없다...",
     ],
     choices: [
-      { text: "검사 결과 나올 때까지 옆에 있을게.", next: "seoyunDelete" },
-      { text: "병원 이름 알려줘. 확인해볼게.", next: "seoyunDelete" },
-      { text: "가족들한테도 바로 연락해.", next: "seoyunDelete" },
+      { text: "검사 결과 나올 때까지 옆에 있을게.", next: "seoyunDelete", replies: ["고마워... 이런 말 해주는 사람이 있다는 게 조금 낫다."] },
+      { text: "병원 이름 알려줘. 확인해볼게.", next: "seoyunDelete", replies: ["응, 결과 나오면 병원이랑 같이 알려줄게. 지금은 접수한 것도 잘 기억 안 나."] },
+      { text: "가족들한테도 바로 연락해.", next: "seoyunDelete", replies: ["연락할 가족이 마땅치 않아. 엄마 일은 내가 해야 해."] },
     ],
   },
   seoyunDelete: {
@@ -643,9 +644,9 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
       { text: "아니다. 이건 내가 알아서 해야지.", typingMs: 1500 },
     ],
     choices: [
-      { text: "무슨 일인데?", next: "seoyunConfide" },
-      { text: "그래, 가족 일이니까 잘 해결해.", next: "seoyunConfide" },
-      { text: "필요한 거 있어?", next: "seoyunConfide", risk: 1 },
+      { text: "무슨 일인데?", next: "seoyunConfide", replies: ["아니야. 말하면 오빠까지 신경 쓰이잖아."] },
+      { text: "그래, 가족 일이니까 잘 해결해.", next: "seoyunConfide", replies: ["응... 그러려고 했는데, 잠깐만 얘기 들어주면 안 돼?"] },
+      { text: "필요한 거 있어?", next: "seoyunConfide", risk: 1, replies: ["아니야, 그런 뜻으로 말 꺼낸 거 아니야 ㅠ"] },
     ],
   },
   seoyunConfide: {
@@ -655,8 +656,8 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
     clues: ["emotionalPressure"],
     choices: [
-      { text: "그래도 무슨 일인지는 말해봐.", next: "seoyunDeposit" },
-      { text: "도울 수 있는 일이면 말해.", next: "seoyunDeposit", risk: 1 },
+      { text: "그래도 무슨 일인지는 말해봐.", next: "seoyunDeposit", replies: ["정말 그냥 물어만 보는 거야. 부담 가지면 안 돼."] },
+      { text: "도울 수 있는 일이면 말해.", next: "seoyunDeposit", risk: 1, replies: ["그 말 들으니까 더 미안하다... 정말 하루면 돼."] },
       { text: "병원 대표번호부터 알려줘.", next: "seoyunVerify" },
     ],
   },
@@ -665,13 +666,13 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
       { text: "근데 진짜 미안한데 하나만 물어봐도 돼?", typingMs: 1700 },
       { abortTyping: true, typingMs: 2300, pauseBefore: 500 },
       "병원에서 오늘 바로 보증금이 필요하대.",
-      "내 적금은 내일 오전부터 깰 수 있대서... 혹시 게임 속 가상금액 18만원만 하루 빌릴 수 있을까?",
+      "내 적금은 내일 오전부터 깰 수 있대서... 혹시 게임 속 가상금액 18만원만 하루 빌릴 수 있을까? 미안해 ㅠ",
     ],
     clues: ["familyCrisis", "emotionalPressure"],
     choices: [
       { text: "[게임 내 가상 송금] 18만원 보내기", virtualTransfer: true, virtualAmount: "18만원", virtualLoss: 180000, next: "seoyunFirstTransfer", risk: 2 },
       { text: "왜 가족이나 친구한테 안 빌려?", next: "seoyunFamily" },
-      { text: "병원 이름이랑 대표번호 알려줘.", next: "seoyunVerify" },
+      { text: "병원 이름이 볼드모트예요? 대표번호 줘요.", next: "seoyunVerify" },
     ],
   },
   seoyunFamily: {
@@ -683,7 +684,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     clues: ["familyContradiction"],
     choices: [
       { text: "전에 부모님과 제주도 간다며?", ending: "S", replies: ["그건... 엄마와 아빠 같은 분을 말한 거였어.", "잠깐만, 설명할 시간이—"] },
-      { text: "병원 대표번호로 먼저 확인할게.", next: "seoyunVerify" },
+      { text: "제주도 부모님부터 정리하고 대표번호 줘.", next: "seoyunVerify" },
       { text: "미안하지만 돈거래는 안 해.", ending: "A", replies: ["응... 이해해. 근데 오늘은 정말 오빠밖에 없었는데."] },
     ],
   },
@@ -696,19 +697,19 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     choices: [
       { text: "확인 안 되면 돈도 못 보내.", ending: "A", replies: ["알겠어. 내가 어떻게든 해볼게..."] },
       { text: "지금 영상통화하자.", next: "seoyunVideo" },
-      { text: "대화와 계정을 신고하고 차단할게.", ending: "S", replies: ["오빠, 갑자기 왜 그래. 우리 8일이나—"] },
+      { text: "병원 이름도 개인정보예요? 신고하고 차단.", ending: "S", replies: ["오빠, 갑자기 왜 그래. 우리 8일이나—"] },
     ],
   },
   seoyunFirstTransfer: {
     incoming: [
-      "진짜 고마워... 나 진짜 꼭 갚을게.",
+      "진짜 고마워... 나 진짜 꼭 갚을게. ♥",
       { from: "system", text: "게임 속 가상 송금 18만원 · 실제 금전 거래 없음", pauseBefore: 450 },
       { from: "system", text: "NEXT DAY", pauseBefore: 1200 },
       "오빠 미안해.",
     ],
     clues: ["amountEscalation"],
     choices: [
-      { text: "무슨 일인데?", next: "seoyunSecondAsk" },
+      { text: "이번엔 병원 주차비는 아니지?", next: "seoyunSecondAsk", replies: ["농담할 정신은 있네... 진짜 중요한 일이야."] },
       { text: "어제 18만원부터 돌려줘.", ending: "C", replies: ["적금만 깨지면 바로 주려고 했는데 지금 은행이 점검 중이래."] },
       { text: "지금 영상통화부터 해.", next: "seoyunVideo" },
     ],
@@ -716,7 +717,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
   seoyunSecondAsk: {
     incoming: [
       "수술은 잘 끝났는데 추가 검사비가 생겼어.",
-      "게임 속 가상금액 43만원이 더 필요하대. 진짜 이것만 해결되면 돼.",
+      "게임 속 가상금액 43만원이 더 필요하대. 진짜 이것만 해결되면 돼 ㅠ",
     ],
     clues: ["amountEscalation", "emotionalPressure"],
     choices: [
@@ -726,10 +727,10 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
   },
   seoyunVideo: {
-    incoming: ["지금 엄마 옆이라 영상통화는 좀..."],
+    incoming: ["지금 엄마 옆이라 영상통화는 좀... ㅠ"],
     clues: ["videoAvoid"],
     choices: [
-      { text: "복도 나가면 되잖아.", next: "seoyunHallway" },
+      { text: "복도도 영상통화 금지 구역이에요?", next: "seoyunHallway" },
       { text: "그럼 병원 대표번호 알려줘.", ending: "A", replies: ["대표번호는 지금 야간이라 낮이래. 아니, 업무가 끝났대."] },
       { text: "확인도 못 하는데 여기까지 할게.", ending: "S", replies: ["영상보다 우리 대화가 더 진짜였잖아..."] },
     ],
@@ -743,7 +744,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     choices: [
       { text: "수술 중인데 복도 공사라니. 차단할게.", ending: "S", replies: ["공사는 병원 사정이고 우리 사이는—"] },
       { text: "병원 대표번호로 확인할게.", ending: "A", replies: ["대표번호도 공사 때문에 잠시 막혔어."] },
-      { text: "친구에게 이 대화부터 보여줄게.", ending: "A", replies: ["우리 일에 갑자기 검토자가 왜 필요해?"] },
+      { text: "친구 검수 들어갑니다. 잠시만요.", ending: "A", replies: ["우리 일에 갑자기 검토자가 왜 필요해?"] },
     ],
   },
   seoyunSecondTransfer: {
@@ -754,7 +755,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
     clues: ["amountEscalation"],
     choices: [
-      { text: "얼마가 또 필요한데?", next: "seoyunFinal" },
+      { text: "병원비가 다음 화 예고처럼 나오네. 얼마야?", next: "seoyunFinal", replies: ["이번 게 진짜 마지막이야. 이 뒤는 없어."] },
       { text: "여기서 멈출게. 더는 못 믿어.", ending: "C", replies: ["진짜 마지막인데... 61만원까지 도와주고 왜 지금 멈춰?"] },
       { text: "병원에 직접 확인할게.", ending: "C", replies: ["오늘은 병원 전체가... 외부 확인을 쉬는 날이래."] },
     ],
@@ -768,7 +769,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     choices: [
       { text: "[게임 내 가상 송금] 120만원 보내기", virtualTransfer: true, virtualAmount: "120만원", virtualLoss: 1200000, ending: "F", replies: ["정말 고마워. 그런데 퇴원 수속 보증금이 하나만 더—"] },
       { text: "서윤아, 우리 아직 한 번도 만난 적 없잖아.", ending: "C", replies: ["그래서 만나려고 지금 이걸 해결하는 거잖아..."] },
-      { text: "병원 대표번호로 확인하고 차단할게.", ending: "C", replies: ["대표번호보다 우리 8일을 믿어주면 안 돼?"] },
+      { text: "병원비가 구독제예요? 확인하고 차단.", ending: "C", replies: ["대표번호보다 우리 8일을 믿어주면 안 돼?"] },
     ],
   },
 };
@@ -823,6 +824,27 @@ const seoyunEndingCopy: Record<EndingGrade, { title: string; kicker: string; bod
   F: { title: "서윤의 가족이 되었습니다", kicker: "세 번의 가상 송금 · 아직 만남 0회", body: "게임 속 가상금액 총 181만원을 보냈습니다. 그런데 아직 실제로 만난 적은 없습니다.", shareLine: "서윤의 병원은 끝까지 비공개였고 보증금만 세 번 출근했습니다." },
 };
 
+const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
+  ep01: {
+    S: ["지금 보안 문제가 생겨서 잠시 매우 오래 오프라인입니다.", "당신은 해커보다 질문이 많습니다. good bye."],
+    A: ["화성에서 긴급 회의가 시작됐습니다. 당분간 연락 불가능.", "당신의 신뢰는 기억하겠습니다. good bye."],
+    C: ["본인 인증이 복잡해져서 저는 다른 지구 업무를 보겠습니다.", "링크는 곧 매우 공식적으로 사라집니다. good bye."],
+    F: ["추가 국제 비용을 확인하고 다시 연락하겠습니다.", "지금은 화성 회의 때문에 잠시 매우 오래 오프라인입니다."],
+  },
+  ep02: {
+    S: ["아, 왜 이렇게 꼬치꼬치 물어?", "됐어. 연락하지 마."],
+    A: ["계속 확인부터 하니까 좀 서운하네.", "됐어. 연락하지 마."],
+    C: ["도와줄 것처럼 하더니 끝까지 따질 거면 됐어.", "나 지금 정신없어. 연락하지 마."],
+    F: ["지금 병원이라 당분간 연락 못 할 것 같아.", "나중에 꼭 연락할게. 진짜로."],
+  },
+  ep06: {
+    S: ["질문이 작전 보안보다 많군요.", "당분간 연락 안 될 거예요. 긴 수술이 있어서요."],
+    A: ["당분간 연락 안 될 거예요. 긴 수술이 있어서요.", "당신 잊지 않을게요. goodbuy."],
+    C: ["세관과 사랑 모두 잠시 멈췄습니다.", "당신 잊지 않을게요. goodbuy."],
+    F: ["보험 문제를 해결하러 긴 수술에 들어갑니다.", "당신 잊지 않을게요. goodbuy."],
+  },
+};
+
 const getScene = (caseId: CaseId, sceneId: SceneId): Scene => caseId === "ep01" ? scenes[sceneId as ElunSceneId] : caseId === "ep02" ? seoyunScenes[sceneId as SeoyunSceneId] : romanceScenes[sceneId as RomanceSceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -868,6 +890,7 @@ export default function Home() {
     : ["uniform", "grammar"];
   const suspicion = foundClues.length;
   const suspicionPoints = Math.min(100, suspicion * 20);
+  const unfoundClues = availableClues.filter((id) => !foundClues.includes(id));
 
   useEffect(() => {
     const randomize = window.setTimeout(() => setFeaturedCaseId(liveEpisodeIds[Math.floor(Math.random() * liveEpisodeIds.length)]), 0);
@@ -979,19 +1002,32 @@ export default function Home() {
     setMessages((prev) => [...prev, { id: messageId.current++, from, text }]);
   };
 
-  const finish = async (grade: EndingGrade, currentRisk: number, currentLoss: number) => {
+  const finish = async (grade: EndingGrade, currentRisk: number, currentLoss: number, currentRun: number) => {
     const resolved = grade !== "F" && currentLoss > 0 ? "C" : grade === "A" && currentRisk >= 3 ? "C" : grade;
-    await wait(1050);
+    for (const line of exitScripts[activeCaseId][resolved]) {
+      await wait(420);
+      if (runRef.current !== currentRun) return;
+      setTyping(true);
+      await wait(Math.min(1900, typingDelay(line, messageId.current)));
+      if (runRef.current !== currentRun) return;
+      setTyping(false);
+      addMessage("scammer", line);
+    }
+    await wait(700);
+    if (runRef.current !== currentRun) return;
     addMessage("system", resolved === "S" ? `${activeCase.scammer}님을 차단했습니다.` : resolved === "F" ? "게임 속 가상 송금 처리가 끝났습니다. 실제 금전 거래는 없습니다." : `${activeCase.scammer}님이 대화방을 나갔습니다.`);
     await wait(1150);
+    if (runRef.current !== currentRun) return;
     addMessage("system", `CASE ${activeCase.no} 대화 기록 분석이 완료됐습니다.`);
     await wait(1050);
+    if (runRef.current !== currentRun) return;
     setEnding(resolved);
     setPhase("resolved");
   };
 
   const chooseReply = async (choice: Choice) => {
     if (phase !== "choice") return;
+    const currentRun = runRef.current;
     setPhase("reply");
     addMessage("player", choice.text);
     const nextRisk = risk + (choice.risk ?? 0);
@@ -1001,21 +1037,25 @@ export default function Home() {
 
     for (const line of choice.replies ?? []) {
       await wait(360);
+      if (runRef.current !== currentRun) return;
       setTyping(true);
       await wait(typingDelay(line, messageId.current));
+      if (runRef.current !== currentRun) return;
       setTyping(false);
       addMessage("scammer", line);
       if (containsMoneyTalk(line)) setMoneyAlert(true);
       await wait(360);
+      if (runRef.current !== currentRun) return;
     }
 
     if (choice.ending) {
-      await finish(choice.ending, nextRisk, nextVirtualLoss);
+      await finish(choice.ending, nextRisk, nextVirtualLoss, currentRun);
       return;
     }
     await wait(680);
+    if (runRef.current !== currentRun) return;
     setTurn((prev) => prev + 1);
-    setSceneId(choice.next);
+    if (choice.next) setSceneId(choice.next);
   };
 
   const selectReply = (choice: Choice) => {
@@ -1132,10 +1172,10 @@ export default function Home() {
           <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
           <button className="avatar-button tiny-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /><span className="online-dot" /></button>
           <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
-          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 냄새 단서 찾기${moneyAlert ? " · 돈 관련 대화 감지" : ""}`}><span className="siren-icon">🚨</span><b>{moneyAlert ? "돈 냄새" : "사기 냄새"}</b></button>
+          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}${unfoundClues.length ? " clue-ready" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 냄새 단서 찾기${moneyAlert ? " · 돈 관련 대화 감지" : ""}${unfoundClues.length ? ` · 새 단서 ${unfoundClues.length}개` : ""}`}><span className="siren-icon">🚨</span><b>{moneyAlert ? "돈 냄새" : "사기 냄새"}</b></button>
         </header>
 
-        <div className="case-meter" aria-label={`현재 의심력 ${suspicionPoints}`}><span>의심력</span><div><i style={{ width: `${suspicionPoints}%` }} /></div><b>{String(suspicionPoints).padStart(2, "0")}</b></div>
+        <div className={`case-meter${unfoundClues.length ? " clue-ready" : ""}`} aria-label={`현재 의심력 ${suspicionPoints}`}><span>의심력<small>{unfoundClues.length ? `새 단서 ${unfoundClues.length}` : suspicionPoints ? "채증 완료" : "🚨에서 단서 찾기"}</small></span><div><i style={{ width: `${suspicionPoints}%` }} /></div><b key={suspicionPoints}>{String(suspicionPoints).padStart(2, "0")}</b></div>
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>

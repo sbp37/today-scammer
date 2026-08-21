@@ -89,8 +89,12 @@ test("conversation graph has no broken, unreachable, or looping branches", async
     const choiceBlocks = [...text.matchAll(/choices: \[\n([\s\S]*?)\n\s{4}\],/g)];
     assert.ok(choiceBlocks.length > 0);
     choiceBlocks.forEach((block) => {
-      const count = block[1].match(/^\s+\{ text:/gm)?.length ?? 0;
+      const choices = block[1].match(/^\s+\{ text:.*$/gm) ?? [];
+      const count = choices.length;
       assert.equal(count, 3, `every scene must expose exactly 3 choices`);
+      choices.forEach((choice) => {
+        assert.match(choice, /(?:next|ending): "[A-Za-z0-9]+"/, `choice must lead to a scene or ending: ${choice.trim()}`);
+      });
     });
   };
   blocks.forEach(validate);
@@ -121,6 +125,12 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /아빠는 돌아가셨고/);
   assert.match(source, /서윤님이 메시지를 쓰다가 지웠습니다/);
   assert.match(source, /18만 → 43만 → 120만원/);
+  assert.match(source, /없어요\. 그냥 없어요\./);
+  assert.match(source, /에이, 거짓말~/);
+  assert.doesNotMatch(source, /첫날부터 얻어먹으려고 하네/);
+  assert.doesNotMatch(source, /첫날부터 끼니 걱정하게 하네/);
+  assert.match(source, /왜 이렇게 꼬치꼬치 물어/);
+  assert.match(source, /당신 잊지 않을게요\. goodbuy/);
   assert.match(source, /사랑은 국경 없고 통관료는 있습니다/);
   assert.match(source, /사건파일 열기/);
   assert.match(source, /fake-credentials-06\.webp/);
@@ -130,7 +140,7 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /featuredCaseId/);
   assert.doesNotMatch(source, /서울/);
   assert.ok(credentialAsset.byteLength > 70_000 && credentialAsset.byteLength < 130_000);
-  assert.doesNotMatch(source, /광고|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
+  assert.doesNotMatch(source, /광고 보고 사건파일 열기|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
 });
 
 test("uses lightweight WebP assets and meaningful live signals", async () => {
@@ -147,6 +157,8 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   }
 
   assert.match(source, /containsMoneyTalk/);
+  assert.match(source, /의심력 \+20/);
+  assert.match(source, /새 단서 \$\{unfoundClues\.length\}/);
   assert.match(source, /moneyAlert \? "돈 냄새" : "사기 냄새"/);
   assert.doesNotMatch(source, /<em>\{suspicion\}\/\{activeCase\.clueTotal\}<\/em>/);
   assert.doesNotMatch(source, /briefing-image-hitbox|전체 이미지 보기/);
