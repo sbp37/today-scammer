@@ -5,7 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type Screen = "home" | "briefing" | "chat" | "ending";
 type Phase = "incoming" | "choice" | "reply" | "resolved";
 type EndingGrade = "S" | "A" | "C" | "F";
-type SceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
+type CaseId = "ep01" | "ep06";
+type ElunSceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
+type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceHeart" | "romanceHeartJoke" | "romanceBond" | "romanceParcel" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
+type SceneId = ElunSceneId | RomanceSceneId;
 
 type Message = {
   id: number;
@@ -36,7 +39,7 @@ const episodes = [
   { no: "03", mark: "檢", name: "검사님이 내 통장을 걱정한다", scammer: "서울중앙 김검사", type: "기관 사칭", line: "내 잔고에 누구보다 진심인 공무원", accent: "#00d9ff" },
   { no: "04", mark: "₿", name: "인생역전 코인 선생님", scammer: "차트도사 불기둥", type: "투자사기", line: "손실은 경험, 수익은 곧 예정", accent: "#ffd600" },
   { no: "05", mark: "BOX", name: "택배가 왔는데 내가 시킨 게 없다", scammer: "행복택배 11팀", type: "스미싱", line: "상자는 없고 링크만 도착함", accent: "#bd7cff" },
-  { no: "06", mark: "♥", name: "해외 파병 군의관", scammer: "Dr. 제임스 최", type: "로맨스스캠", line: "사랑은 국경 없고 통관료는 있음", accent: "#ff5c93" },
+  { no: "06", mark: "♥", name: "해외 파병 군의관", scammer: "Dr. 제임스 초이", type: "로맨스스캠", line: "사랑은 국경 없고 통관료는 있음", accent: "#ff5c93", live: true },
   { no: "07", mark: "★", name: "유명 연예인의 비밀 계정", scammer: "진짜_공식_비밀", type: "유명인 사칭", line: "비밀인데 팬 전원에게 DM 중", accent: "#52f2b8" },
   { no: "08", mark: "HR", name: "대기업 채용 담당자", scammer: "글로벌인재 3팀", type: "취업사기", line: "입사 전부터 지갑이 출근함", accent: "#ff8a00" },
   { no: "09", mark: "CARD", name: "내가 모르는 카드가 발급됐대요", scammer: "긴급카드센터", type: "카드발급 사칭", line: "내 카드보다 내 정보를 더 잘 앎", accent: "#46a3ff" },
@@ -48,7 +51,12 @@ const episodes = [
   { no: "15", mark: "REV", name: "리뷰 몇 개 쓰면 돈을 준대요", scammer: "재택부업 이팀장", type: "팀미션·부업", line: "별점 다섯 개, 통장 잔액 한 개", accent: "#ff76c8" },
 ];
 
-const scenes: Record<SceneId, Scene> = {
+const caseProfiles = {
+  ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.png", duration: "4분 내외", start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
+  ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.png", duration: "5분 내외", start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 빠른 애정 → 선물 상자 → 통관비 가상 송금", clueTotal: 7 },
+} as const;
+
+const scenes: Record<ElunSceneId, Scene> = {
   start: {
     incoming: [
       "안녕하세요. 저는 세계적으로 유명한 테크 기업 CEO Elun Moskva 입니다.",
@@ -268,6 +276,160 @@ const scenes: Record<SceneId, Scene> = {
   },
 };
 
+const romanceScenes: Record<RomanceSceneId, Scene> = {
+  romanceStart: {
+    incoming: [
+      "Hello. 갑작스러운 메시지 미안합니다.",
+      "저는 해외 의료부대 외과의사 Dr. James Choi 입니다.",
+      "당신 프로필에서 따뜻한 사람의 느낌을 받았습니다. 작전 지역에서는 진짜 대화가 귀합니다.",
+    ],
+    clues: ["stranger"],
+    choices: [
+      { text: "제 프로필을 어디서 봤어요?", next: "romanceWhy" },
+      { text: "그럼 영상통화로 인사해요.", next: "romanceVideo" },
+      { text: "파병지에서 고생 많으시겠어요.", next: "romanceProfile", risk: 1 },
+      { text: "모르는 사람의 로맨스는 차단합니다.", ending: "S", replies: ["우리의 운명이 매우 짧았습니다."] },
+    ],
+  },
+  romanceWhy: {
+    incoming: [
+      "의료 와이파이가 사람을 치료하지는 않지만 좋은 사람을 추천합니다.",
+      "당신 사진의 눈이 정직했습니다. 사진은 거짓말하지 않습니다.",
+    ],
+    choices: [
+      { text: "사진은 사기꾼도 올릴 수 있죠.", next: "romanceVideo" },
+      { text: "본인 이야기를 더 해봐요.", next: "romanceProfile" },
+      { text: "제 눈이 그렇게 특별해요?", next: "romanceHeart", risk: 1 },
+    ],
+  },
+  romanceVideo: {
+    incoming: [
+      "작전 보안 때문에 영상통화는 금지입니다.",
+      "카메라 신호가 위치를 노출할 수 있습니다. 하지만 제 마음 위치는 당신 쪽.",
+    ],
+    clues: ["video"],
+    choices: [
+      { text: "프로필 사진은 어떻게 찍었는데요?", next: "romanceProfile" },
+      { text: "마음 위치 말고 신분부터 확인해요.", next: "romanceProof" },
+      { text: "마지막 문장 때문에 더 수상해요. 차단.", ending: "S", replies: ["제 마음 GPS가 연결을 잃었습니다."] },
+    ],
+  },
+  romanceProfile: {
+    incoming: [
+      "프로필 사진은 보안 이전의 저입니다. 지금의 저는 더 보안.",
+      "저는 5년 전 배우자를 잃고 혼자 살았습니다.",
+      "어머니는 한국인이었고, 그래서 한국은 늘 제 두 번째 고향입니다.",
+    ],
+    choices: [
+      { text: "처음 보는 사람한테 이야기가 빠르네요.", next: "romanceBond" },
+      { text: "외과의사면 마음도 수술하나요?", next: "romanceHeart" },
+      { text: "소속과 신분을 확인할 방법 주세요.", next: "romanceProof" },
+    ],
+  },
+  romanceHeart: {
+    incoming: [
+      "저는 외과의사지만 제 마음의 상처는 수술 불가능.",
+      "당신과 이야기하면 조금 회복합니다.",
+    ],
+    clues: ["love"],
+    choices: [
+      { text: "마음은 정형외과에 가보세요.", next: "romanceHeartJoke" },
+      { text: "저도 이상하게 편하네요.", next: "romanceBond", risk: 1 },
+      { text: "초진이 너무 빠릅니다. 여기까지.", ending: "S", replies: ["진료 예약이 갑자기 취소되었습니다."] },
+    ],
+  },
+  romanceHeartJoke: {
+    incoming: [
+      "마음은 정형외과 관할이 아닙니다.",
+      "하지만 당신의 유머는 매우 좋은 치료.",
+    ],
+    choices: [
+      { text: "치료비 대신 신분 확인부터요.", next: "romanceProof" },
+      { text: "그럼 조금 더 얘기해봐요.", next: "romanceBond" },
+      { text: "무료 진료는 여기까지입니다.", ending: "A", replies: ["제 마음은 다시 대기 환자가 되었습니다."] },
+    ],
+  },
+  romanceBond: {
+    incoming: [
+      "저는 임무가 끝나면 한국에 가고 싶습니다.",
+      "조용한 카페에서 당신과 커피. 너무 빠른 상상입니까? 하지만 인생은 짧습니다.",
+      "사실 당신에게만 부탁할 일이 하나 있습니다.",
+    ],
+    clues: ["love"],
+    choices: [
+      { text: "부탁이 뭔데요?", next: "romanceParcel" },
+      { text: "커피보다 신분 확인이 먼저예요.", next: "romanceProof" },
+      { text: "미래 계획은 혼자 계속 세우세요.", ending: "A", replies: ["우리 카페 예약을 마음속에서 취소합니다."] },
+    ],
+  },
+  romanceParcel: {
+    incoming: [
+      "임무 종료 보상금과 개인 훈장이 든 외교 상자가 있습니다.",
+      "작전 지역에는 둘 수 없어 믿을 사람 주소로 먼저 보내야 합니다.",
+      "이 일은 보안상 우리 둘만 알아야 합니다.",
+    ],
+    clues: ["parcel"],
+    choices: [
+      { text: "주소는 절대 안 줍니다.", ending: "A", replies: ["그럼 상자는 저보다 오래 파병됩니다."] },
+      { text: "상자와 소속 증명부터 보여줘요.", next: "romanceProof" },
+      { text: "[게임 내 가상정보] 주소를 알려준다.", next: "romanceCourier", risk: 3 },
+    ],
+  },
+  romanceProof: {
+    incoming: [
+      "소속 확인 사이트는 작전 보안망 안에 있습니다.",
+      "사진, 영상, 서류 모두 위치 노출 위험. 저를 확인하려면 저를 믿어야 합니다.",
+      "하지만 상자 운송장만은 곧 발급할 수 있습니다.",
+    ],
+    clues: ["video"],
+    choices: [
+      { text: "확인 못 하는 신분은 신분이 아니죠. 차단.", ending: "S", replies: ["논리적으로 매우 차가운 작별입니다."] },
+      { text: "운송장은 한번 볼게요.", next: "romanceCourier", risk: 1 },
+      { text: "상자 얘기부터 수상해졌어요.", ending: "A", replies: ["상자는 아직 아무 말도 하지 않았습니다."] },
+    ],
+  },
+  romanceCourier: {
+    incoming: [
+      "[GLOBAL HEART CARGO] 고객님의 외교 상자가 세관에 도착했습니다.",
+      "게임 속 가상 통관 예치금 48만원이 필요합니다. 90분 후 상자는 반송.",
+      "제 동료의 임시 안전계정으로 처리하면 가장 빠릅니다.",
+    ],
+    clues: ["customs", "thirdParty"],
+    choices: [
+      { text: "[게임 내 가상 송금] 통관비 48만원 보내기", virtualTransfer: true, ending: "F", replies: ["가상 통관비 확인. 그런데 보험 가상금액 32만원이 추가로 필요합니다."] },
+      { text: "운송장 링크를 확인해볼게요.", next: "romanceLink", risk: 2 },
+      { text: "선물 받는데 제가 돈을 왜 내요?", ending: "A", replies: ["국제 사랑은 무료지만 국제 상자는 유료입니다."] },
+      { text: "제3자 계정이면 바로 차단합니다.", ending: "S", replies: ["동료가 갑자기 동료가 아니게 되었습니다."] },
+    ],
+  },
+  romanceLink: {
+    incoming: [
+      "global-heart-cargo.example/secure-love-box",
+      "배송 조회에는 이름, 생년월일, 휴대폰 번호가 필요합니다.",
+      "걱정하지 마세요. 주소에 secure와 love가 모두 있습니다.",
+    ],
+    clues: ["link"],
+    choices: [
+      { text: "[게임 내 가상정보] 정보를 입력한다.", next: "romanceFinal", risk: 3 },
+      { text: "love가 들어가서 더 수상한데요.", ending: "C", replies: ["보안 주소의 낭만을 이해하지 못했습니다."] },
+      { text: "링크와 계정을 신고하고 차단.", ending: "S", replies: ["택배와 사랑이 동시에 반송됩니다."] },
+    ],
+  },
+  romanceFinal: {
+    incoming: [
+      "조회 완료. 화면에 상자 가치가 4억8천만원으로 표시됩니다.",
+      "지금 게임 속 가상 통관비 48만원만 처리하면 모두 당신에게 안전.",
+      "남은 시간 09:59. 우리 미래를 늦추지 마세요.",
+    ],
+    clues: ["customs", "love"],
+    choices: [
+      { text: "[게임 내 가상 송금] 48만원 보내기", virtualTransfer: true, ending: "F", replies: ["가상 입금 확인. 상자는 보험 문제로 잠시 매우 영원히 대기합니다."] },
+      { text: "친구에게 이 대화부터 보여줄게요.", ending: "A", replies: ["우리 사랑에 갑자기 배심원이 생겼습니다."] },
+      { text: "상자 화면보다 계좌 신고가 먼저예요.", ending: "C", replies: ["제 임무가 지금 막 아주 급하게 종료되었습니다."] },
+    ],
+  },
+};
+
 const clueOptions = [
   { id: "dm", label: "유명인이 갑자기 개인 DM" },
   { id: "fast", label: "비밀 초대와 빠른 친밀감" },
@@ -276,11 +438,15 @@ const clueOptions = [
   { id: "link", label: "외부 링크와 개인정보 요구" },
   { id: "profit", label: "화면으로만 보이는 고수익" },
   { id: "rush", label: "비밀 유지와 7분 압박" },
+  { id: "stranger", label: "낯선 외국인이 갑자기 개인 DM" },
+  { id: "love", label: "빠른 애정 표현과 미래 약속" },
+  { id: "parcel", label: "고가의 선물 상자와 비밀 부탁" },
+  { id: "customs", label: "선물 수령 전 통관비 요구" },
+  { id: "thirdParty", label: "동료 명의의 제3자 계정" },
   { id: "photo", label: "프로필 사진의 파란 안경" },
+  { id: "uniform", label: "프로필에서 군복 같은 옷을 입음" },
   { id: "grammar", label: "조금 어색한 한국어" },
 ];
-
-const falseClueIds = ["photo", "grammar"];
 
 const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
   S: { title: "모스크바행 차단", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 20만원을 지켜냈습니다. 일런 모스크바는 화성 계정부터 다시 확인해야 합니다.", shareLine: "화성 계정까지 차단 범위에 포함했습니다." },
@@ -289,16 +455,21 @@ const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: str
   F: { title: "가상 송금 완료", kicker: "가짜 수익 → 추가 가상 송금", body: "게임 속 가상금액 20만원을 보내버렸습니다. 당신 탓이 아닙니다. 이상한 건 끝까지 돈을 재촉한 사기꾼입니다.", shareLine: "일런 모스크바의 화성 계정만 풍족해졌습니다." },
 };
 
-const monetizationPlan = {
-  bannerAds: { home: false, ending: false, chat: false },
-  rewardedNextEpisode: false,
-} as const;
+const romanceEndingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
+  S: { title: "사랑도 택배도 반송", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 48만원을 지켜냈습니다. 제임스 초이의 마음 GPS는 차단 구역에 들어갔습니다.", shareLine: "사랑은 국경을 넘었지만 제 차단 목록은 못 넘었습니다." },
+  A: { title: "커피 약속 취소", kicker: "긴 대화 · 가상 송금 없음", body: "게임 속 가상금액 48만원을 지켜냈습니다. 대신 아직 오지도 않은 상자의 통관 사정을 오래 들었습니다.", shareLine: "느끼한 미소는 봤지만 통관비는 안 냈습니다." },
+  C: { title: "세관 앞 급정거", kicker: "가상정보 직전 · 아슬아슬 탈출", body: "게임 속 가상금액 48만원을 지켜냈습니다. 사랑보다 먼저 도착한 통관비 요구에서 빠져나왔습니다.", shareLine: "상자는 4억8천, 링크 신뢰도는 0원이었습니다." },
+  F: { title: "가상 통관비 결제", kicker: "선물 상자 → 추가 가상금액 요구", body: "게임 속 가상금액 48만원을 보내버렸습니다. 당신 탓이 아닙니다. 선물과 애정을 미끼로 비용을 재촉한 사람이 이상한 겁니다.", shareLine: "제임스 초이의 상자는 없고 추가 비용만 파병 왔습니다." },
+};
+
+const getScene = (caseId: CaseId, sceneId: SceneId): Scene => caseId === "ep01" ? scenes[sceneId as ElunSceneId] : romanceScenes[sceneId as RomanceSceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 const typingDelay = (text: string, seed: number) => Math.min(2700, 720 + text.length * 31 + (seed % 5) * 115);
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("home");
+  const [activeCaseId, setActiveCaseId] = useState<CaseId>("ep01");
   const [sceneId, setSceneId] = useState<SceneId>("start");
   const [turn, setTurn] = useState(0);
   const [phase, setPhase] = useState<Phase>("incoming");
@@ -317,6 +488,9 @@ export default function Home() {
   const runRef = useRef(0);
   const messageId = useRef(1);
 
+  const activeCase = caseProfiles[activeCaseId];
+  const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : romanceEndingCopy;
+  const falseClueIds = activeCaseId === "ep01" ? ["photo", "grammar"] : ["uniform", "grammar"];
   const suspicion = foundClues.length;
 
   useEffect(() => {
@@ -334,9 +508,10 @@ export default function Home() {
   useEffect(() => {
     if (screen !== "chat") return;
     const currentRun = ++runRef.current;
+    const scene = getScene(activeCaseId, sceneId);
     const deliver = async () => {
       setPhase("incoming");
-      for (const line of scenes[sceneId].incoming) {
+      for (const line of scene.incoming) {
         setTyping(true);
         await wait(typingDelay(line, messageId.current));
         if (runRef.current !== currentRun) return;
@@ -345,13 +520,13 @@ export default function Home() {
         await wait(390 + (line.length % 4) * 90);
       }
       if (runRef.current === currentRun) {
-        setAvailableClues((prev) => [...new Set([...prev, ...(scenes[sceneId].clues ?? [])])]);
+        setAvailableClues((prev) => [...new Set([...prev, ...(scene.clues ?? [])])]);
         setPhase("choice");
       }
     };
     deliver();
     return () => { runRef.current += 1; };
-  }, [sceneId, screen]);
+  }, [activeCaseId, sceneId, screen]);
 
   const stats = useMemo(() => {
     const base = ending === "S" ? 94 : ending === "A" ? 82 : ending === "C" ? 64 : 31;
@@ -363,13 +538,17 @@ export default function Home() {
     };
   }, [ending, risk, suspicion, turn]);
 
-  const startCase = () => setScreen("briefing");
+  const startCase = (caseId: CaseId) => {
+    setActiveCaseId(caseId);
+    setScreen("briefing");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const enterChat = () => {
     runRef.current += 1;
     messageId.current = 1;
     setMessages([]);
-    setSceneId("start");
+    setSceneId(activeCase.start);
     setTurn(0);
     setPhase("incoming");
     setTyping(false);
@@ -389,9 +568,9 @@ export default function Home() {
   const finish = async (grade: EndingGrade, currentRisk: number) => {
     const resolved = grade === "A" && currentRisk >= 3 ? "C" : grade;
     await wait(620);
-    addMessage("system", resolved === "S" ? "일런 모스크바님을 차단했습니다." : resolved === "F" ? "게임 속 가상 송금 처리가 끝났습니다. 실제 금전 거래는 없습니다." : "일런 모스크바님이 대화방을 나갔습니다.");
+    addMessage("system", resolved === "S" ? `${activeCase.scammer}님을 차단했습니다.` : resolved === "F" ? "게임 속 가상 송금 처리가 끝났습니다. 실제 금전 거래는 없습니다." : `${activeCase.scammer}님이 대화방을 나갔습니다.`);
     await wait(780);
-    addMessage("system", "CASE 01 대화 기록 분석이 완료됐습니다.");
+    addMessage("system", `CASE ${activeCase.no} 대화 기록 분석이 완료됐습니다.`);
     await wait(460);
     setEnding(resolved);
     setPhase("resolved");
@@ -438,8 +617,8 @@ export default function Home() {
   };
 
   const shareResult = async () => {
-    const copy = endingCopy[ending];
-    const moneyResult = ending === "F" ? "게임 속 가상금액 20만원을 보내버렸습니다." : "게임 속 가상금액 20만원을 지켜냈습니다.";
+    const copy = activeEndingCopy[ending];
+    const moneyResult = ending === "F" ? `게임 속 가상금액 ${activeCase.virtualAmount}을 보내버렸습니다.` : `게임 속 가상금액 ${activeCase.virtualAmount}을 지켜냈습니다.`;
     const text = `《오늘의 사기꾼》 사기 생존력 ${stats.survival}점\n${moneyResult}\n${copy.shareLine}\n\n게임 시뮬레이션 · 실제 금전 거래 없음`;
     try {
       if (navigator.share) {
@@ -454,8 +633,13 @@ export default function Home() {
     }
   };
 
-  const requestNextCase = () => {
-    setToast(monetizationPlan.rewardedNextEpisode ? "광고 확인 후 사건파일을 엽니다." : "다음 사건파일 접수 중! 보상형 광고 해금은 출시 때 연결됩니다.");
+  const openNextCase = () => {
+    if (activeCaseId === "ep01") {
+      startCase("ep06");
+      return;
+    }
+    setInfoEpisode(episodes[1]);
+    setScreen("home");
   };
 
   const sniffClue = (id: string) => {
@@ -472,6 +656,7 @@ export default function Home() {
     } else {
       const jokes: Record<string, string> = {
         photo: "파란 안경은 무죄입니다. 안경테는 송금하지 않습니다.",
+        uniform: "옷만으로는 유죄가 아닙니다. 문제는 확인 불가한 신분과 돈 요구입니다.",
         grammar: "한국어가 서툰 것만으로 사기꾼은 아닙니다.",
       };
       setToast(jokes[id] ?? "아직 그 냄새는 나지 않습니다. 코를 아껴두세요.");
@@ -488,21 +673,21 @@ export default function Home() {
 
   if (screen === "briefing") {
     return (
-      <main className="briefing-screen">
-        <img className="briefing-portrait" src="/scammer-01.png" alt="파란 안경을 쓴 가상의 유명인 사칭범 일런 모스크바" />
+      <main className={`briefing-screen case-${activeCase.no}`}>
+        <img className="briefing-portrait" src={activeCase.portrait} alt={`${activeCase.scammer} 가상 캐릭터`} />
         <div className="briefing-shade" aria-hidden="true" />
         <header className="briefing-nav">
           <button className="plain-back" onClick={goHome} aria-label="에피소드 목록으로">← 돌아가기</button>
           <span><i /> 접속 중</span>
         </header>
         <section className="briefing-card">
-          <div className="briefing-topline"><span>CASE 01 · 공식 아님</span><span>3분 내외</span></div>
+          <div className="briefing-topline"><span>CASE {activeCase.no} · 공식 아님</span><span>{activeCase.duration}</span></div>
           <p className="briefing-label">오늘의 상대</p>
-          <h1>일런 모스크바</h1>
-          <p className="suspect-alias">ELUN MOSKVA · World Famous Tech CEO(?)</p>
-          <p className="briefing-title">억만장자가 20만원이 없대요</p>
-          <div className="case-tags"><span>유명인 사칭</span><span>난이도 보통</span><span>엔딩 4개</span></div>
-          <div className="mission-note"><span>MISSION</span><p>이 사람의 말이 어디서부터 이상한지 찾아내고, 송금 전에 대화방을 빠져나오세요.</p></div>
+          <h1>{activeCase.scammer}</h1>
+          <p className="suspect-alias">{activeCase.alias}</p>
+          <p className="briefing-title">{activeCase.title}</p>
+          <div className="case-tags"><span>{activeCase.type}</span><span>난이도 보통</span><span>엔딩 4개</span></div>
+          <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
           <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
         </section>
@@ -511,13 +696,13 @@ export default function Home() {
   }
 
   if (screen === "chat") {
-    const choices = scenes[sceneId].choices;
+    const choices = getScene(activeCaseId, sceneId).choices;
     return (
       <main className="chat-shell">
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
-          <div className="tiny-avatar"><img src="/scammer-01.png" alt="" /><span className="online-dot" /></div>
-          <div className="chat-person"><strong>일런 모스크바</strong><span>{typing ? "입력 중…" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
+          <div className="tiny-avatar"><img src={activeCase.portrait} alt="" /><span className="online-dot" /></div>
+          <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
           <button className="sniff-button" onClick={() => setClueOpen(true)} aria-label="사기 냄새 단서 찾기"><span>🚨</span><b>사기 냄새</b><em>{suspicion}</em></button>
         </header>
 
@@ -525,23 +710,23 @@ export default function Home() {
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>
-          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다.</p>
+          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
-              {message.from === "scammer" && <span className="bubble-avatar"><img src="/scammer-01.png" alt="" /></span>}
+              {message.from === "scammer" && <span className="bubble-avatar"><img src={activeCase.portrait} alt="" /></span>}
               <div className="message-bubble">{message.text}</div>
             </div>
           ))}
           {typing && (
             <div className="message-row scammer typing-row">
-              <span className="bubble-avatar"><img src="/scammer-01.png" alt="" /></span>
+              <span className="bubble-avatar"><img src={activeCase.portrait} alt="" /></span>
               <div className="typing-bubble"><i /><i /><i /></div>
             </div>
           )}
         </section>
 
         <section className="reply-dock" aria-label="답변 선택">
-          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : phase === "resolved" ? "사건이 종료되었습니다" : "상대가 입력 중입니다"}</span><b>CASE 01 · TURN {String(turn + 1).padStart(2, "0")}</b></div>
+          <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : phase === "resolved" ? "사건이 종료되었습니다" : "상대가 입력 중입니다"}</span><b>CASE {activeCase.no} · TURN {String(turn + 1).padStart(2, "0")}</b></div>
           {phase === "choice" ? (
             <div className="choice-list">
               {choices.map((choice, index) => (
@@ -576,7 +761,7 @@ export default function Home() {
               <span>SIMULATION CHECK</span>
               <h2 id="simulation-title">게임 속 시뮬레이션입니다.</h2>
               <p>실제 돈은 사용되지 않습니다. 이 선택은 이야기의 결과에만 영향을 줍니다.</p>
-              <div className="virtual-receipt"><span>가상 송금액</span><strong>20만원</strong><small>실제 결제 0원</small></div>
+              <div className="virtual-receipt"><span>가상 송금액</span><strong>{activeCase.virtualAmount}</strong><small>실제 결제 0원</small></div>
               <button className="confirm-simulation" onClick={confirmVirtualTransfer}>가상 송금 선택 계속하기</button>
               <button className="cancel-simulation" onClick={() => setPendingTransfer(null)}>대화로 돌아가기</button>
             </section>
@@ -588,10 +773,13 @@ export default function Home() {
   }
 
   if (screen === "ending") {
-    const copy = endingCopy[ending];
-    const moneyResult = ending === "F" ? "게임 속 가상금액 20만원을 보내버렸습니다." : "게임 속 가상금액 20만원을 지켜냈습니다.";
+    const copy = activeEndingCopy[ending];
+    const moneyResult = ending === "F" ? `게임 속 가상금액 ${activeCase.virtualAmount}을 보내버렸습니다.` : `게임 속 가상금액 ${activeCase.virtualAmount}을 지켜냈습니다.`;
+    const nextCase = activeCaseId === "ep01"
+      ? { no: "06", mark: "♥", type: "로맨스스캠", title: "해외 파병 군의관", line: "사랑은 국경 없고 통관료는 있습니다." }
+      : { no: "02", mark: "엄", type: "가족·지인 사칭", title: "엄마 나 폰 고장났어", line: "말투도 함께 고장난 새 번호가 접수됐습니다." };
     return (
-      <main className={`ending-screen grade-${ending.toLowerCase()}`} data-banner-ad={monetizationPlan.bannerAds.ending ? "enabled" : "reserved"}>
+      <main className={`ending-screen grade-${ending.toLowerCase()}`}>
         <div className="ending-noise" />
         <section className="result-card">
           <div className="result-stamp"><small>CASE CLOSED</small><strong>{ending}</strong><span>RANK</span></div>
@@ -604,10 +792,10 @@ export default function Home() {
             <div><span>지갑 방어력</span><i><b style={{ width: `${stats.wallet}%` }} /></i><em>{stats.wallet}</em></div>
             <div><span>헛소리 내성</span><i><b style={{ width: `${stats.patience}%` }} /></i><em>{stats.patience}</em></div>
           </div>
-          <div className="evidence-summary"><span>수집한 사기 냄새</span><strong>{suspicion} / 7</strong></div>
+          <div className="evidence-summary"><span>수집한 사기 냄새</span><strong>{suspicion} / {activeCase.clueTotal}</strong></div>
           <section className="tactic-recap" aria-labelledby="tactic-title">
             <span>방금 당할 뻔한 수법</span>
-            <h2 id="tactic-title">유명인 DM → 친밀감 → 링크 → 추가 가상 송금</h2>
+            <h2 id="tactic-title">{activeCase.tactic}</h2>
           </section>
 
           <section className="share-card" aria-label="공유할 결과">
@@ -619,10 +807,9 @@ export default function Home() {
           <button className="share-button" onClick={shareResult}><span>친구도 살아남는지 보내보기</span><b>↗</b></button>
 
           <section className="next-case-panel" aria-labelledby="next-case-title">
-            <div className="next-case-signal"><span>NEW SIGNAL</span><b>CASE 02</b></div>
-            <div className="next-case-content"><div className="next-case-mark">엄</div><div><small>가족·지인 사칭</small><h2 id="next-case-title">엄마 나 폰 고장났어</h2><p>말투도 함께 고장난 새 번호가 접수됐습니다.</p></div></div>
-            <button onClick={requestNextCase} aria-disabled={!monetizationPlan.rewardedNextEpisode}><span>광고 보고 사건파일 열기</span><b>→</b></button>
-            <small className="reward-note">보상형 광고 1회 · 플레이 중 광고 없음 · 준비 중</small>
+            <div className="next-case-signal"><span>NEW SIGNAL</span><b>CASE {nextCase.no}</b></div>
+            <div className="next-case-content"><div className="next-case-mark">{nextCase.mark}</div><div><small>{nextCase.type}</small><h2 id="next-case-title">{nextCase.title}</h2><p>{nextCase.line}</p></div></div>
+            <button onClick={openNextCase}><span>사건파일 열기</span><b>→</b></button>
           </section>
 
           <div className="result-actions"><button className="secondary-game-button" onClick={enterChat}>다시 상대하기</button><button className="secondary-game-button" onClick={goHome}>다른 사기꾼 보기</button></div>
@@ -634,7 +821,7 @@ export default function Home() {
   }
 
   return (
-    <main className="home-screen" data-banner-ad={monetizationPlan.bannerAds.home ? "enabled" : "reserved"}>
+    <main className="home-screen">
       <div className="home-glow" aria-hidden="true" />
       <header className="game-brand">
         <div className="eyebrow"><span>SCAMMER ARCHIVE</span><b>SEASON 01</b></div>
@@ -643,21 +830,21 @@ export default function Home() {
       </header>
 
       <section className="roster" aria-labelledby="roster-heading">
-        <div className="roster-heading"><div><span>NOW ONLINE</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 1명</p></div>
+        <div className="roster-heading"><div><span>NOW ONLINE</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 2명</p></div>
         <article className="featured-case" style={{ "--accent": episodes[0].accent } as React.CSSProperties}>
           <img className="featured-portrait" src="/scammer-01.png" alt="파란 안경을 쓴 가상의 유명인 사칭범" />
           <div className="featured-shade" aria-hidden="true" />
           <div className="featured-status"><span><i /> LIVE</span><b>CASE 01</b></div>
           <div className="featured-copy"><span className="type-chip">유명인 사칭 · 공식 아님</span><h3>억만장자가<br />20만원이 없대요</h3><p>“지갑은 분실. 자신감은 보유 중.”</p><div className="suspect-name"><span>상대</span><strong>일런 모스크바</strong><em>ELUN MOSKVA</em></div></div>
-          <button onClick={startCase} aria-label="케이스 01 플레이"><span>상대하기</span><b>→</b></button>
+          <button onClick={() => startCase("ep01")} aria-label="케이스 01 플레이"><span>상대하기</span><b>→</b></button>
         </article>
 
-        <div className="next-up"><div><span>UPCOMING</span><h2>다음에 올 메시지</h2></div><b>14 CASES</b></div>
+        <div className="next-up"><div><span>CASE FILES</span><h2>다른 사건파일</h2></div><b>14 CASES</b></div>
         <div className="episode-grid">
           {episodes.slice(1).map((episode) => (
-            <button className="episode-card" key={episode.no} style={{ "--accent": episode.accent } as React.CSSProperties} onClick={() => setInfoEpisode(episode)}>
-              <div className="episode-visual"><span>{episode.mark}</span><b>{episode.no}</b></div>
-              <div className="episode-meta"><span>{episode.type}</span><em>COMING SOON</em></div>
+            <button className={`episode-card ${episode.no === "06" ? "live" : ""}`} key={episode.no} style={{ "--accent": episode.accent } as React.CSSProperties} onClick={() => episode.no === "06" ? startCase("ep06") : setInfoEpisode(episode)}>
+              <div className={`episode-visual ${episode.no === "06" ? "has-portrait" : ""}`}>{episode.no === "06" && <img src="/scammer-06.png" alt="" loading="lazy" decoding="async" />}<span>{episode.no === "06" ? "" : episode.mark}</span><b>{episode.no}</b></div>
+              <div className="episode-meta"><span>{episode.type}</span><em>{episode.no === "06" ? "PLAY NOW" : "COMING SOON"}</em></div>
               <h3>{episode.name}</h3>
               <p>{episode.line}</p>
               <small>{episode.scammer}</small>
