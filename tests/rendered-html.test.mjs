@@ -33,7 +33,7 @@ test("ships without starter preview residue", async () => {
 
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/);
   assert.doesNotMatch(html, /Your site is taking shape|Starter Project/);
-  assert.match(html, /말이 무너지기 전에 탈출하라/);
+  assert.match(html, /속아 넘어가기 전에 탈출하라/);
 });
 
 test("conversation graph has no broken, unreachable, or looping branches", async () => {

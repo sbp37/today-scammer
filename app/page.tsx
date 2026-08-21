@@ -1177,10 +1177,10 @@ export default function Home() {
   const shareResult = async () => {
     const copy = activeEndingCopy[ending];
     const moneyResult = virtualMoneyLost > 0 ? `게임 속 가상금액 ${virtualMoneyLost.toLocaleString("ko-KR")}원을 보냈습니다.` : `게임 속 가상금액 ${activeCase.virtualAmount}을 지켜냈습니다.`;
-    const text = `《오늘의 사기꾼》\n사기 생존력 ${stats.total}점\n🔍 증거 ${suspicion} / ${activeCase.clueTotal}\n오판 ${wrongClues}\n${moneyResult}\n${copy.shareLine}\n\n너도 살아남을 수 있음?\n게임 시뮬레이션 · 실제 금전 거래 없음`;
+    const text = `《오늘의 사기꾼》\n속아 넘어가기 전에 탈출하라\n\n사기 생존력 ${stats.total}점\n🔍 증거 ${suspicion} / ${activeCase.clueTotal}\n오판 ${wrongClues}\n${moneyResult}\n${copy.shareLine}\n\n너도 살아남을 수 있음?\n게임 시뮬레이션 · 실제 금전 거래 없음`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "오늘의 사기꾼 결과", text, url: window.location.origin });
+        await navigator.share({ title: "오늘의 사기꾼 — 속아 넘어가기 전에 탈출하라", text, url: window.location.origin });
         return;
       }
       await navigator.clipboard.writeText(`${text}\n${window.location.origin}`);
