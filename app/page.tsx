@@ -10,7 +10,7 @@ type EndingGrade = "S" | "A" | "C" | "F";
 type CaseId = "ep01" | "ep02" | "ep06";
 type ElunSceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
 type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceCredential" | "romanceCertificateCheck" | "romanceDay" | "romanceHeart" | "romanceHeartJoke" | "romanceFlirt" | "romancePromise" | "romanceBond" | "romanceParcel" | "romanceBoxDetails" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
-type SeoyunSceneId = "seoyunStart" | "seoyunWhy" | "seoyunWork" | "seoyunDog" | "seoyunMontage" | "seoyunDay8" | "seoyunHospital" | "seoyunDelete" | "seoyunConfide" | "seoyunDeposit" | "seoyunFamily" | "seoyunVerify" | "seoyunFirstTransfer" | "seoyunSecondAsk" | "seoyunVideo" | "seoyunHallway" | "seoyunSecondTransfer" | "seoyunFinal";
+type SeoyunSceneId = "seoyunStart" | "seoyunWhy" | "seoyunWork" | "seoyunDog" | "seoyunMontage" | "seoyunDay8" | "seoyunHospital" | "seoyunDelete" | "seoyunConfide" | "seoyunDeposit" | "seoyunFamily" | "seoyunVerify" | "seoyunFirstTransfer" | "seoyunSecondAsk" | "seoyunVideo" | "seoyunSecondTransfer" | "seoyunFinal";
 type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId;
 
 type Message = {
@@ -39,6 +39,25 @@ type ChoiceBase = {
   virtualTransfer?: boolean;
   virtualAmount?: string;
   virtualLoss?: number;
+};
+
+type ScoreInput = {
+  virtualMoneyLost: number;
+  virtualMoneyAtRisk: number;
+  decisionScore: number;
+  foundClues: number;
+  totalClues: number;
+  earlyDetection: boolean;
+  wrongClues: number;
+};
+
+type ScoreBreakdown = {
+  total: number;
+  wallet: number;
+  decisions: number;
+  evidence: number;
+  earlyBonus: number;
+  wrongPenalty: number;
 };
 
 type Choice = ChoiceBase & {
@@ -75,6 +94,7 @@ const episodes = [
 
 const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02"];
 const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : no === "02" ? "ep02" : "ep01";
+const virtualMoneyAtRisk: Record<CaseId, number> = { ep01: 200000, ep02: 1810000, ep06: 480000 };
 
 const caseProfiles = {
   ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.webp", duration: "4분 내외", start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
@@ -592,10 +612,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
   },
   seoyunHospital: {
-    incoming: [
-      "검사하고 있는데 수술해야 할 수도 있대.",
-      "나 지금 정신이 하나도 없다...",
-    ],
+    incoming: ["검사 중인데 수술해야 할 수도 있대. 나 지금 정신이 하나도 없어..."],
     choices: [
       { text: "검사 결과 나올 때까지 옆에 있을게.", next: "seoyunDelete", replies: ["고마워... 이런 말 해주는 사람이 있다는 게 조금 낫다."] },
       { text: "병원 이름 알려줘. 확인해볼게.", next: "seoyunDelete", replies: ["응, 결과 나오면 병원이랑 같이 알려줄게. 지금은 접수한 것도 잘 기억 안 나."] },
@@ -616,10 +633,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
   },
   seoyunConfide: {
-    incoming: [
-      "아니야 ㅠㅠ 오빠한테 이런 부탁하려고 연락한 거 아니야.",
-      "그냥 엄마가 갑자기 그러니까 누구한테 말하고 싶었어.",
-    ],
+    incoming: ["오빠한테 부탁하려던 건 아니야. 그냥 누구한테라도 말하고 싶었어 ㅠ"],
     clues: ["emotionalPressure"],
     choices: [
       { text: "그래도 무슨 일인지는 말해봐.", next: "seoyunDeposit", replies: ["정말 그냥 물어만 보는 거야. 부담 가지면 안 돼."] },
@@ -655,10 +669,7 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     ],
   },
   seoyunVerify: {
-    incoming: [
-      "응급이라 대표번호로는 환자 확인을 안 해준대.",
-      "병원 이름은 조금 있다 알려줄게. 지금 간호사 선생님이 계속 왔다 갔다 해서...",
-    ],
+    incoming: ["응급이라 대표번호로는 확인이 안 된대. 병원 이름은 조금 있다 알려줄게..."],
     clues: ["videoAvoid", "postponedMeeting"],
     choices: [
       { text: "확인 안 되면 돈도 못 보내.", ending: "A", replies: ["알겠어. 내가 어떻게든 해볼게..."] },
@@ -696,21 +707,9 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
     incoming: ["지금 엄마 옆이라 영상통화는 좀... ㅠ"],
     clues: ["videoAvoid"],
     choices: [
-      { text: "복도도 영상통화 금지 구역이에요?", next: "seoyunHallway" },
+      { text: "복도에서 10초만 보여줘.", ending: "A", replies: ["복도가 지금 공사 중이라 통화할 곳이 없어. 그냥 우리 8일을 믿어주면 안 돼?"] },
       { text: "그럼 병원 대표번호 알려줘.", ending: "A", replies: ["대표번호는 지금 야간이라 낮이래. 아니, 업무가 끝났대."] },
       { text: "확인도 못 하는데 여기까지 할게.", ending: "S", replies: ["영상보다 우리 대화가 더 진짜였잖아..."] },
-    ],
-  },
-  seoyunHallway: {
-    incoming: [
-      "병원 복도가 지금... 공사 중이야.",
-      "먼지도 많고 조용히 통화할 곳이 하나도 없어.",
-    ],
-    clues: ["videoAvoid"],
-    choices: [
-      { text: "수술 중인데 복도 공사라니. 차단할게.", ending: "S", replies: ["공사는 병원 사정이고 우리 사이는—"] },
-      { text: "병원 대표번호로 확인할게.", ending: "A", replies: ["대표번호도 공사 때문에 잠시 막혔어."] },
-      { text: "친구 검수 들어갑니다. 잠시만요.", ending: "A", replies: ["우리 일에 갑자기 검토자가 왜 필요해?"] },
     ],
   },
   seoyunSecondTransfer: {
@@ -769,6 +768,29 @@ const clueOptions = [
   { id: "grammar", label: "조금 어색한 한국어" },
 ];
 
+const clueExplanations: Record<string, string> = {
+  dm: "유명인이 예고 없이 개인 계정으로 접근했습니다.",
+  fast: "검증보다 친밀감과 비밀 약속이 먼저 나왔습니다.",
+  video: "신원을 바로 확인할 수 있는 영상통화를 피했습니다.",
+  money: "첫 대화부터 개인 송금을 요구했습니다.",
+  link: "공식 경로가 아닌 외부 링크로 이동시키려 합니다.",
+  profit: "실제 출금 확인 없이 화면 속 수익만 보여줍니다.",
+  rush: "생각하거나 확인할 시간을 주지 않고 재촉합니다.",
+  stranger: "확인되지 않은 낯선 계정이 먼저 관계를 만들려 합니다.",
+  love: "만나기도 전에 애정과 미래 약속이 지나치게 빨라졌습니다.",
+  credential: "사진 한 장을 공식 신원 확인처럼 내세웁니다.",
+  parcel: "만난 적 없는 사람이 고가 선물과 주소를 함께 요구합니다.",
+  customs: "받지도 않은 선물을 이유로 선입금을 요구합니다.",
+  thirdParty: "본인과 무관한 제3자 명의 계정으로 돈을 받으려 합니다.",
+  rapidIntimacy: "짧은 기간에 특별한 관계라는 감정을 빠르게 만들었습니다.",
+  postponedMeeting: "약속은 반복해서 미루면서 온라인 관계만 깊게 만듭니다.",
+  videoAvoid: "병원이라는 상황도 보여주지 않고 확인 수단을 계속 피합니다.",
+  familyCrisis: "친밀감을 쌓은 직후 가족 위기를 꺼내 도움을 유도합니다.",
+  familyContradiction: "부모님과 제주도에 간다는 말과 아버지가 돌아가셨다는 말이 충돌합니다.",
+  amountEscalation: "작은 부탁이 해결되자 더 큰 금액을 연달아 요구합니다.",
+  emotionalPressure: "‘오빠밖에 없다’는 말로 거절하기 어렵게 만듭니다.",
+};
+
 const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
   S: { title: "모스크바행 차단", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 20만원을 지켜냈습니다. 일런 모스크바는 화성 계정부터 다시 확인해야 합니다.", shareLine: "화성 계정까지 차단 범위에 포함했습니다." },
   A: { title: "돈은 지켰습니다", kicker: "긴 대화 · 가상 송금 없음", body: "게임 속 가상금액 20만원을 지켜냈습니다. 대신 일런 모스크바의 화성 계좌 사정을 끝까지 들었습니다.", shareLine: "헛소리는 끝까지 들었지만 지갑은 무사합니다." },
@@ -816,6 +838,43 @@ const getScene = (caseId: CaseId, sceneId: SceneId): Scene => caseId === "ep01" 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 const typingDelay = (text: string, seed: number) => Math.min(2700, 620 + text.length * 27 + (seed % 5) * 80);
 const containsMoneyTalk = (text: string) => /(만원|억원|달러|통관비|송금|비용|보증금|수익|투자|계좌|현금|돈)/.test(text);
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+function calculateScore({ virtualMoneyLost, virtualMoneyAtRisk: totalMoney, decisionScore, foundClues, totalClues, earlyDetection, wrongClues }: ScoreInput): ScoreBreakdown {
+  const wallet = virtualMoneyLost === 0 ? 40 : Math.round(40 * (1 - clamp(virtualMoneyLost / totalMoney, 0, 1)));
+  const decisions = clamp(Math.round(decisionScore), 0, 30);
+  const evidence = totalClues > 0 ? Math.round(25 * clamp(foundClues / totalClues, 0, 1)) : 0;
+  const earlyBonus = earlyDetection ? 5 : 0;
+  const wrongPenalty = -wrongClues * 3;
+  return {
+    total: clamp(wallet + decisions + evidence + earlyBonus + wrongPenalty, 0, 100),
+    wallet,
+    decisions,
+    evidence,
+    earlyBonus,
+    wrongPenalty,
+  };
+}
+
+function playClueTone(correct: boolean) {
+  try {
+    const context = new AudioContext();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = correct ? "sine" : "triangle";
+    oscillator.frequency.setValueAtTime(correct ? 660 : 190, context.currentTime);
+    if (correct) oscillator.frequency.exponentialRampToValueAtTime(880, context.currentTime + 0.09);
+    gain.gain.setValueAtTime(0.0001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.055, context.currentTime + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.11);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.12);
+    oscillator.onended = () => { void context.close(); };
+  } catch {
+    // Sound can be unavailable in silent/private browser modes; visual feedback remains.
+  }
+}
 
 function MessageImage({ message, onOpen }: { message: Message; onOpen: (image: { src: string; alt: string }) => void }) {
   const [failed, setFailed] = useState(false);
@@ -844,6 +903,7 @@ export default function Home() {
   const [ending, setEnding] = useState<EndingGrade>("A");
   const [clueOpen, setClueOpen] = useState(false);
   const [foundClues, setFoundClues] = useState<string[]>([]);
+  const [wrongClueIds, setWrongClueIds] = useState<string[]>([]);
   const [toast, setToast] = useState("");
   const [infoEpisode, setInfoEpisode] = useState<(typeof episodes)[number] | null>(null);
   const [pendingTransfer, setPendingTransfer] = useState<Choice | null>(null);
@@ -870,12 +930,37 @@ export default function Home() {
     ? ["normalDm", ...(dubuWasShown ? ["dogPhoto"] : []), ...(transcriptText.includes("평소보다 답장이 늦") ? ["lateReply"] : [])]
     : ["uniform", "grammar"];
   const suspicion = foundClues.length;
+  const wrongClues = wrongClueIds.length;
   const unfoundClues = availableClues.filter((id) => !foundClues.includes(id));
 
   useEffect(() => {
     const randomize = window.setTimeout(() => setFeaturedCaseId(liveEpisodeIds[Math.floor(Math.random() * liveEpisodeIds.length)]), 0);
     return () => window.clearTimeout(randomize);
   }, []);
+
+  useEffect(() => {
+    window.history.replaceState({ todayScammerScreen: "home" satisfies Screen }, "");
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (clueOpen || pendingTransfer || previewImage || portraitOpen || infoEpisode) {
+        setClueOpen(false);
+        setPendingTransfer(null);
+        setPreviewImage(null);
+        setPortraitOpen(false);
+        setInfoEpisode(null);
+        window.history.pushState({ todayScammerScreen: screen }, "");
+        return;
+      }
+      const nextScreen = (event.state?.todayScammerScreen as Screen | undefined) ?? "home";
+      runRef.current += 1;
+      setScreen(nextScreen);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [clueOpen, infoEpisode, pendingTransfer, portraitOpen, previewImage, screen]);
 
   useEffect(() => {
     if (feedRef.current) {
@@ -964,15 +1049,15 @@ export default function Home() {
     return () => { runRef.current += 1; };
   }, [activeCaseId, sceneId, screen]);
 
-  const stats = useMemo(() => {
-    const base = ending === "S" ? 94 : ending === "A" ? 82 : ending === "C" ? 64 : 31;
-    return {
-      survival: Math.max(18, Math.min(99, base + suspicion * 2 - risk * 2)),
-      doubt: Math.min(99, 46 + suspicion * 9),
-      wallet: ending === "F" ? 0 : virtualMoneyLost > 0 ? 58 : 100,
-      patience: Math.max(12, 91 - turn * 8),
-    };
-  }, [ending, risk, suspicion, turn, virtualMoneyLost]);
+  const stats = useMemo(() => calculateScore({
+    virtualMoneyLost,
+    virtualMoneyAtRisk: virtualMoneyAtRisk[activeCaseId],
+    decisionScore: (ending === "S" ? 30 : ending === "A" ? 26 : ending === "C" ? 19 : 8) - risk * 2,
+    foundClues: suspicion,
+    totalClues: activeCase.clueTotal,
+    earlyDetection: ending === "S" && virtualMoneyLost === 0,
+    wrongClues,
+  }), [activeCase.clueTotal, activeCaseId, ending, risk, suspicion, virtualMoneyLost, wrongClues]);
 
   const startCase = (caseId: CaseId) => {
     if (caseId === "ep06") {
@@ -985,6 +1070,7 @@ export default function Home() {
     portrait.src = caseProfiles[caseId].portrait;
     setActiveCaseId(caseId);
     setScreen("briefing");
+    window.history.pushState({ todayScammerScreen: "briefing" satisfies Screen }, "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -1000,6 +1086,7 @@ export default function Home() {
     setVirtualMoneyLost(0);
     setAvailableClues([]);
     setFoundClues([]);
+    setWrongClueIds([]);
     setEnding("A");
     setPendingTransfer(null);
     setPreviewImage(null);
@@ -1008,6 +1095,7 @@ export default function Home() {
     setClueHintVisible(false);
     setSimulationConfirmed(false);
     setScreen("chat");
+    window.history.pushState({ todayScammerScreen: "chat" satisfies Screen }, "");
   };
 
   const addMessage = (from: Message["from"], text: string) => {
@@ -1089,7 +1177,7 @@ export default function Home() {
   const shareResult = async () => {
     const copy = activeEndingCopy[ending];
     const moneyResult = virtualMoneyLost > 0 ? `게임 속 가상금액 ${virtualMoneyLost.toLocaleString("ko-KR")}원을 보냈습니다.` : `게임 속 가상금액 ${activeCase.virtualAmount}을 지켜냈습니다.`;
-    const text = `《오늘의 사기꾼》 사기 생존력 ${stats.survival}점\n${moneyResult}\n${copy.shareLine}\n\n게임 시뮬레이션 · 실제 금전 거래 없음`;
+    const text = `《오늘의 사기꾼》\n사기 생존력 ${stats.total}점\n🔍 증거 ${suspicion} / ${activeCase.clueTotal}\n오판 ${wrongClues}\n${moneyResult}\n${copy.shareLine}\n\n너도 살아남을 수 있음?\n게임 시뮬레이션 · 실제 금전 거래 없음`;
     try {
       if (navigator.share) {
         await navigator.share({ title: "오늘의 사기꾼 결과", text, url: window.location.origin });
@@ -1110,9 +1198,15 @@ export default function Home() {
       setToast("이미 증거 봉투에 넣었습니다. 봉투가 빵빵합니다.");
       return;
     }
+    if (wrongClueIds.includes(id)) {
+      setToast("이미 확인한 헛다리입니다. 같은 오판은 다시 세지 않습니다.");
+      return;
+    }
     if (availableClues.includes(id)) {
       setFoundClues((prev) => [...prev, id]);
-      setToast(`증거 ${foundClues.length + 1} / ${activeCase.clueTotal} · “${clue.label}”`);
+      playClueTone(true);
+      navigator.vibrate?.(35);
+      setToast(`🔍 증거 확보 +1 · ${clueExplanations[id] ?? clue.label}`);
       setClueOpen(false);
     } else {
       const jokes: Record<string, string> = {
@@ -1123,7 +1217,10 @@ export default function Home() {
         dogPhoto: "두부는 무죄입니다. 귀여움은 증거 봉투에 들어가지 않습니다.",
         lateReply: "답장이 늦은 것만으로는 단서가 아닙니다. 누구나 바쁠 수 있어요.",
       };
-      setToast(jokes[id] ?? "아직 그 냄새는 나지 않습니다. 코를 아껴두세요.");
+      setWrongClueIds((prev) => [...prev, id]);
+      playClueTone(false);
+      navigator.vibrate?.([20, 45, 20]);
+      setToast(`헛다리! 오판 +1 · ${jokes[id] ?? "아직 그 냄새는 나지 않습니다. 코를 아껴두세요."}`);
     }
   };
 
@@ -1136,6 +1233,13 @@ export default function Home() {
     setMoneyAlert(false);
     setFeaturedCaseId((current) => liveEpisodeIds.find((caseId) => caseId !== current) ?? current);
     setScreen("home");
+    window.history.pushState({ todayScammerScreen: "home" satisfies Screen }, "");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const showEnding = () => {
+    setScreen("ending");
+    window.history.pushState({ todayScammerScreen: "ending" satisfies Screen }, "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -1169,13 +1273,12 @@ export default function Home() {
     return (
       <main className="chat-shell">
         <header className="chat-header">
-          <button className="chat-back" onClick={goHome} aria-label="게임 나가기">‹</button>
+          <button className="chat-back" onClick={goHome} aria-label="사건 목록으로 돌아가기">‹</button>
           <button className="avatar-button tiny-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /><span className="online-dot" /></button>
           <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
-          <button className={`sniff-button${moneyAlert ? " money-alert" : ""}${unfoundClues.length ? " clue-ready" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 냄새 단서 찾기${moneyAlert ? " · 돈 관련 대화 감지" : ""}${unfoundClues.length ? ` · 새 단서 ${unfoundClues.length}개` : ""}`}><span className="siren-icon">🚨</span><b>{unfoundClues.length ? `새 단서 ${unfoundClues.length}` : moneyAlert ? "돈 냄새" : "사기 냄새"}</b></button>
         </header>
 
-        {clueHintVisible && <div className="clue-tutorial" role="status"><span>🚨</span><p>뭔가 이상한 말이 나오면<br /><b>사기 냄새</b>를 눌러 증거를 찾아보세요.</p></div>}
+        {clueHintVisible && <div className="clue-tutorial" role="status"><span>👃</span><p><b>방금 좀 이상하지 않았나요?</b><br />수상한 말을 발견하면 사기 냄새를 눌러보세요.</p></div>}
         {foundClues.length > 0 && <div className="case-meter" aria-label={`잡은 증거 ${foundClues.length}개, 전체 ${activeCase.clueTotal}개`}><span>잡은 증거<small>{unfoundClues.length ? `새 단서 ${unfoundClues.length}` : "대화에서 더 찾기"}</small></span><div><i style={{ width: `${Math.min(100, foundClues.length / activeCase.clueTotal * 100)}%` }} /></div><b key={foundClues.length}>{foundClues.length} / {activeCase.clueTotal}</b></div>}
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
@@ -1199,6 +1302,7 @@ export default function Home() {
         </section>
 
         <section className="reply-dock" aria-label="답변 선택">
+          {phase !== "resolved" && <button className={`sniff-button sniff-action${moneyAlert ? " money-alert" : ""}${unfoundClues.length ? " clue-ready" : ""}`} onClick={() => setClueOpen(true)} aria-label={`사기 냄새 맡아보기${moneyAlert ? " · 돈 관련 대화 감지" : ""}${unfoundClues.length ? ` · 새 단서 ${unfoundClues.length}개` : ""}`}><span className="siren-icon">{unfoundClues.length ? "🚨" : "👃"}</span><b>{unfoundClues.length ? "새 단서가 있을지도?" : moneyAlert ? "돈 얘기, 냄새 맡아보기" : "사기 냄새 맡아보기"}</b>{foundClues.length > 0 && <em>증거 {foundClues.length}/{activeCase.clueTotal}</em>}</button>}
           <div className="reply-label"><span>{phase === "choice" ? "뭐라고 답할까요?" : phase === "resolved" ? "사건이 종료되었습니다" : typing ? "상대가 입력 중입니다" : "마지막 톡을 읽을 시간을 두는 중입니다"}</span><b>CASE {activeCase.no} · TURN {String(turn + 1).padStart(2, "0")}</b></div>
           {phase === "choice" ? (
             <div className="choice-list">
@@ -1210,7 +1314,7 @@ export default function Home() {
             <div className="resolution-dock">
               <div className="result-scan" aria-hidden="true"><i /><i /><i /></div>
               <div><span>분석 완료</span><strong>결과 신호를 해독했습니다.</strong></div>
-              <button onClick={() => setScreen("ending")}>내 사기 생존력 확인하기 <b>→</b></button>
+              <button onClick={showEnding}>내 사기 생존력 확인하기 <b>→</b></button>
             </div>
           ) : (
             <div className="waiting-bar"><i /><span>잠시만요. 그럴듯한 말을 조립하고 있습니다.</span></div>
@@ -1221,12 +1325,13 @@ export default function Home() {
           <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setClueOpen(false); }}>
             <section className="clue-sheet" role="dialog" aria-modal="true" aria-labelledby="clue-title">
               <div className="sheet-grip" />
-              <div className="clue-heading"><div><span>현장 채증</span><h2 id="clue-title">뭐가 찜찜했나요?</h2></div><button onClick={() => setClueOpen(false)} aria-label="닫기">×</button></div>
-              <p>{activeCaseId === "ep02" && availableClues.length === 0 ? "아직 뚜렷한 사기 신호는 없습니다. 사람과 대화하는 것 자체는 범죄가 아닙니다." : "지금까지 대화에서 냄새난 장면을 증거 봉투에 넣으세요."}</p>
+              <div className="clue-heading"><div><span>현장 채증</span><h2 id="clue-title">방금 뭐가 이상했지?</h2></div><button onClick={() => setClueOpen(false)} aria-label="닫기">×</button></div>
+              <p>{activeCaseId === "ep02" && availableClues.length === 0 ? "아직 뚜렷한 사기 신호는 없습니다. 사람과 대화하는 것 자체는 범죄가 아닙니다." : "수상한 장면 하나를 고르세요. 헛다리는 오판 +1, 최종 점수 -3점입니다."}</p>
               <div className="clue-grid">
                 {clueOptions.filter((clue) => availableClues.includes(clue.id) || falseClueIds.includes(clue.id)).map((clue) => {
                   const found = foundClues.includes(clue.id);
-                  return <button className={found ? "found" : ""} key={clue.id} disabled={found} onClick={() => sniffClue(clue.id)}><span>{found ? "✓" : "?"}</span>{found ? `${clue.label} · 확보` : clue.label}</button>;
+                  const wrong = wrongClueIds.includes(clue.id);
+                  return <button className={found ? "found" : wrong ? "wrong" : ""} key={clue.id} disabled={found || wrong} onClick={() => sniffClue(clue.id)}><span>{found ? "✓" : wrong ? "×" : "?"}</span>{found ? `${clue.label} · 확보` : wrong ? `${clue.label} · 오판` : clue.label}</button>;
                 })}
               </div>
             </section>
@@ -1271,6 +1376,8 @@ export default function Home() {
   if (screen === "ending") {
     const copy = activeEndingCopy[ending];
     const moneyResult = virtualMoneyLost > 0 ? `게임 속 가상금액 ${virtualMoneyLost.toLocaleString("ko-KR")}원을 보냈습니다.` : `게임 속 가상금액 ${activeCase.virtualAmount}을 지켜냈습니다.`;
+    const damageResult = virtualMoneyLost > 0 ? `게임 속 가상피해 ${virtualMoneyLost.toLocaleString("ko-KR")}원` : "게임 속 가상피해 0원";
+    const allCluesFound = suspicion === activeCase.clueTotal && wrongClues === 0;
     const endingBody = activeCaseId === "ep02" && ending === "C" && virtualMoneyLost > 0
       ? `게임 속 가상금액 ${virtualMoneyLost.toLocaleString("ko-KR")}원을 보냈지만, 다음 요구에서 멈췄습니다. 실제 금전 거래는 없었습니다.`
       : copy.body;
@@ -1278,34 +1385,41 @@ export default function Home() {
     return (
       <main className={`ending-screen grade-${ending.toLowerCase()}`}>
         <div className="ending-noise" />
+        {stats.total >= 90 && <div className="result-confetti" aria-hidden="true">{Array.from({ length: 14 }, (_, index) => <i key={index} />)}</div>}
         <section className="result-card">
-          {stats.survival >= 90 && <div className="respect-effect"><span>상대의 비공식 인정</span><strong>“당신은 못 속이겠습니다.”</strong><i aria-hidden="true" /></div>}
+          <nav className="result-nav" aria-label="결과 화면 이동"><button onClick={goHome}>← 사건 목록</button></nav>
+          {stats.total >= 90 && <div className="respect-effect"><span>🎉 S급 사기 생존자</span><strong>오늘은 당신 지갑이 매우 평화롭습니다.</strong><i aria-hidden="true" /></div>}
+          {allCluesFound && <div className="scent-master-badge"><span>👃</span><div><small>SPECIAL BADGE</small><strong>후각 만렙 · 증거 전체 수집</strong></div></div>}
           <div className="result-stamp"><small>CASE CLOSED</small><strong>{ending}</strong><span>RANK</span></div>
           <p className="ending-kicker">{copy.kicker}</p>
           <h1>{copy.title}</h1>
+          <div className="survival-score"><span>사기 생존력</span><strong>{stats.total}</strong><em>/100</em></div>
+          <div className="result-core-summary"><span>{damageResult}</span><strong>🔍 증거 {suspicion} / {activeCase.clueTotal}</strong><em>오판 {wrongClues}</em></div>
+          <button className="share-button primary-share" onClick={shareResult}><span>친구도 살아남는지 보내보기</span><b>↗</b></button>
           <p className="ending-body">{endingBody}</p>
-          <div className="survival-score"><span>사기 생존력</span><strong>{stats.survival}</strong><em>/100</em></div>
-          <div className="stat-list">
-            <div><span>의심 안테나</span><i><b style={{ width: `${stats.doubt}%` }} /></i><em>{stats.doubt}</em></div>
-            <div><span>지갑 방어력</span><i><b style={{ width: `${stats.wallet}%` }} /></i><em>{stats.wallet}</em></div>
-            <div><span>헛소리 내성</span><i><b style={{ width: `${stats.patience}%` }} /></i><em>{stats.patience}</em></div>
+          <div className="score-breakdown" aria-label="점수 계산 근거">
+            <div><span>지갑 방어</span><b>{stats.wallet} / 40</b></div>
+            <div><span>판단력</span><b>{stats.decisions} / 30</b></div>
+            <div><span>증거 포착</span><b>{stats.evidence} / 25</b></div>
+            <div><span>조기 간파</span><b>{stats.earlyBonus} / 5</b></div>
+            <div className={wrongClues ? "penalty" : ""}><span>오판 {wrongClues}</span><b>{stats.wrongPenalty}점</b></div>
           </div>
-          <div className="evidence-summary"><span>수집한 사기 냄새</span><strong>{suspicion} / {activeCase.clueTotal}</strong></div>
+          <div className="evidence-summary"><span>{activeCase.clueTotal - suspicion > 0 ? `놓친 수법 ${activeCase.clueTotal - suspicion}개 · 다른 선택에서 발견 가능` : "모든 사기 냄새를 찾았습니다"}</span><strong>{suspicion} / {activeCase.clueTotal}</strong></div>
+
+          <section className="share-card" aria-label="공유할 결과">
+            <span>오늘의 생존 보고서</span>
+            <strong>사기 생존력 {stats.total}점</strong>
+            <p>🔍 증거 {suspicion} / {activeCase.clueTotal} · 오판 {wrongClues}<br />{moneyResult}<br />{copy.shareLine}</p>
+            <small>게임 시뮬레이션 · 실제 금전 거래 없음</small>
+          </section>
+
           <section className="tactic-recap" aria-labelledby="tactic-title">
             <span>방금 당할 뻔한 수법</span>
             <h2 id="tactic-title">{activeCase.tactic}</h2>
           </section>
 
-          <section className="share-card" aria-label="공유할 결과">
-            <span>오늘의 생존 보고서</span>
-            <strong>사기 생존력 {stats.survival}점</strong>
-            <p>{moneyResult}<br />{copy.shareLine}</p>
-            <small>게임 시뮬레이션 · 실제 금전 거래 없음</small>
-          </section>
-          <button className="share-button" onClick={shareResult}><span>친구도 살아남는지 보내보기</span><b>↗</b></button>
-
           <section className="next-case-panel" aria-labelledby="next-case-title">
-            <div className="next-case-signal"><span>CONNECTED CASES</span><b>PLAY NOW</b></div>
+            <div className="next-case-signal"><span>연결된 사건</span><b>바로 상대하기</b></div>
             <h2 id="next-case-title" className="next-case-heading">바로 이어서 상대할 사기꾼</h2>
             <div className="connected-case-list">
               {connectedCases.map((caseId) => {
@@ -1340,7 +1454,7 @@ export default function Home() {
       </header>
 
       <section className="roster" aria-labelledby="roster-heading">
-        <div className="roster-heading"><div><span>NOW ONLINE</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 3명</p></div>
+        <div className="roster-heading"><div><span>지금 접속 중</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 3명</p></div>
         <article className="featured-case" style={{ "--accent": featuredEpisode.accent } as React.CSSProperties}>
           <img className="featured-portrait" src={featuredCase.portrait} alt={`${featuredCase.scammer} 가상 캐릭터`} width="1024" height="1536" decoding="async" fetchPriority="high" />
           <div className="featured-shade" aria-hidden="true" />
@@ -1349,15 +1463,15 @@ export default function Home() {
           <button onClick={() => startCase(featuredCaseId)} aria-label={`케이스 ${featuredCase.no} 플레이`}><span>상대하기</span><b>→</b></button>
         </article>
 
-        <div className="next-up"><div><span>CASE FILES</span><h2>다른 사건파일</h2></div><b>{orderedEpisodes.length} CASES</b></div>
+        <div className="next-up"><div><span>다른 사기꾼들</span><h2>다른 사건파일</h2></div><b>{orderedEpisodes.length} CASES</b></div>
         <div className="episode-grid">
           {orderedEpisodes.map((episode) => {
             const playable = Boolean(episode.live);
             const episodeCaseId = caseIdFromEpisodeNo(episode.no);
             return (
-            <button className={`episode-card ${playable ? "live" : ""}`} key={episode.no} style={{ "--accent": episode.accent } as React.CSSProperties} onClick={() => playable ? startCase(episodeCaseId) : setInfoEpisode(episode)}>
+            <button className={`episode-card case-${episode.no} ${playable ? "live" : ""}`} key={episode.no} style={{ "--accent": episode.accent } as React.CSSProperties} onClick={() => playable ? startCase(episodeCaseId) : setInfoEpisode(episode)}>
               <div className={`episode-visual ${playable ? "has-portrait" : ""}`}>{playable && <img src={caseProfiles[episodeCaseId].portrait} alt="" loading="lazy" decoding="async" />}<span>{playable ? "" : episode.mark}</span><b>{episode.no}</b></div>
-              <div className="episode-meta"><span>{episode.type}</span><em>{playable ? "PLAY NOW" : "COMING SOON"}</em></div>
+              <div className="episode-meta"><span>{episode.type}</span><em>{playable ? "상대하기" : "COMING SOON"}</em></div>
               <h3>{episode.name}</h3>
               <p>{episode.line}</p>
               <small>{episode.scammer}</small>

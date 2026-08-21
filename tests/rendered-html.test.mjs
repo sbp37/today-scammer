@@ -165,7 +165,16 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   assert.match(source, /잡은 증거/);
   assert.match(source, /새 단서 \$\{unfoundClues\.length\}/);
   assert.match(source, /today-scammer:clue-hint-seen/);
-  assert.match(source, /disabled=\{found\}/);
+  assert.match(source, /disabled=\{found \|\| wrong\}/);
+  assert.match(source, /function calculateScore/);
+  assert.match(source, /wrongPenalty = -wrongClues \* 3/);
+  assert.match(source, /오판 \{wrongClues\}/);
+  assert.match(source, /새 단서가 있을지도/);
+  assert.match(source, /sniff-button sniff-action/);
+  assert.match(source, /result-confetti/);
+  assert.match(source, /후각 만렙/);
+  assert.match(source, /window\.addEventListener\("popstate"/);
+  assert.match(source, /todayScammerScreen/);
   assert.doesNotMatch(source, /<em>\{suspicion\}\/\{activeCase\.clueTotal\}<\/em>/);
   assert.doesNotMatch(source, /briefing-image-hitbox|전체 이미지 보기/);
   assert.match(source, /logo-oneul\.webp/);
@@ -174,6 +183,8 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   assert.match(source, /credential\.src = "\/fake-credentials-06\.webp"/);
   assert.match(styles, /onlinePulse/);
   assert.match(styles, /episode-visual\.has-portrait \{ height: 152px/);
+  assert.match(styles, /episode-card\.case-02 .*transform: scale\(1\.3\)/);
+  assert.match(styles, /brand-logo \{[^}]*width: min\(78\.2%, 391px\)/);
   assert.doesNotMatch(source, /\(뷰티풀\)|very|Very|Only you|coffee 하고|I need person/);
   assert.match(source, /beautiful합니다/);
   assert.match(source, /cold 커피 한잔/);
