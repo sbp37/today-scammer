@@ -84,6 +84,13 @@ test("conversation graph has no broken, unreachable, or looping branches", async
       graph[id].next.forEach((next) => visit(next, [...path, id]));
     };
     visit(root);
+
+    const choiceBlocks = [...text.matchAll(/choices: \[\n([\s\S]*?)\n\s{4}\],/g)];
+    assert.ok(choiceBlocks.length > 0);
+    choiceBlocks.forEach((block) => {
+      const count = block[1].match(/^\s+\{ text:/gm)?.length ?? 0;
+      assert.equal(count, 3, `every scene must expose exactly 3 choices`);
+    });
   };
   blocks.forEach(validate);
 
@@ -110,7 +117,11 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /사랑은 국경 없고 통관료는 있습니다/);
   assert.match(source, /사건파일 열기/);
   assert.match(source, /fake-credentials-06\.png/);
-  assert.match(source, /GAME PROP · 실제 자격증 아님/);
+  assert.match(source, /게임 속 가상 서류 · 실제 자격증 아님/);
+  assert.match(source, /virtual-transfer-choice/);
+  assert.match(source, /readingPause/);
+  assert.match(source, /featuredCaseId/);
+  assert.doesNotMatch(source, /서울/);
   assert.ok(credentialAsset.byteLength > 100_000);
   assert.doesNotMatch(source, /광고|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
 });
