@@ -74,16 +74,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 /* Episode briefing */
 .briefing-screen { position: relative; min-height: 100dvh; overflow: hidden; background: #070910; }
 .briefing-portrait { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.case-06.briefing-screen { overflow: visible; padding-top: min(150vw, 900px); }
-.case-06 .briefing-portrait { height: min(150vw, 900px); object-fit: contain; object-position: center top; background: #050711; }
+.case-06.briefing-screen, .case-02.briefing-screen { overflow: visible; padding-top: min(150vw, 900px); }
+.case-06 .briefing-portrait, .case-02 .briefing-portrait { height: min(150vw, 900px); object-fit: contain; object-position: center top; background: #050711; }
 .briefing-shade { position: absolute; inset: 0; background: linear-gradient(180deg, #05071111 20%, #06091091 55%, #060810 77%), linear-gradient(90deg, #080a1328, transparent); }
-.case-06 .briefing-shade { display: none; }
+.case-06 .briefing-shade, .case-02 .briefing-shade { display: none; }
 .briefing-nav { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: max(18px, env(safe-area-inset-top)) 18px 0; }
-.case-06 .briefing-nav { position: absolute; top: 0; left: 0; right: 0; }
+.case-06 .briefing-nav, .case-02 .briefing-nav { position: absolute; top: 0; left: 0; right: 0; }
 .plain-back { min-height: 44px; padding: 0; border: 0; background: transparent; color: #eef0f7; cursor: pointer; font-size: 15px; font-weight: 700; }
 .briefing-nav > span { padding: 8px 10px; border: 1px solid #ffffff29; border-radius: 999px; background: #090b14a3; color: #daddE8; font-size: 12px; font-weight: 750; backdrop-filter: blur(10px); }
 .briefing-card { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; width: min(100%, 600px); margin-inline: auto; padding: 72px 20px max(24px, env(safe-area-inset-bottom)); background: linear-gradient(180deg, transparent, #070910 18%); }
-.case-06 .briefing-card { position: relative; padding-top: 22px; background: #070910; }
+.case-06 .briefing-card, .case-02 .briefing-card { position: relative; padding-top: 22px; background: #070910; }
 .briefing-topline { display: flex; justify-content: space-between; margin-bottom: 20px; color: #a8aec0; font-size: 12px; font-weight: 800; letter-spacing: .1em; }
 .briefing-label { margin: 0 0 6px; color: #a5acff; font-size: 13px; font-weight: 800; }
 .briefing-card h1 { margin: 0; font-size: 38px; line-height: 1; letter-spacing: -.075em; }

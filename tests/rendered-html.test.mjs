@@ -40,7 +40,8 @@ test("conversation graph has no broken, unreachable, or looping branches", async
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const blocks = [
     { root: "start", text: source.slice(source.indexOf("const scenes:"), source.indexOf("const romanceScenes:")) },
-    { root: "romanceStart", text: source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const clueOptions")) },
+    { root: "romanceStart", text: source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:")) },
+    { root: "seoyunStart", text: source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const clueOptions")) },
   ];
 
   const validate = ({ root, text }) => {
@@ -114,6 +115,12 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /phase === "resolved"/);
   assert.match(source, /친구도 살아남는지 보내보기/);
   assert.match(source, /romanceScenes/);
+  assert.match(source, /seoyunScenes/);
+  assert.match(source, /엄마가 갑자기 수술해야 한대요/);
+  assert.match(source, /부모님이랑 제주도/);
+  assert.match(source, /아빠는 돌아가셨고/);
+  assert.match(source, /서윤님이 메시지를 쓰다가 지웠습니다/);
+  assert.match(source, /18만 → 43만 → 120만원/);
   assert.match(source, /사랑은 국경 없고 통관료는 있습니다/);
   assert.match(source, /사건파일 열기/);
   assert.match(source, /fake-credentials-06\.webp/);
@@ -144,6 +151,7 @@ test("uses lightweight WebP assets and meaningful live signals", async () => {
   assert.doesNotMatch(source, /<em>\{suspicion\}\/\{activeCase\.clueTotal\}<\/em>/);
   assert.doesNotMatch(source, /briefing-image-hitbox|전체 이미지 보기/);
   assert.match(source, /logo-oneul\.webp/);
+  assert.match(source, /scammer-02\.webp/);
   assert.match(source, /프로필 사진 크게 보기/);
   assert.match(source, /credential\.src = "\/fake-credentials-06\.webp"/);
   assert.match(styles, /onlinePulse/);
