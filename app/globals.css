@@ -64,8 +64,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .episode-card:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: #121725; transform: translateY(-2px); }
 .episode-visual { position: relative; display: grid; place-items: center; height: 116px; overflow: hidden; background: radial-gradient(circle at 72% 20%, color-mix(in srgb, var(--accent) 40%, transparent), transparent 42%), linear-gradient(145deg, color-mix(in srgb, var(--accent) 16%, #131829), #090c14 72%); }
 .episode-visual.has-portrait { height: 152px; }.episode-visual.has-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 12%; }.episode-visual.has-portrait::before { content: ""; position: absolute; z-index: 1; inset: 76% 0 0; background: linear-gradient(transparent, #0e121d); }
-.episode-card.case-02 .episode-visual.has-portrait img { object-position: center 24%; transform: scale(1.1); transform-origin: 50% 0; }
-.episode-card.case-03 .episode-visual.has-portrait img { object-position: center 0%; transform: scale(1.03); transform-origin: 50% 0; }
+.episode-card.case-02 .episode-visual.has-portrait img { object-position: center 24%; transform: scale(1.188); transform-origin: 50% 0; }
+.episode-card.case-03 .episode-visual.has-portrait img { object-position: center 0%; transform: scale(1.082); transform-origin: 50% 0; }
 .episode-visual::after { content: ""; position: absolute; inset: 0; opacity: .16; background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 24px 24px; mask-image: linear-gradient(to bottom, #000, transparent); }
 .episode-visual span { position: relative; z-index: 1; color: var(--accent); font-size: 30px; font-weight: 900; letter-spacing: -.05em; text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 50%, transparent); }
 .episode-visual b { position: absolute; right: 10px; bottom: -10px; color: #ffffff0d; font-size: 66px; font-weight: 900; letter-spacing: -.08em; }
