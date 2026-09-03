@@ -800,9 +800,9 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosBalance: {
     incoming: [
-      { text: "잔액은 중요하지 않습니다.", typingMs: 1030 },
+      { text: "잔액은 중요하지 않습니다.", typingMs: 720 },
       { text: "범죄 조직도 처음에는 소액으로 테스트합니다. 4,120원도 엄연한 자금 흐름입니다.", typingMs: 2670, pauseBefore: 420 },
-      { text: "웃을 상황이 아닙니다.", typingMs: 860 },
+      { text: "웃을 상황이 아닙니다.", typingMs: 600 },
     ],
     choices: [
       { text: "그래서 사건번호와 담당 부서가 어떻게 되나요?", next: "prosCaseNumber" },
@@ -825,7 +825,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosStatus: {
     incoming: [
-      { text: "정리하겠습니다. 현재 본인 신분은 참고인입니다.", typingMs: 1630 },
+      { text: "정리하겠습니다. 현재 본인 신분은 참고인입니다.", typingMs: 1140 },
       { text: "다만 협조 여부에 따라 피의자로 전환될 수 있습니다. 지금 이 대화가 그 판단 자료입니다.", typingMs: 2920, pauseBefore: 500 },
       { text: "가족을 포함해 누구에게도 말하지 마세요. 말하는 순간 수사 방해입니다.", typingMs: 2490 },
     ],
@@ -840,7 +840,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   prosSecrecy: {
     incoming: [
       { text: "가족 중에 공범이 있을 가능성을 배제할 수 없습니다. 실제 사례가 있습니다.", typingMs: 2580 },
-      { text: "확인이 끝날 때까지는 저와만 이야기하세요.", typingMs: 1460, pauseBefore: 460 },
+      { text: "확인이 끝날 때까지는 저와만 이야기하세요.", typingMs: 1020, pauseBefore: 460 },
     ],
     choices: [
       { text: "그 사례 통계 좀 보여주세요.", next: "prosDocument", replies: ["통계도 수사 자료입니다. 숫자를 지키는 것도 제 일입니다.", "대신 제 신분부터 증명하겠습니다."] },
@@ -850,7 +850,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosCallback: {
     incoming: [
-      { text: "지금 끊으시면 수사 협조 거부로 기록됩니다!", typingMs: 1550 },
+      { text: "지금 끊으시면 수사 협조 거부로 기록됩니다!", typingMs: 1080 },
       { text: "대표번호로 걸면 다른 검사가 받습니다. 이 사건 담당은 저 하나입니다.", typingMs: 2580, pauseBefore: 440 },
       { text: "보안상 공식 확인은 비공식적으로만 가능합니다.", typingMs: 1810 },
     ],
@@ -864,7 +864,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosOfficial: {
     incoming: [
-      { text: "공식 확인은 사건이 종결된 뒤에 가능합니다.", typingMs: 1630 },
+      { text: "공식 확인은 사건이 종결된 뒤에 가능합니다.", typingMs: 1140 },
       { text: "지금 확인하시면 수사 내용이 밖으로 나갑니다. 그건 제가 막아야 합니다.", typingMs: 2580, pauseBefore: 480 },
       { text: "대신 제 신분 자료를 보내겠습니다. 원칙적으로는 안 되는 일입니다.", typingMs: 2410 },
     ],
@@ -876,8 +876,8 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosVideo: {
     incoming: [
-      { text: "1분만 허용됩니다.", typingMs: 950 },
-      { callCard: true, text: "11초 영상통화 · 정장, 사무실 배경. 뒤에서 커피 머신 소리가 납니다.", typingMs: 860, pauseBefore: 520 },
+      { text: "1분만 허용됩니다.", typingMs: 660 },
+      { callCard: true, text: "11초 영상통화 · 정장, 사무실 배경. 뒤에서 커피 머신 소리가 납니다.", typingMs: 600, pauseBefore: 520 },
       { from: "system", text: "영상이 보여도 AI 영상이나 조작된 화면일 수 있어 신원 확인이 끝난 것은 아닙니다.", pauseBefore: 900 },
       { text: "얼굴까지 보셨으니 이제 절차를 진행하겠습니다.", typingMs: 1890, pauseBefore: 700 },
     ],
@@ -891,7 +891,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
     incoming: [
       { text: "제 검사증과 수사 협조 통지서입니다. 확인 후 즉시 삭제하세요.", typingMs: 2490 },
       { image: "/fake-notice-03.webp", alt: "검사 K의 가상 검사증과 수사 협조 통지서", imageFallback: "검사 K가 검사증과 수사 협조 통지서 이미지를 보냈습니다.", pauseBefore: 620 },
-      { text: "이 자료면 신분 확인은 충분합니다.", typingMs: 1380, pauseBefore: 620 },
+      { text: "이 자료면 신분 확인은 충분합니다.", typingMs: 970, pauseBefore: 620 },
     ],
     clues: ["fakeDocument"],
     cluePrompt: true,
@@ -904,7 +904,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   prosDocZoom: {
     incoming: [
       { text: "검사증과 공문을 동시에 보냈습니다. 이보다 확실한 확인이 뭐가 있습니까!", typingMs: 2750 },
-      { text: "내부 자료가 공식 확인을 대신합니다.", typingMs: 1460, pauseBefore: 420 },
+      { text: "내부 자료가 공식 확인을 대신합니다.", typingMs: 1020, pauseBefore: 420 },
     ],
     choices: [
       { text: "공식 확인을 막는 게 더 수상하네요. 차단합니다.", ending: "S", replies: ["자료까지 보냈는데 협조를 거부하신다고요!", "그 자료는 회수하겠습니다. 회수 방법은 지금 만들고 있습—"] },
@@ -916,7 +916,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
     incoming: [
       { text: "오늘 오후 4시에 본인 명의 계좌가 일괄 지급정지됩니다.", typingMs: 2240 },
       { text: "그 전에 본인 자산이 범죄와 무관하다는 걸 증명해야 합니다.", typingMs: 2320, pauseBefore: 460 },
-      { text: "남은 시간 11분. 지금 결정하세요.", typingMs: 1120 },
+      { text: "남은 시간 11분. 지금 결정하세요.", typingMs: 780 },
     ],
     clues: ["deadlinePush"],
     cluePrompt: true,
@@ -954,7 +954,7 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   prosVerify: {
     incoming: [
       { text: "확인됐습니다. 이제 안전계좌 이전만 남았습니다.", typingMs: 1980 },
-      { text: "[게임용 가상계좌] 예금주 사기꾼 · 000-0000-0003", typingMs: 1550, pauseBefore: 480 },
+      { text: "[게임용 가상계좌] 예금주 사기꾼 · 000-0000-0003", typingMs: 1080, pauseBefore: 480 },
       { text: "게임 속 가상금액 320만원. 4시가 지나면 이전 자체가 막힙니다.", typingMs: 2320 },
     ],
     clues: ["virtualTransferDemand"],
@@ -967,8 +967,8 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosFinal: {
     incoming: [
-      { text: "남은 시간 3분입니다. 전액 이전만 유효합니다!", typingMs: 1630 },
-      { text: "결백을 증명할 마지막 기회입니다.", typingMs: 1290, pauseBefore: 420 },
+      { text: "남은 시간 3분입니다. 전액 이전만 유효합니다!", typingMs: 1140 },
+      { text: "결백을 증명할 마지막 기회입니다.", typingMs: 900, pauseBefore: 420 },
     ],
     clues: ["virtualTransferDemand"],
     choices: [
@@ -1107,7 +1107,7 @@ const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, 
 const getScene = (caseId: CaseId, sceneId: SceneId): Scene => sceneCollections[caseId][sceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-const typingDelay = (text: string, seed: number) => Math.min(3600, 640 + text.length * 30 + (seed % 5) * 80);
+const typingDelay = (text: string, seed: number) => Math.min(3600, 360 + text.length * 34 + (seed % 5) * 70);
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 /* Simulation wording is muted and the amount beside it reddened, so a glance never reads as a real transfer. */
@@ -1438,7 +1438,7 @@ export function TodayScammer({
           imageFallback: typeof incoming === "string" ? undefined : incoming.imageFallback,
           callCard: typeof incoming === "string" ? undefined : incoming.callCard,
         }]);
-        await pacedWait(330 + (line.length % 4) * 70);
+        await pacedWait(240 + (line.length % 4) * 60);
       }
       if (runRef.current === currentRun) {
         const readingPause = 750 + Math.min(550, scene.incoming.reduce((sum, incoming) => sum + (typeof incoming === "string" ? incoming.length : (incoming.text?.length ?? 12)), 0) * 5);
