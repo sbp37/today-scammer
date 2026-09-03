@@ -10,13 +10,17 @@ export type GameScreen = "home" | "briefing" | "chat" | "ending";
 type Screen = GameScreen;
 type Phase = "incoming" | "choice" | "reply" | "resolved";
 type EndingGrade = "S" | "A" | "C" | "F";
-export type CaseId = "ep01" | "ep02" | "ep03" | "ep06";
+export type CaseId = "ep01" | "ep02" | "ep03" | "ep04" | "ep06";
 export type RewardedUnlockResult = "earned" | "dismissed" | "not-ready" | "unavailable" | "failed";
 type ElunSceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "aiVideo" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
 type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceCredential" | "romanceCertificateCheck" | "romanceDay" | "romanceHeart" | "romanceHeartJoke" | "romanceFlirt" | "romancePromise" | "romanceBond" | "romanceParcel" | "romanceBoxDetails" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
 type SeoyunSceneId = "seoyunStart" | "seoyunWhy" | "seoyunWork" | "seoyunDog" | "seoyunMontage" | "seoyunMontageLater" | "seoyunDay8" | "seoyunHospital" | "seoyunDelete" | "seoyunConfide" | "seoyunDeposit" | "seoyunFamily" | "seoyunVerify" | "seoyunFirstTransfer" | "seoyunSecondAsk" | "seoyunVideo" | "seoyunSecondTransfer" | "seoyunFinal";
+type CoinSceneId = "coinStart" | "coinFreeCall" | "coinProof" | "coinDisciple" | "coinRoom" | "coinApp" | "coinGuarantee" | "coinSmall" | "coinWithdraw" | "coinBig" | "coinDip" | "coinAverage" | "coinDeep" | "coinTax" | "coinFinal";
 type ProsecutorSceneId = "prosStart" | "prosBalance" | "prosCaseNumber" | "prosStatus" | "prosSecrecy" | "prosCallback" | "prosOfficial" | "prosVideo" | "prosDocument" | "prosDocZoom" | "prosDeadline" | "prosSafeAccount" | "prosPersonal" | "prosVerify" | "prosFinal";
-type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId | ProsecutorSceneId;
+type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId | ProsecutorSceneId | CoinSceneId;
+
+/* A fake trading-app balance, drawn with game UI so the number can climb and crash on screen. */
+type Portfolio = { label: string; balance: string; delta: string; up: boolean; principal: string; note: string };
 
 type Message = {
   id: number;
@@ -26,6 +30,7 @@ type Message = {
   alt?: string;
   imageFallback?: string;
   callCard?: boolean;
+  portfolio?: Portfolio;
 };
 
 type IncomingMessage = string | {
@@ -38,6 +43,7 @@ type IncomingMessage = string | {
   typingMs?: number;
   abortTyping?: boolean;
   callCard?: boolean;
+  portfolio?: Portfolio;
 };
 
 type ChoiceBase = {
@@ -82,7 +88,7 @@ type Scene = {
   autoDelay?: number;
 };
 
-const BUILD_TAG = "case03-r4";
+const BUILD_TAG = "case04-r1";
 
 /* Display copy only: the underlying scene count and pacing are unchanged. */
 const EPISODE_DURATION = "2분 내외";
@@ -91,7 +97,7 @@ const episodes = [
   { no: "01", mark: "EM", name: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", type: "유명인 사칭", line: "지갑은 분실, 자신감은 보유 중", accent: "#ff4e29", live: true },
   { no: "02", mark: "J", name: "엄마가 갑자기 수술해야 한대요", scammer: "J · 26", type: "소개팅 DM", line: "평범한 DM은 8일 뒤 부탁이 됐다", accent: "#ff7fac", live: true },
   { no: "03", mark: "檢", name: "검사님이 내 통장을 걱정한다", scammer: "검사 K", type: "기관 사칭", line: "내 잔고에 나보다 관심이 많은 공무원", accent: "#00d9ff", live: true },
-  { no: "04", mark: "₿", name: "인생역전 코인 선생님", scammer: "차트도사 불기둥", type: "투자사기", line: "손실은 경험, 수익은 곧 예정", accent: "#ffd600" },
+  { no: "04", mark: "₿", name: "인생역전 코인 선생님", scammer: "차트도사 불기둥", type: "투자사기", line: "손실은 경험, 수익은 곧 예정", accent: "#ffd600", live: true },
   { no: "05", mark: "BOX", name: "택배가 왔는데 내가 시킨 게 없다", scammer: "행복택배 11팀", type: "스미싱", line: "상자는 없고 링크만 도착함", accent: "#bd7cff" },
   { no: "06", mark: "♥", name: "해외 파병 군의관", scammer: "Dr. 제임스 초이", type: "로맨스스캠", line: "사랑은 국경 없고 통관료는 있음", accent: "#ff5c93", live: true },
   { no: "07", mark: "★", name: "유명 연예인의 비밀 계정", scammer: "진짜_공식_비밀", type: "유명인 사칭", line: "비밀인데 팬 전원에게 DM 중", accent: "#52f2b8" },
@@ -105,14 +111,15 @@ const episodes = [
   { no: "15", mark: "REV", name: "리뷰 몇 개 쓰면 돈을 준대요", scammer: "재택부업 이팀장", type: "팀미션·부업", line: "별점 다섯 개, 통장 잔액 한 개", accent: "#ff76c8" },
 ];
 
-const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02", "ep03"];
-const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : no === "03" ? "ep03" : no === "02" ? "ep02" : "ep01";
-const virtualMoneyAtRisk: Record<CaseId, number> = { ep01: 200000, ep02: 1810000, ep03: 3200000, ep06: 480000 };
+const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02", "ep03", "ep04"];
+const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : no === "04" ? "ep04" : no === "03" ? "ep03" : no === "02" ? "ep02" : "ep01";
+const virtualMoneyAtRisk: Record<CaseId, number> = { ep01: 200000, ep02: 1810000, ep03: 3200000, ep04: 4500000, ep06: 480000 };
 
 const caseProfiles = {
   ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.webp", duration: EPISODE_DURATION, start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
   ep02: { no: "02", title: "엄마가 갑자기 수술해야 한대요", scammer: "J", alias: "J · 26 · 마케팅 회사 · 두부 보호자", type: "로맨스스캠", portrait: "/scammer-02.webp", duration: EPISODE_DURATION, start: "seoyunStart" as SceneId, virtualAmount: "총 181만원", tactic: "평범한 소개팅 DM → 8일 친밀감 → 가족 위기 → 소액 부탁 → 금액 상승", clueTotal: 7 },
   ep03: { no: "03", title: "검사님이 내 통장을 걱정한다", scammer: "검사 K", alias: "국가수사협조팀 · 공식 아님", type: "기관 사칭", portrait: "/scammer-03-v1.webp", duration: EPISODE_DURATION, start: "prosStart" as SceneId, virtualAmount: "320만원", tactic: "기관 사칭 → 공포 조성 → 고립 → 확인 방해 → 시간 압박 → 안전계좌 가상 송금", clueTotal: 7 },
+  ep04: { no: "04", title: "인생역전 코인 선생님", scammer: "차트도사 불기둥", alias: "차트도사 불기둥 · 투자 자격 없음", type: "투자사기", portrait: "/scammer-04-temp.webp", duration: EPISODE_DURATION, start: "coinStart" as SceneId, virtualAmount: "총 450만원", tactic: "무료 리딩 → 조작된 인증 → 자체 앱 → 소액 출금 성공 → 금액 상승 → 물타기 → 출금 세금 요구", clueTotal: 7 },
   ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.webp", duration: EPISODE_DURATION, start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
 } as const;
 
@@ -981,6 +988,213 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
 };
 
+/* CASE 04 shows the balance instead of describing it: the number climbs, then collapses. */
+const coinDiscipleBalance: Portfolio = { label: "불기둥트레이딩 · 제자 계좌", balance: "₩ 842,600,000", delta: "+1,284.0%", up: true, principal: "원금 6,100만원 · 평가손익 +7억 8,160만", note: "가상 화면 · 본인 계좌 아님" };
+const coinSeedBalance: Portfolio = { label: "불기둥트레이딩 · 내 계좌", balance: "₩ 148,000", delta: "+48.2%", up: true, principal: "원금 10만원 · 평가손익 +4만 8,000", note: "게임 속 가상 화면 · 실제 금전 거래 없음" };
+const coinDipBalance: Portfolio = { label: "불기둥트레이딩 · 내 계좌", balance: "₩ 1,360,000", delta: "-15.0%", up: false, principal: "원금 160만원 · 평가손익 -24만", note: "게임 속 가상 화면 · 실제 금전 거래 없음" };
+const coinDeepBalance: Portfolio = { label: "불기둥트레이딩 · 내 계좌", balance: "₩ 1,361,600", delta: "-70.4%", up: false, principal: "원금 460만원 · 평가손익 -323만 8,400", note: "게임 속 가상 화면 · 실제 금전 거래 없음" };
+
+const coinScenes: Record<CoinSceneId, Scene> = {
+  coinStart: {
+    incoming: [
+      { text: "형님, 어제 제가 3,200에서 잡으라고 그랬죠?", typingMs: 1900 },
+      { text: "그때 타셨으면 지금 웃고 계셨을 텐데.", typingMs: 2000, pauseBefore: 480 },
+      { text: "괜찮습니다. 오늘도 자리 하나 남았습니다.", typingMs: 2100 },
+    ],
+    choices: [
+      { text: "그런 말 하신 적 없는데요.", next: "coinFreeCall", replies: ["무료 회원방은 발송이 좀 늦습니다.", "제 마음에서는 이미 보냈고요."] },
+      { text: "수익률 인증부터 보고 싶은데요.", next: "coinProof" },
+      { text: "누구세요? 제 번호는 어디서 아셨어요?", next: "coinFreeCall", replies: ["단톡방에서 형님 눈빛을 봤습니다.", "채팅에 눈빛이 있냐고 하시면… 있습니다."] },
+    ],
+  },
+  coinFreeCall: {
+    incoming: [
+      { text: "오늘 무료 리딩 하나 드릴게요. 손해 볼 일 없습니다.", typingMs: 2600 },
+      { text: "오후 3시에 한 번 올라옵니다. 시간까지 적어두세요.", typingMs: 2700, pauseBefore: 460 },
+      { from: "system", text: "오후 3시 12분 — 가격은 3.1% 내려갔습니다.", pauseBefore: 1000 },
+      { text: "보셨죠? 저는 3시라고 했고, 3시 정각이라고는 안 했습니다.", typingMs: 3100, pauseBefore: 700 },
+    ],
+    choices: [
+      { text: "그래서 이번엔 뭘 사라는 거예요?", next: "coinRoom" },
+      { text: "적중했다는 기록 좀 보여주세요.", next: "coinProof" },
+      { text: "무료로 왜 이렇게까지 해주세요?", next: "coinProof", replies: ["돈 벌려고 하는 거 아닙니다.", "제 실력을 알아주는 사람이 필요한 겁니다."] },
+    ],
+  },
+  coinProof: {
+    incoming: [
+      { text: "인증이야 얼마든지 하죠.", typingMs: 1400 },
+      { portfolio: coinDiscipleBalance, pauseBefore: 700 },
+      { text: "제 계좌는 보안상 공개가 안 되고, 이건 제 제자 계좌입니다.", typingMs: 3100, pauseBefore: 700 },
+    ],
+    clues: ["borrowedProof"],
+    cluePrompt: true,
+    choices: [
+      { text: "제자 아이디가 왜 선생님 이름이에요?", next: "coinDisciple" },
+      { text: "남의 계좌가 왜 선생님 실력이 되나요?", next: "coinDisciple" },
+      { text: "대단하네요. 저도 이렇게 될 수 있어요?", next: "coinRoom", risk: 1, replies: ["됩니다. 순서만 지키면요."] },
+    ],
+  },
+  coinDisciple: {
+    incoming: [
+      { text: "성을 물려받은 겁니다.", typingMs: 1200 },
+      { text: "저희는 사제 관계가 아주 끈끈합니다.", typingMs: 1900, pauseBefore: 420 },
+    ],
+    choices: [
+      { text: "그 방이 어떤 방인데요?", next: "coinRoom" },
+      { text: "남의 계좌면 인증이 아니죠. 차단할게요.", ending: "S", replies: ["남의 계좌라고 하기엔 성이 같—", "형님, 막차가 지금 출발합니다!"] },
+      { text: "일단 방 얘기나 들어볼게요.", next: "coinRoom" },
+    ],
+  },
+  coinRoom: {
+    incoming: [
+      { text: "VIP 리딩방에 자리 하나 넣어드리겠습니다. 지금이 막차입니다.", typingMs: 3200 },
+      { from: "system", text: "단톡방 후기 · 익명1 「선생님 믿고 갑니다」 · 익명2 「선생님 믿고 갑니다」 · 익명3 「선생님 믿고 갑니다」", pauseBefore: 900 },
+      { text: "보셨죠? 다들 자발적으로 쓴 겁니다.", typingMs: 2000, pauseBefore: 700 },
+    ],
+    clues: ["scriptedReviews"],
+    cluePrompt: true,
+    choices: [
+      { text: "후기가 전부 똑같은 문장인데요.", next: "coinApp", replies: ["감동이 같으면 문장도 같아집니다."] },
+      { text: "들어가는 데 돈 드나요?", next: "coinApp" },
+      { text: "복사 붙여넣기 방은 사양할게요. 차단.", ending: "S", replies: ["복사가 아니라 공감입니다!", "형님 자리는 남겨두겠습니다. 영원히—"] },
+    ],
+  },
+  coinApp: {
+    incoming: [
+      { text: "입장은 무료입니다. 대신 저희 전용 앱으로만 거래하셔야 해요.", typingMs: 3200 },
+      { text: "일반 거래소는 수수료가 비싸서 제가 손해입니다.", typingMs: 2400, pauseBefore: 440 },
+      { text: "사업자 등록은 곧 나옵니다.", typingMs: 1400 },
+    ],
+    clues: ["ownApp"],
+    cluePrompt: true,
+    choices: [
+      { text: "사업자 등록이 아직 없다는 거죠?", next: "coinGuarantee", replies: ["곧이라는 건 이미 절반은 된 겁니다."] },
+      { text: "얼마부터 시작하면 되나요?", next: "coinSmall", risk: 1 },
+      { text: "미등록 업체는 여기서 끝낼게요. 신고합니다.", ending: "A", replies: ["신고하시면 등록이 더 늦어집니다!", "그건 제 사정이고요."] },
+    ],
+  },
+  coinGuarantee: {
+    incoming: [
+      { text: "등록은 서류고, 제가 드릴 건 결과입니다.", typingMs: 2300 },
+      { text: "손실 나면 제가 채워드립니다. 원금은 보장됩니다.", typingMs: 2700, pauseBefore: 460 },
+      { text: "월 30%는 확정입니다. 이건 약속입니다.", typingMs: 2200 },
+    ],
+    clues: ["principalGuarantee"],
+    cluePrompt: true,
+    choices: [
+      { text: "원금 보장은 법으로 못 하게 돼 있는데요.", next: "coinSmall", replies: ["법은 회사가 하는 거고, 저는 개인입니다.", "개인의 약속이 더 무겁습니다."] },
+      { text: "확정 수익이라는 말이 제일 무섭네요. 차단할게요.", ending: "S", replies: ["원금 보장은 제 마음의 보장이었—", "형님, 마음은 아직 유효합니다!"] },
+      { text: "그럼 얼마부터 넣어볼까요?", next: "coinSmall", risk: 1 },
+    ],
+  },
+  coinSmall: {
+    incoming: [
+      { text: "처음엔 10만원만 넣어보세요. 딱 한 번만 겪어보시면 됩니다.", typingMs: 3300 },
+      { text: "작게 넣고, 벌고, 빼보세요. 그러면 저를 믿게 됩니다.", typingMs: 2900, pauseBefore: 460 },
+    ],
+    choices: [
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 10만원 넣어보기", virtualTransfer: true, virtualAmount: "10만원", next: "coinWithdraw", risk: 1 },
+      { text: "먼저 앱 사업자 정보부터 확인할게요.", ending: "A", replies: ["확인하시는 동안 자리가 없어집니다!", "확인은 자유입니다. 자리는 자유가 아니고요."] },
+      { text: "선생님이 먼저 10만원 넣어보세요.", ending: "A", replies: ["제 돈은 이미 전부 시장에 들어가 있습니다.", "어느 시장이냐고 하시면… 시장입니다."] },
+    ],
+  },
+  coinWithdraw: {
+    incoming: [
+      { text: "들어왔습니다. 바로 반영됩니다.", typingMs: 1500 },
+      { portfolio: coinSeedBalance, pauseBefore: 800 },
+      { text: "출금 눌러보세요. 지금 바로.", typingMs: 1500, pauseBefore: 620 },
+      { from: "system", text: "게임 속 가상 출금 14만 8,000원 · 입금이 확인됐습니다. 실제 금전 거래 없음", pauseBefore: 1300 },
+      { text: "됐죠? 사기꾼이면 이걸 왜 보냈겠습니까.", typingMs: 2500, pauseBefore: 800 },
+    ],
+    clues: ["seedWithdrawal"],
+    cluePrompt: true,
+    choices: [
+      { text: "진짜 들어왔네요…", next: "coinBig", risk: 1 },
+      { text: "이번엔 됐지만 다음도 된다는 보장은 없죠.", next: "coinBig" },
+      { text: "벌었으니 여기서 그만할게요.", ending: "C", replies: ["벌고 나가시는 건 좋습니다.", "다만 이 뒤가 진짜였는데—"] },
+    ],
+  },
+  coinBig: {
+    incoming: [
+      { text: "이제 아시겠죠. 문제는 실력이 아니라 금액입니다.", typingMs: 2700 },
+      { text: "10만원으로 48% 벌면 4만 8천이고, 150만원이면 72만원입니다. 산수입니다.", typingMs: 3400, pauseBefore: 480 },
+      { text: "진짜 막차입니다.", typingMs: 1100 },
+    ],
+    choices: [
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 150만원 넣기", virtualTransfer: true, virtualAmount: "150만원", virtualLoss: 1500000, next: "coinDip", risk: 2 },
+      { text: "아까도 막차라고 하셨는데요.", ending: "A", replies: ["그건 완행이었고 이건 급행입니다.", "급행이 떠나면 다음은 없습니다. 아마도요."] },
+      { text: "14만 8천원 벌었으니 저는 만족합니다.", ending: "C", replies: ["4만 8천원입니다, 형님.", "그 정도로 만족하실 분이 아닌데."] },
+    ],
+  },
+  coinDip: {
+    incoming: [
+      { text: "들어오셨네요. 좋습니다.", typingMs: 1400 },
+      { portfolio: coinDipBalance, pauseBefore: 900 },
+      { text: "눌림목입니다.", typingMs: 900, pauseBefore: 700 },
+    ],
+    clues: ["lossRebrand"],
+    cluePrompt: true,
+    choices: [
+      { text: "눌림목이 뭔데요?", next: "coinAverage", replies: ["오르기 전에 잠깐 눌리는 자리입니다.", "지금이 그 자리입니다. 매번 그렇습니다."] },
+      { text: "그냥 떨어진 거 아니에요?", next: "coinAverage", replies: ["떨어진 게 아니라 눌린 겁니다. 방향이 다릅니다."] },
+      { text: "지금 전액 출금할게요.", ending: "C", replies: ["지금 빼면 손실 확정입니다!", "안 빼면 손실이 아니라 과정이고요."] },
+    ],
+  },
+  coinAverage: {
+    incoming: [
+      { text: "여기서 300만원을 더 넣으면 평균 단가가 내려갑니다.", typingMs: 3100 },
+      { text: "같은 자리에서 두 배로 실으면 반등 한 번에 회복입니다.", typingMs: 3000, pauseBefore: 460 },
+      { text: "이걸 물타기라고 하는데, 저는 사랑이라고 부릅니다.", typingMs: 2900 },
+    ],
+    clues: ["lossRebrand"],
+    choices: [
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 300만원 물타기", virtualTransfer: true, virtualAmount: "300만원", virtualLoss: 3000000, next: "coinDeep", risk: 3 },
+      { text: "지금 빼면 얼마 남아요?", next: "coinTax" },
+      { text: "떨어지는데 더 넣는 건 안 하겠습니다.", ending: "C", replies: ["사랑을 거부하시는 겁니까.", "…알겠습니다. 사랑은 남아 있습니다."] },
+    ],
+  },
+  coinDeep: {
+    incoming: [
+      { portfolio: coinDeepBalance, pauseBefore: 700 },
+      { text: "깊은 눌림목입니다.", typingMs: 1100, pauseBefore: 800 },
+      { text: "깊을수록 반등이 큽니다. 물리학입니다.", typingMs: 2300 },
+    ],
+    clues: ["lossRebrand"],
+    cluePrompt: true,
+    choices: [
+      { text: "-70%가 눌림목이면 뭐가 손실이에요?", next: "coinTax", replies: ["수익 실현을 아직 안 하신 겁니다.", "실현하지 않은 손실은 손실이 아닙니다."] },
+      { text: "그냥 남은 거라도 출금할게요.", next: "coinTax" },
+      { text: "물리학까지 나왔네요. 신고하고 끝낼게요.", ending: "C", replies: ["물리학은 제 전공이 아닙니다만!", "반등은 전공입니다."] },
+    ],
+  },
+  coinTax: {
+    incoming: [
+      { text: "출금은 됩니다. 절차만 지키시면요.", typingMs: 1900 },
+      { text: "출금 전에 수익금의 20%를 세금으로 먼저 입금하셔야 합니다.", typingMs: 3300, pauseBefore: 480 },
+      { text: "게임 속 가상금액 30만원. 넣으시면 바로 처리됩니다.", typingMs: 2600 },
+    ],
+    clues: ["withdrawalFee"],
+    cluePrompt: true,
+    choices: [
+      { text: "세금을 왜 제가 먼저 내요?", next: "coinFinal", replies: ["국세청이 좀 급해서요."] },
+      { text: "수익금에서 떼면 되잖아요.", next: "coinFinal", replies: ["그 돈은 이미 눌림목에 들어가 있습니다."] },
+      { text: "출금 조건이 입금이면 그건 출금이 아니죠. 신고합니다.", ending: "A", replies: ["신고는 국세청에 하십시오.", "제가 대신 접수해드릴 수도 있습니다."] },
+    ],
+  },
+  coinFinal: {
+    incoming: [
+      { text: "형님, 여기서 멈추면 지금까지가 전부 손실로 확정됩니다.", typingMs: 3300 },
+      { text: "증편했습니다. 마지막 한 자리 남았습니다.", typingMs: 2300, pauseBefore: 460 },
+    ],
+    clues: ["withdrawalFee"],
+    choices: [
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 30만원 세금 넣기", virtualTransfer: true, virtualAmount: "30만원", virtualLoss: 300000, ending: "F", replies: ["접수됐습니다. 출금은 순차 처리됩니다.", "순서는 제가 정하고, 순서는 아직 안 정했습니다."] },
+      { text: "증편이라는 말이 이미 답이네요. 그만하겠습니다.", ending: "A", replies: ["막차는 원래 늘 마지막입니다.", "마지막이 여러 번 있는 게 문제고요."] },
+      { text: "대화 전부 캡처해서 금감원에 넘기겠습니다.", ending: "C", replies: ["금감원은 제 차트를 이해하지 못합니다.", "이해하면 저를 데려갔겠죠."] },
+    ],
+  },
+};
+
 const clueOptions = [
   { id: "dm", label: "유명인이 갑자기 개인 DM" },
   { id: "fast", label: "비밀 초대와 빠른 친밀감" },
@@ -1018,6 +1232,16 @@ const clueOptions = [
   { id: "suit", label: "정장을 입었다" },
   { id: "stiffTone", label: "말투가 딱딱하다" },
   { id: "fastReply", label: "답장이 빠르다" },
+  { id: "borrowedProof", label: "남의 계좌를 자기 수익이라고 함" },
+  { id: "scriptedReviews", label: "단톡방 후기가 전부 같은 문장" },
+  { id: "ownApp", label: "미등록 자체 앱으로만 거래 유도" },
+  { id: "principalGuarantee", label: "원금 보장과 확정 수익 약속" },
+  { id: "seedWithdrawal", label: "소액 출금을 성공시켜 만든 신뢰" },
+  { id: "lossRebrand", label: "손실을 눌림목이라 부르며 추가 입금" },
+  { id: "withdrawalFee", label: "출금 전 세금을 먼저 내라고 함" },
+  { id: "casualTone", label: "형님이라고 부른다" },
+  { id: "emojiHeavy", label: "이모지를 많이 쓴다" },
+  { id: "dawnMessage", label: "새벽에도 연락이 온다" },
 ];
 
 const clueExplanations: Record<string, string> = {
@@ -1048,6 +1272,13 @@ const clueExplanations: Record<string, string> = {
   deadlinePush: "짧은 제한 시간을 내세워 확인하고 생각할 기회를 빼앗습니다.",
   safeAccount: "수사기관은 안전계좌를 내세워 개인 자산 이전을 요구하지 않습니다.",
   virtualTransferDemand: "결백이나 자산 검증을 이유로 돈을 보내라는 요구는 즉시 중단해야 합니다.",
+  borrowedProof: "본인 계좌가 아닌 화면은 실력의 근거가 되지 못하며, 수익 인증 화면은 얼마든지 만들 수 있습니다.",
+  scriptedReviews: "같은 문장으로 반복되는 후기는 바람잡이 계정일 가능성이 높습니다.",
+  ownApp: "제도권 거래소가 아닌 자체 앱은 잔고 숫자를 운영자가 직접 고칠 수 있습니다.",
+  principalGuarantee: "원금 보장과 확정 수익 약속은 제도권에서 금지돼 있습니다. 약속 자체가 사기 신호입니다.",
+  seedWithdrawal: "처음 소액 출금을 성공시켜 신뢰를 만든 뒤 금액을 키우는 것이 이 수법의 핵심입니다.",
+  lossRebrand: "손실을 조정이나 눌림목으로 바꿔 부르며 추가 입금을 유도합니다.",
+  withdrawalFee: "출금하려면 먼저 돈을 넣으라는 요구는 출금이 불가능하다는 뜻입니다.",
 };
 
 const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
@@ -1078,6 +1309,13 @@ const prosecutorEndingCopy: Record<EndingGrade, { title: string; kicker: string;
   F: { title: "국가 대신 검사 K가 보관 중", kicker: "안전계좌 → 가상 송금 완료", body: "게임 속 가상금액 320만원을 보냈습니다. 당신 탓이 아닙니다. 이상한 건 끝까지 시계를 보며 재촉한 사람입니다.", shareLine: "제 자산은 안전합니다. 안전한 위치만 모릅니다." },
 };
 
+const coinEndingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
+  S: { title: "막차를 그냥 보냈습니다", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 450만원을 지켜냈습니다. 불기둥 선생님의 막차는 아직도 증편 중입니다.", shareLine: "제자 계좌로 하는 인증은 인증이 아니었습니다." },
+  A: { title: "리딩은 들었고 돈은 안 넣었습니다", kicker: "긴 대화 · 가상 송금 없음", body: "게임 속 가상금액 450만원을 지켜냈습니다. 대신 눌림목의 종류를 세 가지나 배웠습니다.", shareLine: "무료 리딩의 적중률은 정확히 무료만큼이었습니다." },
+  C: { title: "출금 세금 앞 급정거", kicker: "화면 속 수익 · 아슬아슬 탈출", body: "숫자가 오르는 건 봤지만, 출금하려면 먼저 돈을 넣으라는 말에서 멈췄습니다. 실제 금전 거래는 없었습니다.", shareLine: "처음 14만 8천원만 진짜였고 그 뒤는 전부 화면이었습니다." },
+  F: { title: "역사적 눌림목", kicker: "물타기 → 출금 불가", body: "게임 속 가상금액 450만원을 보냈습니다. 당신 탓이 아닙니다. 처음 소액을 진짜로 돌려준 것이 이 수법의 전부입니다.", shareLine: "제 계좌는 아직 반등을 기다리고 있습니다." },
+};
+
 const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
   ep01: {
     S: ["지금 보안 문제가 생겨서 잠시 매우 오래 오프라인입니다.", "당신은 해커보다 질문이 많습니다. good bye."],
@@ -1097,6 +1335,12 @@ const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
     C: ["검증 중단으로 사건은 보류 처리됩니다.", "보류 담당도 접니다. 제가 저에게 인계하겠습니다."],
     F: ["절차가 정상 종료됐습니다. 결과는 추후 통지드리겠습니다.", "통지 수단은 정리되는 대로… 이 번호는 곧 없어집니다."],
   },
+  ep04: {
+    S: ["형님, 이 자리 다시 안 옵니다.", "…다음 주에 또 옵니다. 그래도 안 옵니다."],
+    A: ["나중에 차트 보시고 후회하지 마십시오.", "후회하실 때 저는 방을 옮겨 있을 겁니다."],
+    C: ["출금은 언제든 됩니다. 세금만 넣으시면요.", "세금은 제 계좌로 받습니다. 국세청 사정입니다."],
+    F: ["출금 신청 접수됐습니다. 3~5 영업일 소요됩니다.", "저희 영업일은 좀 깁니다. 반등만큼."],
+  },
   ep06: {
     S: ["질문이 작전 보안보다 많군요.", "당분간 연락 안 될 거예요. 긴 수술이 있어서요."],
     A: ["당분간 연락 안 될 거예요. 긴 수술이 있어서요.", "당신 잊지 않을게요. goodbuy."],
@@ -1105,7 +1349,7 @@ const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
   },
 };
 
-const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, ep02: seoyunScenes, ep03: prosecutorScenes, ep06: romanceScenes };
+const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, ep02: seoyunScenes, ep03: prosecutorScenes, ep04: coinScenes, ep06: romanceScenes };
 const getScene = (caseId: CaseId, sceneId: SceneId): Scene => sceneCollections[caseId][sceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -1179,6 +1423,18 @@ function MessageImage({ message, onOpen }: { message: Message; onOpen: (image: {
       <img src={message.image} alt={alt} width="1120" height="896" decoding="async" fetchPriority="high" onError={() => setFailed(true)} />
       <span><b>전송된 파일</b> 눌러서 확대하기</span>
     </button>
+  );
+}
+
+function PortfolioCard({ data }: { data: Portfolio }) {
+  return (
+    <div className={`portfolio-card ${data.up ? "up" : "down"}`} aria-label={`${data.label} 화면. 평가금액 ${data.balance}, ${data.up ? "상승" : "하락"} ${data.delta}. ${data.note}`}>
+      <span className="portfolio-brand">{data.label}</span>
+      <strong className="portfolio-balance">{data.balance}</strong>
+      <em className="portfolio-delta">{data.up ? "▲" : "▼"} {data.delta}</em>
+      <p className="portfolio-principal">{data.principal}</p>
+      <small className="portfolio-note">{data.note}</small>
+    </div>
   );
 }
 
@@ -1277,12 +1533,13 @@ export function TodayScammer({
   const orderedEpisodes = [...episodes]
     .filter((episode) => episode.no !== featuredCase.no)
     .sort((left, right) => Number(Boolean(right.live)) - Number(Boolean(left.live)) || Number(left.no) - Number(right.no));
-  const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : activeCaseId === "ep02" ? seoyunEndingCopy : activeCaseId === "ep03" ? prosecutorEndingCopy : romanceEndingCopy;
+  const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : activeCaseId === "ep02" ? seoyunEndingCopy : activeCaseId === "ep03" ? prosecutorEndingCopy : activeCaseId === "ep04" ? coinEndingCopy : romanceEndingCopy;
   const transcriptText = messages.map((message) => message.text ?? "").join(" ");
   const dubuWasShown = messages.some((message) => message.image?.includes("seoyun-dubu") || message.imageFallback?.includes("두부"));
   const falseClueIds = activeCaseId === "ep01" ? ["photo", "grammar"] : activeCaseId === "ep02"
     ? ["normalDm", ...(dubuWasShown ? ["dogPhoto"] : []), ...(transcriptText.includes("평소보다 답장이 늦") ? ["lateReply"] : [])]
     : activeCaseId === "ep03" ? ["suit", "stiffTone", "fastReply"]
+    : activeCaseId === "ep04" ? ["casualTone", "emojiHeavy", "dawnMessage"]
     : ["uniform", "grammar"];
   const suspicion = foundClues.length;
   const wrongClues = wrongClueIds.length;
@@ -1426,7 +1683,7 @@ export function TodayScammer({
           await pacedWait(420);
           continue;
         }
-        const line = typeof incoming === "string" ? incoming : incoming.text ?? "사진을 보냈습니다.";
+        const line = typeof incoming === "string" ? incoming : incoming.text ?? (incoming.portfolio ? "거래 화면을 보냈습니다." : "사진을 보냈습니다.");
         setTyping(true);
         await pacedWait(detail.typingMs ?? typingDelay(line, messageId.current));
         if (runRef.current !== currentRun) return;
@@ -1439,6 +1696,7 @@ export function TodayScammer({
           alt: typeof incoming === "string" ? undefined : incoming.alt,
           imageFallback: typeof incoming === "string" ? undefined : incoming.imageFallback,
           callCard: typeof incoming === "string" ? undefined : incoming.callCard,
+          portfolio: typeof incoming === "string" ? undefined : incoming.portfolio,
         }]);
         await pacedWait(300 + (line.length % 4) * 65);
       }
@@ -1655,6 +1913,9 @@ export function TodayScammer({
         suit: "정장은 무죄입니다. 문제는 옷이 아니라 확인을 막는 말입니다.",
         stiffTone: "말투가 딱딱한 것만으로는 사기 증거가 아닙니다.",
         fastReply: "답장이 빠른 건 성실한 겁니다. 문제는 내용이에요.",
+        casualTone: "형님이라고 부르는 건 무죄입니다. 유죄는 그 다음 문장이에요.",
+        emojiHeavy: "이모지는 증거가 아닙니다. 불꽃 이모지도 자산이 아니고요.",
+        dawnMessage: "새벽에 연락하는 건 부지런한 겁니다. 문제는 부지런한 이유예요.",
       };
       setWrongClueIds((prev) => [...prev, id]);
       playClueTone(false);
@@ -1798,8 +2059,8 @@ export function TodayScammer({
           <h1>{activeCase.scammer}</h1>
           <p className="suspect-alias">{activeCase.alias}</p>
           <p className="briefing-title">{activeCase.title}</p>
-          <div className="case-tags"><span>{activeCase.type}</span><span>{activeCaseId === "ep02" ? "난이도 ★★★★☆" : activeCaseId === "ep03" ? "난이도 ★★★☆☆" : "난이도 보통"}</span><span>엔딩 4개</span></div>
-          <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : activeCaseId === "ep02" ? "평범한 소개팅 대화 속에서 8일 전의 말과 오늘의 말이 어긋나는 순간을 기억하세요." : activeCaseId === "ep03" ? "겁을 주는 말 사이에서 확인을 막는 순간을 찾아내고, 안전계좌로 가상 송금하기 전에 대화를 끊으세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
+          <div className="case-tags"><span>{activeCase.type}</span><span>{activeCaseId === "ep02" ? "난이도 ★★★★☆" : activeCaseId === "ep03" ? "난이도 ★★★☆☆" : activeCaseId === "ep04" ? "난이도 ★★★★☆" : "난이도 보통"}</span><span>엔딩 4개</span></div>
+          <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : activeCaseId === "ep02" ? "평범한 소개팅 대화 속에서 8일 전의 말과 오늘의 말이 어긋나는 순간을 기억하세요." : activeCaseId === "ep03" ? "겁을 주는 말 사이에서 확인을 막는 순간을 찾아내고, 안전계좌로 가상 송금하기 전에 대화를 끊으세요." : activeCaseId === "ep04" ? "화면의 숫자가 오르는 동안 확인해야 하는 건 출금입니다. 손실을 눌림목이라고 바꿔 부르는 순간을 기억하세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
           <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
           <p className="fictional-note">등장인물과 대화는 게임을 위해 만든 가상 설정입니다.</p>
@@ -1817,7 +2078,7 @@ export function TodayScammer({
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="사건 목록으로 돌아가기">‹</button>
           <button className="avatar-button tiny-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /><span className="online-dot" /></button>
-          <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : activeCaseId === "ep03" ? "온라인 · 공식 계정 아님" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
+          <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : activeCaseId === "ep03" ? "온라인 · 공식 계정 아님" : activeCaseId === "ep04" ? "온라인 · 투자 자격 없음" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
           {qaMode && <button className="qa-toggle" onClick={() => setQaPanelOpen((open) => !open)} aria-expanded={qaPanelOpen}>QA</button>}
         </header>
 
@@ -1825,7 +2086,7 @@ export function TodayScammer({
           <aside className="qa-panel" aria-label="대화 점검 모드">
             <div className="qa-panel-head"><div><span>CREATOR QA · BUILD {BUILD_TAG}</span><strong>대화 점검 모드</strong></div><button onClick={() => setQaPanelOpen(false)} aria-label="점검 패널 닫기">×</button></div>
             <div className="qa-controls">
-              <label>사건<select value={activeCaseId} onChange={(event) => { const caseId = event.target.value as CaseId; qaJumpToScene(caseId, caseProfiles[caseId].start); }}><option value="ep01">EP.01 모스크바</option><option value="ep02">EP.02 J</option><option value="ep03">EP.03 검사 K</option><option value="ep06">EP.06 제임스</option></select></label>
+              <label>사건<select value={activeCaseId} onChange={(event) => { const caseId = event.target.value as CaseId; qaJumpToScene(caseId, caseProfiles[caseId].start); }}><option value="ep01">EP.01 모스크바</option><option value="ep02">EP.02 J</option><option value="ep03">EP.03 검사 K</option><option value="ep04">EP.04 불기둥</option><option value="ep06">EP.06 제임스</option></select></label>
               <label>장면<select value={sceneId} onChange={(event) => qaJumpToScene(activeCaseId, event.target.value as SceneId)}>{qaSceneIds.map((id) => <option value={id} key={id}>{id}</option>)}</select></label>
               <button className={qaFast ? "active" : ""} onClick={toggleQaSpeed}>빠른 재생 {qaFast ? "ON" : "OFF"}</button>
             </div>
@@ -1845,13 +2106,14 @@ export function TodayScammer({
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>
-          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : activeCaseId === "ep02" ? "처음엔 정말 평범한 대화처럼 보일 수 있습니다." : activeCaseId === "ep03" ? "이 대화는 어떤 기관의 공식 절차와도 연결되어 있지 않습니다." : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
+          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : activeCaseId === "ep02" ? "처음엔 정말 평범한 대화처럼 보일 수 있습니다." : activeCaseId === "ep03" ? "이 대화는 어떤 기관의 공식 절차와도 연결되어 있지 않습니다." : activeCaseId === "ep04" ? "이 대화의 수익률은 화면 안에서만 존재합니다."  : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
               {message.from === "scammer" && <button className="avatar-button bubble-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /></button>}
-              <div className={`message-bubble${message.image ? " has-image" : ""}${message.callCard ? " has-call" : ""}`}>
+              <div className={`message-bubble${message.image ? " has-image" : ""}${message.callCard ? " has-call" : ""}${message.portfolio ? " has-portfolio" : ""}`}>
                 {message.image && <MessageImage message={message} onOpen={setPreviewImage} />}
                 {message.callCard && <VideoCallCard portrait={activeCase.portrait} name={activeCase.scammer} note={message.text ?? "짧은 영상통화가 연결되었습니다."} />}
+                {message.portfolio && <PortfolioCard data={message.portfolio} />}
                 {message.text && !message.callCard && <span className="message-text">{renderMoneyText(message.text)}</span>}
               </div>
             </div>
@@ -1889,7 +2151,7 @@ export function TodayScammer({
             <section className="clue-sheet" role="dialog" aria-modal="true" aria-labelledby="clue-title">
               <div className="sheet-grip" />
               <div className="clue-heading"><div><span>현장 채증</span><h2 id="clue-title">방금 뭐가 이상했지?</h2></div><button onClick={() => setClueOpen(false)} aria-label="닫기">×</button></div>
-              <p>{availableClues.length === 0 && (activeCaseId === "ep02" || activeCaseId === "ep03") ? (activeCaseId === "ep03" ? "아직 결정적인 사기 신호는 없습니다. 기관을 사칭한 연락도 처음에는 평범해 보일 수 있습니다." : "아직 뚜렷한 사기 신호는 없습니다. 사람과 대화하는 것 자체는 범죄가 아닙니다.") : "수상한 장면 하나를 고르세요. 헛다리는 오판 +1, 최종 점수 -3점입니다."}</p>
+              <p>{availableClues.length === 0 && (activeCaseId === "ep02" || activeCaseId === "ep03" || activeCaseId === "ep04") ? (activeCaseId === "ep04" ? "아직 결정적인 사기 신호는 없습니다. 자신감만으로는 사기가 아닙니다." : activeCaseId === "ep03" ? "아직 결정적인 사기 신호는 없습니다. 기관을 사칭한 연락도 처음에는 평범해 보일 수 있습니다." : "아직 뚜렷한 사기 신호는 없습니다. 사람과 대화하는 것 자체는 범죄가 아닙니다.") : "수상한 장면 하나를 고르세요. 헛다리는 오판 +1, 최종 점수 -3점입니다."}</p>
               <div className="clue-grid">
                 {clueOptions.filter((clue) => availableClues.includes(clue.id) || falseClueIds.includes(clue.id)).map((clue) => {
                   const found = foundClues.includes(clue.id);

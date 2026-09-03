@@ -158,6 +158,19 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .message-image-button b { padding: 4px 6px; border: 1px solid #ff745f70; border-radius: 6px; color: #ff8a76; font-size: 10px; letter-spacing: .08em; }
 .message-text { display: block; padding: 7px 8px 5px; }
 .image-fallback { min-height: 68px; padding: 18px 14px; border-radius: 12px; background: #f8f4ee; color: #47413c; font-size: 16px; line-height: 1.45; text-align: center; }
+.message-bubble.has-portfolio { width: min(90%, 460px); max-width: none; overflow: hidden; padding: 6px; background: #0d1220; }
+/* CASE 04's balance screen: the number is the joke, so it gets the weight. */
+.portfolio-card { position: relative; padding: 15px 15px 13px; border-radius: 13px; background: linear-gradient(165deg, #141b2e, #0a0e18); color: #eef1f8; }
+.portfolio-card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px #ffffff14; pointer-events: none; }
+.portfolio-brand { display: block; color: #8f97ad; font-size: 11px; font-weight: 800; letter-spacing: .07em; }
+.portfolio-balance { display: block; margin: 9px 0 4px; font-size: 30px; font-weight: 900; letter-spacing: -.055em; font-variant-numeric: tabular-nums; }
+.portfolio-delta { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 15px; font-style: normal; font-weight: 850; font-variant-numeric: tabular-nums; }
+.portfolio-card.up .portfolio-delta { background: #14361f; color: #62e39a; }
+.portfolio-card.down .portfolio-delta { background: #3a1620; color: #ff7d92; }
+.portfolio-card.up .portfolio-balance { color: #eafff2; }
+.portfolio-card.down .portfolio-balance { color: #ffe9ed; }
+.portfolio-principal { margin: 11px 0 0; padding-top: 10px; border-top: 1px solid #ffffff14; color: #aeb6c9; font-size: 13px; line-height: 1.45; font-variant-numeric: tabular-nums; }
+.portfolio-note { display: block; margin-top: 6px; color: #7f879b; font-size: 11px; line-height: 1.4; }
 .video-call-card { position: relative; min-height: 240px; overflow: hidden; border-radius: 13px; background: #080b13; color: #fff; }
 .video-call-card > img { display: block; width: 100%; height: 240px; object-fit: cover; object-position: center 17%; filter: saturate(.88) contrast(1.04); transform: scale(1.025); }
 .video-call-card::before, .video-call-card::after { content: ""; position: absolute; z-index: 2; inset: 0; pointer-events: none; }.video-call-card::before { background: repeating-linear-gradient(0deg, #fff0 0 5px, #5c74ff10 6px); mix-blend-mode: screen; }.video-call-card::after { left: 3%; right: -2%; opacity: .18; background: inherit; border-left: 2px solid #ff5472; animation: callGlitch 1.8s steps(2, end) infinite; }

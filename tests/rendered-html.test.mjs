@@ -42,7 +42,8 @@ test("conversation graph has no broken, unreachable, or looping branches", async
     { root: "start", text: source.slice(source.indexOf("const scenes:"), source.indexOf("const romanceScenes:")) },
     { root: "romanceStart", text: source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:")) },
     { root: "seoyunStart", text: source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const prosecutorScenes:")) },
-    { root: "prosStart", text: source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const clueOptions")) },
+    { root: "prosStart", text: source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const coinDiscipleBalance")) },
+    { root: "coinStart", text: source.slice(source.indexOf("const coinScenes:"), source.indexOf("const clueOptions")) },
   ];
 
   const validate = ({ root, text }) => {
@@ -253,11 +254,12 @@ test("dialogue audit rejects broken clues, premature money replies, and repetiti
   const ep01 = source.slice(source.indexOf("const scenes:"), source.indexOf("const romanceScenes:"));
   const ep06 = source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:"));
   const ep02 = source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const prosecutorScenes:"));
-  const ep03 = source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const clueOptions"));
+  const ep03 = source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const coinDiscipleBalance"));
+  const ep04 = source.slice(source.indexOf("const coinScenes:"), source.indexOf("const clueOptions"));
   const clueBlock = source.slice(source.indexOf("const clueOptions"), source.indexOf("const clueExplanations"));
   const definedClues = new Set([...clueBlock.matchAll(/id: "([A-Za-z]+)"/g)].map((match) => match[1]));
 
-  for (const block of [ep01, ep06, ep02, ep03]) {
+  for (const block of [ep01, ep06, ep02, ep03, ep04]) {
     for (const match of block.matchAll(/clues: \[([^\]]+)\]/g)) {
       for (const id of [...match[1].matchAll(/"([A-Za-z]+)"/g)].map((item) => item[1])) {
         assert.equal(definedClues.has(id), true, `undefined clue id: ${id}`);
