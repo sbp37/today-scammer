@@ -229,8 +229,10 @@ test("uses lightweight WebP assets and deliberate clue signals", async () => {
   assert.match(styles, /onlinePulse/);
   assert.match(styles, /episode-visual\.has-portrait \{ height: 152px/);
   // CASE 02 and CASE 03 portraits are framed to the CASE 06 face size. Heavier zoom clipped the tops of their heads.
-  assert.match(styles, /episode-card\.case-02 .*object-position: center 24%; transform: scale\(1\.1\)/);
-  assert.match(styles, /episode-card\.case-03 .*object-position: center 0%; transform: scale\(1\.03\)/);
+  assert.match(styles, /episode-card\.case-02 .*object-position: center 24%; transform: scale\(1\.188\)/);
+  assert.match(styles, /episode-card\.case-03 .*object-position: center 0%; transform: scale\(1\.082\)/);
+  // CASE 06 is the size reference for the grid and carries no crop override.
+  assert.doesNotMatch(styles, /episode-card\.case-06 /);
   assert.doesNotMatch(styles, /has-portrait img \{[^}]*scale\(1\.[2-9]/);
   // The scammer speaks in a lighter weight than the player, and simulation money is never plain body text.
   assert.match(styles, /\.message-bubble \{[^}]*font-weight: 470/);
