@@ -789,33 +789,31 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
 const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   prosStart: {
     incoming: [
-      "국가수사협조팀 검사 K입니다. 본인 확인 절차 때문에 연락드렸습니다.",
-      "본인 명의 계좌가 범죄 자금 이동에 사용됐습니다.",
-      "지금부터 제가 묻는 내용에 정확히 답하세요.",
+      { text: "국가수사협조팀 검사 K입니다. 본인 확인 절차 때문에 연락드렸습니다.", typingMs: 1980 },
+      { text: "본인 명의 계좌가 범죄 자금 이동에 사용됐습니다. 지금부터 제가 묻는 말에 정확히 답하세요.", typingMs: 2750, pauseBefore: 520 },
     ],
     choices: [
       { text: "사건번호와 담당 부서를 알려주세요.", next: "prosCaseNumber" },
       { text: "제 잔액이 4,120원인데 조직이 너무 영세한데요.", next: "prosBalance" },
-      { text: "어떻게 협조하면 되나요?", next: "prosStatus", risk: 1, replies: ["협조 의사는 기록해두겠습니다. 순서대로 진행하겠습니다."] },
+      { text: "어떻게 협조하면 되나요?", next: "prosStatus", risk: 1, replies: ["협조 의사는 기록하겠습니다. 그럼 본인 신분부터 정리하겠습니다."] },
     ],
   },
   prosBalance: {
     incoming: [
-      "잔액은 중요하지 않습니다.",
-      "범죄 조직도 처음에는 소액으로 테스트합니다.",
-      "4,120원도 자금 흐름입니다. 웃을 상황이 아닙니다.",
+      { text: "잔액은 중요하지 않습니다.", typingMs: 1030 },
+      { text: "범죄 조직도 처음에는 소액으로 테스트합니다. 4,120원도 엄연한 자금 흐름입니다.", typingMs: 2670, pauseBefore: 420 },
+      { text: "웃을 상황이 아닙니다.", typingMs: 860 },
     ],
     choices: [
       { text: "그래서 사건번호와 담당 부서가 어떻게 되나요?", next: "prosCaseNumber" },
-      { text: "테스트치고는 금액이 너무 성실한데요.", next: "prosCaseNumber", replies: ["농담은 조서에 남지 않습니다. 남는 건 답변입니다."] },
-      { text: "제가 무슨 사건에 엮인 건지부터 말해주세요.", next: "prosStatus" },
+      { text: "테스트치고는 금액이 너무 성실한데요.", next: "prosCaseNumber", replies: ["농담은 조서에 남지 않습니다."] },
+      { text: "제가 무슨 사건에 엮인 건지부터 말해주세요.", next: "prosStatus", replies: ["순서가 있습니다. 본인 신분부터 정리하겠습니다."] },
     ],
   },
   prosCaseNumber: {
     incoming: [
-      "사건번호 2026-형제-4471호. 담당은 국가수사협조팀 3계입니다.",
-      "정식 통지는 원래 우편입니다. 다만 이 건은 대외비라 메신저로만 통지합니다.",
-      "우편으로 보내면 공범이 먼저 알게 됩니다.",
+      { text: "사건번호 2026-형제-4471호. 담당은 국가수사협조팀 3계입니다.", typingMs: 2060 },
+      { text: "정식 통지는 원래 우편입니다. 다만 이 건은 대외비라 우편으로 보내면 공범이 먼저 읽습니다.", typingMs: 3010, pauseBefore: 560 },
     ],
     clues: ["messengerNotice"],
     cluePrompt: true,
@@ -827,9 +825,9 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosStatus: {
     incoming: [
-      "현재 신분은 참고인입니다.",
-      "다만 협조 여부에 따라 피의자로 전환될 수 있습니다. 지금 이 대화가 그 판단 자료입니다.",
-      "그리고 이 건은 가족을 포함해 누구에게도 말하면 안 됩니다. 말하는 순간 수사 방해가 됩니다.",
+      { text: "정리하겠습니다. 현재 본인 신분은 참고인입니다.", typingMs: 1630 },
+      { text: "다만 협조 여부에 따라 피의자로 전환될 수 있습니다. 지금 이 대화가 그 판단 자료입니다.", typingMs: 2920, pauseBefore: 500 },
+      { text: "가족을 포함해 누구에게도 말하지 마세요. 말하는 순간 수사 방해입니다.", typingMs: 2490 },
     ],
     clues: ["secrecyDemand"],
     cluePrompt: true,
@@ -841,35 +839,34 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosSecrecy: {
     incoming: [
-      "가족 중에 공범이 있을 가능성을 배제할 수 없습니다.",
-      "실제 사례가 있습니다. 통계는 지금 말씀드릴 수 없습니다.",
-      "확인이 끝날 때까지는 저와만 이야기하세요.",
+      { text: "가족 중에 공범이 있을 가능성을 배제할 수 없습니다. 실제 사례가 있습니다.", typingMs: 2580 },
+      { text: "확인이 끝날 때까지는 저와만 이야기하세요.", typingMs: 1460, pauseBefore: 460 },
     ],
     choices: [
-      { text: "그 통계는 왜 대외비인데요?", next: "prosDocument", replies: ["통계도 수사 자료입니다. 대신 제 신분부터 증명하겠습니다."] },
+      { text: "그 사례 통계 좀 보여주세요.", next: "prosDocument", replies: ["통계도 수사 자료입니다. 숫자를 지키는 것도 제 일입니다.", "대신 제 신분부터 증명하겠습니다."] },
       { text: "일단 끊고 기관 대표번호로 직접 확인할게요.", next: "prosCallback" },
-      { text: "검사님이 공범이 아니라는 건 누가 확인해요?", next: "prosCallback", replies: ["저는 확인 대상이 아닙니다. 확인 대상은 지금 본인입니다."] },
+      { text: "검사님이 공범이 아니라는 건 누가 확인해요?", next: "prosCallback", replies: ["제가 확인합니다.", "이미 확인했고, 결과는 무혐의입니다."] },
     ],
   },
   prosCallback: {
     incoming: [
-      "지금 끊으면 수사 협조 거부로 기록될 수 있습니다.",
-      "대표번호로 걸면 다른 검사가 받습니다. 이 사건 담당은 저 하나입니다.",
-      "보안상 공식 확인은 비공식적으로만 가능합니다.",
+      { text: "지금 끊으시면 수사 협조 거부로 기록됩니다!", typingMs: 1550 },
+      { text: "대표번호로 걸면 다른 검사가 받습니다. 이 사건 담당은 저 하나입니다.", typingMs: 2580, pauseBefore: 440 },
+      { text: "보안상 공식 확인은 비공식적으로만 가능합니다.", typingMs: 1810 },
     ],
     clues: ["callbackBlocked"],
     cluePrompt: true,
     choices: [
       { text: "공식 기관이 확인을 못 하게 한다고요?", next: "prosOfficial" },
       { text: "그럼 신분 자료라도 먼저 보내주세요.", next: "prosDocument" },
-      { text: "확인이 안 되는 검사님은 여기서 차단할게요.", ending: "S", replies: ["그 번호로 전화하시면 제가 아니라 다른 검사가 받을 수 있습니다.", "검사는 많지만 이 사건의 진실은 저 하나—"] },
+      { text: "확인이 안 되는 검사님은 여기서 차단할게요.", ending: "S", replies: ["그 번호로 걸면 제가 아니라 다른 검사가 받습니다!", "검사는 많지만 이 사건의 진실은 저 하나—"] },
     ],
   },
   prosOfficial: {
     incoming: [
-      "공식 확인은 사건이 종결된 뒤에 가능합니다.",
-      "지금 확인하면 수사 내용이 밖으로 나갑니다. 그건 제가 막아야 합니다.",
-      "대신 제 신분 자료를 보내드리겠습니다. 이것도 원칙적으로는 안 되는 일입니다.",
+      { text: "공식 확인은 사건이 종결된 뒤에 가능합니다.", typingMs: 1630 },
+      { text: "지금 확인하시면 수사 내용이 밖으로 나갑니다. 그건 제가 막아야 합니다.", typingMs: 2580, pauseBefore: 480 },
+      { text: "대신 제 신분 자료를 보내겠습니다. 원칙적으로는 안 되는 일입니다.", typingMs: 2410 },
     ],
     choices: [
       { text: "그 자료 보내보세요.", next: "prosDocument" },
@@ -879,22 +876,22 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosVideo: {
     incoming: [
-      "가능합니다. 다만 1분만 허용됩니다.",
-      { from: "system", text: "검사 K님이 영상통화를 걸었습니다. 정장을 입은 사람이 사무실 같은 배경에 앉아 있습니다.", pauseBefore: 520 },
-      { from: "system", text: "영상이 보여도 AI 영상이나 조작된 화면일 수 있어 신원 확인이 끝난 것은 아닙니다.", pauseBefore: 700 },
-      "얼굴도 확인하셨으니 이제 절차를 진행하겠습니다.",
+      { text: "1분만 허용됩니다.", typingMs: 950 },
+      { callCard: true, text: "11초 영상통화 · 정장, 사무실 배경. 뒤에서 커피 머신 소리가 납니다.", typingMs: 860, pauseBefore: 520 },
+      { from: "system", text: "영상이 보여도 AI 영상이나 조작된 화면일 수 있어 신원 확인이 끝난 것은 아닙니다.", pauseBefore: 900 },
+      { text: "얼굴까지 보셨으니 이제 절차를 진행하겠습니다.", typingMs: 1890, pauseBefore: 700 },
     ],
     choices: [
       { text: "얼굴 말고 소속을 확인할 방법을 주세요.", next: "prosDocument" },
-      { text: "배경은 사무실인데 소리는 카페인데요.", next: "prosDocument", replies: ["사무실 옆이 카페입니다. 건물 구조가 그렇습니다."] },
-      { text: "화면은 봤지만 확인은 안 됐네요. 차단할게요.", ending: "S", replies: ["얼굴까지 보여드렸는데 왜—", "다음 분에게는 두 번 보여드려야겠습니다."] },
+      { text: "방금 뒤에서 커피 내리는 소리 났는데요.", next: "prosDocument", replies: ["사무실 옆이 카페입니다. 건물 구조가 그렇습니다."] },
+      { text: "화면은 봤지만 확인은 안 됐네요. 차단할게요.", ending: "S", replies: ["얼굴까지 보여드렸는데 왜—", "다음 분에게는 두 번 보여드려야겠군요."] },
     ],
   },
   prosDocument: {
     incoming: [
-      "제 검사증과 수사 협조 통지서입니다. 확인 후 즉시 삭제하세요.",
-      { image: "/fake-notice-03.webp", alt: "검사 K의 가상 검사증과 수사 협조 통지서", imageFallback: "검사 K가 검사증과 수사 협조 통지서 이미지를 보냈습니다.", pauseBefore: 420 },
-      "외부 반출은 처벌 대상입니다. 이 자료로 제 신분 확인은 충분합니다.",
+      { text: "제 검사증과 수사 협조 통지서입니다. 확인 후 즉시 삭제하세요.", typingMs: 2490 },
+      { image: "/fake-notice-03.webp", alt: "검사 K의 가상 검사증과 수사 협조 통지서", imageFallback: "검사 K가 검사증과 수사 협조 통지서 이미지를 보냈습니다.", pauseBefore: 620 },
+      { text: "이 자료면 신분 확인은 충분합니다.", typingMs: 1380, pauseBefore: 620 },
     ],
     clues: ["fakeDocument"],
     cluePrompt: true,
@@ -906,81 +903,78 @@ const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   },
   prosDocZoom: {
     incoming: [
-      "검사증과 공문을 동시에 보냈으니 충분합니다.",
-      "대표번호 확인은 보안상 허용되지 않습니다. 내부 자료가 공식 확인을 대신합니다.",
-      "문서보다 중요한 건 지금부터의 협조입니다.",
+      { text: "검사증과 공문을 동시에 보냈습니다. 이보다 확실한 확인이 뭐가 있습니까!", typingMs: 2750 },
+      { text: "내부 자료가 공식 확인을 대신합니다.", typingMs: 1460, pauseBefore: 420 },
     ],
     choices: [
-      { text: "공식 확인을 막는 게 더 수상하네요. 차단합니다.", ending: "S", replies: ["자료까지 보냈는데 협조를 거부하시면—", "그 자료는 제가 다시 회수하겠습니다. 방법은 아직—"] },
+      { text: "공식 확인을 막는 게 더 수상하네요. 차단합니다.", ending: "S", replies: ["자료까지 보냈는데 협조를 거부하신다고요!", "그 자료는 회수하겠습니다. 회수 방법은 지금 만들고 있습—"] },
       { text: "그래서 제가 뭘 하면 되는데요?", next: "prosDeadline", risk: 1 },
       { text: "이상하긴 한데 일단 더 들어볼게요.", next: "prosDeadline" },
     ],
   },
   prosDeadline: {
     incoming: [
-      "오늘 오후 4시에 본인 명의 계좌가 일괄 지급정지됩니다.",
-      "그 전에 본인 자산이 범죄와 무관하다는 것을 증명해야 합니다.",
-      "남은 시간 11분입니다. 지금 결정하세요.",
+      { text: "오늘 오후 4시에 본인 명의 계좌가 일괄 지급정지됩니다.", typingMs: 2240 },
+      { text: "그 전에 본인 자산이 범죄와 무관하다는 걸 증명해야 합니다.", typingMs: 2320, pauseBefore: 460 },
+      { text: "남은 시간 11분. 지금 결정하세요.", typingMs: 1120 },
     ],
     clues: ["deadlinePush"],
     cluePrompt: true,
     choices: [
       { text: "증명은 정확히 어떻게 하는 건데요?", next: "prosSafeAccount" },
       { text: "11분 만에 끝나는 수사가 있어요?", next: "prosSafeAccount", replies: ["수사는 깁니다. 결정만 짧으면 됩니다."] },
-      { text: "시간 압박까지 나왔네요. 신고하고 끝낼게요.", ending: "A", replies: ["신고는 저에게 하시면 됩니다. 제가 수사기관입니다.", "접수 완료. 아니, 접수는 제가—"] },
+      { text: "시간 압박까지 나왔네요. 신고하고 끝낼게요.", ending: "A", replies: ["신고는 저에게 하시면 됩니다. 제가 수사기관입니다.", "접수 완료. 접수한 사람도 접니다."] },
     ],
   },
   prosSafeAccount: {
     incoming: [
-      "국가가 관리하는 안전계좌로 자산을 일시 이전하시면 됩니다.",
-      "검증이 끝나면 전액 반환됩니다. 형식적인 절차입니다.",
-      "확인된 본인 자산은 게임 속 가상금액 320만원입니다. 전액이어야 합니다.",
+      { text: "국가가 관리하는 안전계좌로 자산을 일시 이전하시면 됩니다.", typingMs: 2320 },
+      { text: "검증이 끝나면 전액 반환됩니다. 형식적인 절차입니다.", typingMs: 2060, pauseBefore: 440 },
+      { text: "확인된 본인 자산은 게임 속 가상금액 320만원. 전액이어야 합니다.", typingMs: 2410 },
     ],
     clues: ["safeAccount"],
     cluePrompt: true,
     choices: [
-      { text: "안전계좌라는 게 정확히 뭐예요?", next: "prosPersonal" },
-      { text: "돈을 옮겨야 결백이 증명된다고요?", next: "prosPersonal", replies: ["자산을 검증 가능한 상태로 두는 절차입니다.", "표현이 불편하시면 보관이라고 하셔도 됩니다."] },
-      { text: "국가가 통장을 맡아준다는 말은 처음 듣네요. 차단할게요.", ending: "A", replies: ["안전계좌는 실재합니다.", "다만 실재하는 명의는 제—"] },
+      { text: "안전계좌라는 게 정확히 뭐예요?", next: "prosPersonal", replies: ["수사 대상 자산을 임시로 보관하는 계좌입니다. 설명은 여기까지 하겠습니다."] },
+      { text: "돈을 옮겨야 결백이 증명된다고요?", next: "prosPersonal", replies: ["자산을 검증 가능한 상태로 두는 절차입니다. 표현이 불편하시면 보관이라고 하셔도 됩니다."] },
+      { text: "국가가 통장을 맡아준다는 말은 처음 듣네요. 차단할게요.", ending: "A", replies: ["안전계좌는 실재합니다!", "다만 실재하는 명의는 제—"] },
     ],
   },
   prosPersonal: {
     incoming: [
-      "이전 전에 본인 확인이 필요합니다. 생년월일과 계좌 비밀번호 앞 두 자리를 보내주세요.",
-      "수사기관만 열람하는 정보라 안전합니다.",
-      "어려우시면 화면을 공유해주세요. 제가 대신 입력해드리겠습니다.",
+      { text: "이체 전에 본인 확인이 필요합니다. 생년월일과 계좌 비밀번호 앞 두 자리를 보내주세요.", typingMs: 2920 },
+      { text: "어려우시면 화면을 공유해주세요. 제가 대신 입력해드리겠습니다.", typingMs: 2320, pauseBefore: 480 },
     ],
     choices: [
       { text: "[게임 내 가상정보] 정보를 입력한다.", next: "prosVerify", risk: 3 },
-      { text: "비밀번호는 수사기관도 안 물어보는데요.", next: "prosVerify", replies: ["일반 부서는 그렇습니다. 협조팀은 절차가 다릅니다."] },
-      { text: "여기서 멈추겠습니다. 이건 확실히 이상해요.", ending: "C", replies: ["멈추면 검증이 중단됩니다.", "검증이 중단되면 저도 조금 곤란합니다."] },
+      { text: "비밀번호는 수사기관도 안 물어보는데요.", next: "prosVerify", replies: ["일반 부서는 그렇습니다. 협조팀은 절차가 다릅니다!", "그럼 비밀번호는 생략하겠습니다. 본인 확인은 통과된 걸로 처리하죠."] },
+      { text: "여기서 멈추겠습니다. 이건 확실히 이상해요.", ending: "C", replies: ["멈추면 검증이 중단됩니다.", "중단되면 저도 조금 곤란합니다."] },
     ],
   },
   prosVerify: {
     incoming: [
-      "확인됐습니다. 이제 안전계좌 이전만 남았습니다.",
-      "[게임용 가상계좌] 000-오늘의사기꾼-003",
-      "게임 속 가상금액 320만원. 4시가 지나면 이전 자체가 막힙니다.",
+      { text: "확인됐습니다. 이제 안전계좌 이전만 남았습니다.", typingMs: 1980 },
+      { text: "[게임용 가상계좌] 예금주 사기꾼 · 000-0000-0003", typingMs: 1550, pauseBefore: 480 },
+      { text: "게임 속 가상금액 320만원. 4시가 지나면 이전 자체가 막힙니다.", typingMs: 2320 },
     ],
     clues: ["virtualTransferDemand"],
     cluePrompt: true,
     choices: [
-      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["게임 속 가상 입금이 확인됐습니다.", "이제 자산은 안전하게 국가가 아니라 제가 보관합니다.", "잠시 수사망 밖으로 이동하겠습니다."] },
-      { text: "일부만 먼저 보내면 안 되나요?", next: "prosFinal", risk: 1 },
-      { text: "계좌 예금주가 오늘의사기꾼인데요.", next: "prosFinal", replies: ["가상계좌 발급 시스템의 임시 명칭입니다.", "명칭은 제가 정하지 않았습니다. 정한 사람은 현재 수사 중입니다."] },
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["입금 확인됐습니다. 본인 자산은 이제 국가가 아니라 제가 안전하게 보관합니다.", "잠시 수사망 밖으로 출장 다녀오겠습니다."] },
+      { text: "일부만 먼저 보내면 안 되나요?", next: "prosFinal", risk: 1, replies: ["부분 이전은 검증 대상이 되지 않습니다."] },
+      { text: "계좌명에서 구린 냄새가 나는데요..?", next: "prosFinal", replies: ["예금주명은 시스템이 자동 생성한 임시 명칭입니다.", "저도 처음 받았을 때 잠시 당황했습니다.", "생성한 시스템은 현재 수사 중입니다."] },
     ],
   },
   prosFinal: {
     incoming: [
-      "부분 이전은 검증 대상이 되지 않습니다. 전액이어야 합니다.",
-      "남은 시간 3분. 이 뒤로는 저도 도와드릴 수 없습니다.",
-      "결백을 증명할 마지막 기회입니다.",
+      { text: "남은 시간 3분입니다. 전액 이전만 유효합니다!", typingMs: 1630 },
+      { text: "결백을 증명할 마지막 기회입니다.", typingMs: 1290, pauseBefore: 420 },
     ],
     clues: ["virtualTransferDemand"],
     choices: [
-      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["게임 속 가상 입금이 확인됐습니다.", "이제 자산은 안전하게 국가가 아니라 제가 보관합니다.", "잠시 수사망 밖으로 이동하겠습니다."] },
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["입금 확인됐습니다. 본인 자산은 이제 국가가 아니라 제가 안전하게 보관합니다.", "잠시 수사망 밖으로 출장 다녀오겠습니다."] },
       { text: "결백은 제가 증명하는 게 아니라 수사가 하는 거예요.", ending: "A", replies: ["법리적으로는 맞습니다.", "다만 지금 법리는 제 편이 아닙니다."] },
-      { text: "이 대화 전부 캡처해서 신고하겠습니다.", ending: "A", replies: ["캡처는 수사 자료 유출입니다.", "저를 신고할 자료로는 아주 훌륭합니다만."] },
+      { text: "이 대화 전부 캡처해서 신고하겠습니다.", ending: "C", replies: ["캡처는 수사 자료 유출입니다!", "다만 저를 신고할 자료로는… 아주 잘 나왔습니다."] },
     ],
   },
 };
@@ -1096,10 +1090,10 @@ const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
     F: ["지금 병원이라 당분간 연락 못 할 것 같아.", "나중에 꼭 연락할게. 진짜로."],
   },
   ep03: {
-    S: ["협조 거부는 기록으로 남습니다.", "기록은 제가 보관하겠습니다. 제가 기록이니까요."],
-    A: ["오늘 확인은 여기서 종료하겠습니다.", "사건번호는 기억해두세요. 저는 잊겠습니다."],
-    C: ["검증이 중단되어 사건은 보류로 전환됩니다.", "보류 담당도 접니다. 그럼 이만."],
-    F: ["입금 확인 후 절차가 자동 종료됐습니다.", "결과는 추후 통지드리겠습니다. 방법은 미정입니다."],
+    S: ["협조 거부로 기록하겠습니다. 기록은 제가 보관합니다.", "보관 장소는 저만 아는데, 방금 잊었습니다."],
+    A: ["오늘 확인은 여기서 종료합니다.", "사건번호는 잘 기억해두세요. 저는 다음 분께 또 써야 해서요."],
+    C: ["검증 중단으로 사건은 보류 처리됩니다.", "보류 담당도 접니다. 제가 저에게 인계하겠습니다."],
+    F: ["절차가 정상 종료됐습니다. 결과는 추후 통지드리겠습니다.", "통지 수단은 정리되는 대로… 이 번호는 곧 없어집니다."],
   },
   ep06: {
     S: ["질문이 작전 보안보다 많군요.", "당분간 연락 안 될 거예요. 긴 수술이 있어서요."],
@@ -1113,8 +1107,30 @@ const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, 
 const getScene = (caseId: CaseId, sceneId: SceneId): Scene => sceneCollections[caseId][sceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-const typingDelay = (text: string, seed: number) => Math.min(2700, 620 + text.length * 27 + (seed % 5) * 80);
+const typingDelay = (text: string, seed: number) => Math.min(3600, 640 + text.length * 30 + (seed % 5) * 80);
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+/* Simulation wording is muted and the amount beside it reddened, so a glance never reads as a real transfer. */
+const virtualMoneyPattern = /(게임 속 가상금액|게임 속 가상 송금|게임 내 가상 송금|게임 속 가상 입금|게임 속 가상 통관비|게임 속 가상정보|게임 내 가상정보|게임용 가상계좌)(\]?\s*(?:통관비\s*|누적\s*|총\s*)?)([0-9][0-9,]*(?:억|만)?원)?/g;
+
+function renderMoneyText(text: string): ReactNode {
+  if (!text.includes("가상")) return text;
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+  let index = 0;
+  for (const match of text.matchAll(virtualMoneyPattern)) {
+    const start = match.index ?? 0;
+    if (start > cursor) nodes.push(text.slice(cursor, start));
+    nodes.push(<span className="vm-label" key={`label-${index}`}>{match[1]}</span>);
+    if (match[2]) nodes.push(match[2]);
+    if (match[3]) nodes.push(<span className="vm-amount" key={`amount-${index}`}>{match[3]}</span>);
+    cursor = start + match[0].length;
+    index += 1;
+  }
+  if (index === 0) return text;
+  if (cursor < text.length) nodes.push(text.slice(cursor));
+  return nodes;
+}
 
 function calculateScore({ virtualMoneyLost, virtualMoneyAtRisk: totalMoney, decisionScore, foundClues, totalClues, earlyDetection, wrongClues }: ScoreInput): ScoreBreakdown {
   const wallet = virtualMoneyLost === 0 ? 40 : Math.round(40 * (1 - clamp(virtualMoneyLost / totalMoney, 0, 1)));
@@ -1834,7 +1850,7 @@ export function TodayScammer({
               <div className={`message-bubble${message.image ? " has-image" : ""}${message.callCard ? " has-call" : ""}`}>
                 {message.image && <MessageImage message={message} onOpen={setPreviewImage} />}
                 {message.callCard && <VideoCallCard portrait={activeCase.portrait} name={activeCase.scammer} note={message.text ?? "짧은 영상통화가 연결되었습니다."} />}
-                {message.text && !message.callCard && <span className="message-text">{message.text}</span>}
+                {message.text && !message.callCard && <span className="message-text">{renderMoneyText(message.text)}</span>}
               </div>
             </div>
           ))}
@@ -1852,7 +1868,7 @@ export function TodayScammer({
           {phase === "choice" ? (
             <div className="choice-list">
               {choices.map((choice, index) => (
-                <button className={choice.virtualTransfer ? "virtual-transfer-choice" : ""} key={choice.text} onClick={() => selectReply(choice)}><span>{String.fromCharCode(65 + index)}</span>{choice.text}</button>
+                <button className={choice.virtualTransfer ? "virtual-transfer-choice" : ""} key={choice.text} onClick={() => selectReply(choice)}><span>{String.fromCharCode(65 + index)}</span><span className="choice-text">{renderMoneyText(choice.text)}</span></button>
               ))}
             </div>
           ) : phase === "resolved" ? (

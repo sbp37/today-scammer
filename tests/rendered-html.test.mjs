@@ -228,7 +228,18 @@ test("uses lightweight WebP assets and deliberate clue signals", async () => {
   assert.match(source, /빠른 재생/);
   assert.match(styles, /onlinePulse/);
   assert.match(styles, /episode-visual\.has-portrait \{ height: 152px/);
-  assert.match(styles, /episode-card\.case-02 .*transform: scale\(1\.42\)/);
+  // CASE 02 and CASE 03 portraits are framed to the CASE 06 face size. Heavier zoom clipped the tops of their heads.
+  assert.match(styles, /episode-card\.case-02 .*object-position: center 24%; transform: scale\(1\.1\)/);
+  assert.match(styles, /episode-card\.case-03 .*object-position: center 0%; transform: scale\(1\.03\)/);
+  assert.doesNotMatch(styles, /has-portrait img \{[^}]*scale\(1\.[2-9]/);
+  // The scammer speaks in a lighter weight than the player, and simulation money is never plain body text.
+  assert.match(styles, /\.message-bubble \{[^}]*font-weight: 470/);
+  assert.match(styles, /\.player \.message-bubble \{[^}]*font-weight: 560/);
+  assert.match(styles, /\.vm-label \{ color: #868c9c; \}/);
+  assert.match(styles, /\.vm-amount \{ color: #e0364f;/);
+  assert.match(source, /function renderMoneyText/);
+  assert.match(source, /className="message-text">\{renderMoneyText\(message\.text\)\}/);
+  assert.match(source, /\{renderMoneyText\(choice\.text\)\}/);
   assert.match(styles, /brand-logo \{[^}]*width: min\(78\.2%, 391px\)/);
   assert.doesNotMatch(source, /\(뷰티풀\)|very|Very|Only you|coffee 하고|I need person/);
   assert.match(source, /beautiful합니다/);
