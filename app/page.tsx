@@ -82,6 +82,8 @@ type Scene = {
   autoDelay?: number;
 };
 
+const BUILD_TAG = "case03-r3";
+
 /* Display copy only: the underlying scene count and pacing are unchanged. */
 const EPISODE_DURATION = "2분 내외";
 
@@ -1821,7 +1823,7 @@ export function TodayScammer({
 
         {qaMode && qaPanelOpen && (
           <aside className="qa-panel" aria-label="대화 점검 모드">
-            <div className="qa-panel-head"><div><span>CREATOR QA</span><strong>대화 점검 모드</strong></div><button onClick={() => setQaPanelOpen(false)} aria-label="점검 패널 닫기">×</button></div>
+            <div className="qa-panel-head"><div><span>CREATOR QA · BUILD {BUILD_TAG}</span><strong>대화 점검 모드</strong></div><button onClick={() => setQaPanelOpen(false)} aria-label="점검 패널 닫기">×</button></div>
             <div className="qa-controls">
               <label>사건<select value={activeCaseId} onChange={(event) => { const caseId = event.target.value as CaseId; qaJumpToScene(caseId, caseProfiles[caseId].start); }}><option value="ep01">EP.01 모스크바</option><option value="ep02">EP.02 J</option><option value="ep03">EP.03 검사 K</option><option value="ep06">EP.06 제임스</option></select></label>
               <label>장면<select value={sceneId} onChange={(event) => qaJumpToScene(activeCaseId, event.target.value as SceneId)}>{qaSceneIds.map((id) => <option value={id} key={id}>{id}</option>)}</select></label>
@@ -2032,7 +2034,7 @@ export function TodayScammer({
   return (
     <main className="home-screen">
       <div className="home-glow" aria-hidden="true" />
-      {qaMode && <section className="qa-home-bar" aria-label="QA 사건 바로 열기"><div><span>CREATOR QA</span><strong>검수할 사건을 바로 여세요</strong></div>{liveEpisodeIds.map((caseId) => <button key={caseId} onClick={() => qaJumpToScene(caseId, caseProfiles[caseId].start)}>CASE {caseProfiles[caseId].no}</button>)}</section>}
+      {qaMode && <section className="qa-home-bar" aria-label="QA 사건 바로 열기"><div><span>CREATOR QA · BUILD {BUILD_TAG}</span><strong>검수할 사건을 바로 여세요</strong></div>{liveEpisodeIds.map((caseId) => <button key={caseId} onClick={() => qaJumpToScene(caseId, caseProfiles[caseId].start)}>CASE {caseProfiles[caseId].no}</button>)}</section>}
       <header className="game-brand">
         <div className="eyebrow">
           <span>SCAMMER ARCHIVE</span>
