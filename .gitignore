@@ -31,13 +31,25 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.production
+!.env.google-play.example
 
 # vercel
 .vercel
 
 /dist/
 /ait-dist/
+/google-play-dist/
 *.ait
+/android/.gradle/
+/android/app/build/
+/android/local.properties
+/android/keystore.properties
+/android/signing/
+*.jks
+*.keystore
+*.aab
 /.wrangler/
 /outputs/
 /work/

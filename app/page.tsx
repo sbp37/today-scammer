@@ -3,15 +3,20 @@
 /* eslint-disable @next/next/no-img-element -- Local artwork is pre-compressed WebP and served directly by the Vinext asset layer. */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { AdBanner } from "./components/ad-banner";
 
-type Screen = "home" | "briefing" | "chat" | "ending";
+export type GameScreen = "home" | "briefing" | "chat" | "ending";
+type Screen = GameScreen;
 type Phase = "incoming" | "choice" | "reply" | "resolved";
 type EndingGrade = "S" | "A" | "C" | "F";
-type CaseId = "ep01" | "ep02" | "ep06";
+export type CaseId = "ep01" | "ep02" | "ep03" | "ep06";
+export type RewardedUnlockResult = "earned" | "dismissed" | "not-ready" | "unavailable" | "failed";
 type ElunSceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "aiVideo" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
 type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceCredential" | "romanceCertificateCheck" | "romanceDay" | "romanceHeart" | "romanceHeartJoke" | "romanceFlirt" | "romancePromise" | "romanceBond" | "romanceParcel" | "romanceBoxDetails" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
 type SeoyunSceneId = "seoyunStart" | "seoyunWhy" | "seoyunWork" | "seoyunDog" | "seoyunMontage" | "seoyunMontageLater" | "seoyunDay8" | "seoyunHospital" | "seoyunDelete" | "seoyunConfide" | "seoyunDeposit" | "seoyunFamily" | "seoyunVerify" | "seoyunFirstTransfer" | "seoyunSecondAsk" | "seoyunVideo" | "seoyunSecondTransfer" | "seoyunFinal";
-type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId;
+type ProsecutorSceneId = "prosStart" | "prosBalance" | "prosCaseNumber" | "prosStatus" | "prosSecrecy" | "prosCallback" | "prosOfficial" | "prosVideo" | "prosDocument" | "prosDocZoom" | "prosDeadline" | "prosSafeAccount" | "prosPersonal" | "prosVerify" | "prosFinal";
+type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId | ProsecutorSceneId;
 
 type Message = {
   id: number;
@@ -77,10 +82,13 @@ type Scene = {
   autoDelay?: number;
 };
 
+/* Display copy only: the underlying scene count and pacing are unchanged. */
+const EPISODE_DURATION = "2분 내외";
+
 const episodes = [
   { no: "01", mark: "EM", name: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", type: "유명인 사칭", line: "지갑은 분실, 자신감은 보유 중", accent: "#ff4e29", live: true },
   { no: "02", mark: "J", name: "엄마가 갑자기 수술해야 한대요", scammer: "J · 26", type: "소개팅 DM", line: "평범한 DM은 8일 뒤 부탁이 됐다", accent: "#ff7fac", live: true },
-  { no: "03", mark: "檢", name: "검사님이 내 통장을 걱정한다", scammer: "중앙수사 김검사", type: "기관 사칭", line: "내 잔고에 누구보다 진심인 공무원", accent: "#00d9ff" },
+  { no: "03", mark: "檢", name: "검사님이 내 통장을 걱정한다", scammer: "검사 K", type: "기관 사칭", line: "내 잔고에 나보다 관심이 많은 공무원", accent: "#00d9ff", live: true },
   { no: "04", mark: "₿", name: "인생역전 코인 선생님", scammer: "차트도사 불기둥", type: "투자사기", line: "손실은 경험, 수익은 곧 예정", accent: "#ffd600" },
   { no: "05", mark: "BOX", name: "택배가 왔는데 내가 시킨 게 없다", scammer: "행복택배 11팀", type: "스미싱", line: "상자는 없고 링크만 도착함", accent: "#bd7cff" },
   { no: "06", mark: "♥", name: "해외 파병 군의관", scammer: "Dr. 제임스 초이", type: "로맨스스캠", line: "사랑은 국경 없고 통관료는 있음", accent: "#ff5c93", live: true },
@@ -95,14 +103,15 @@ const episodes = [
   { no: "15", mark: "REV", name: "리뷰 몇 개 쓰면 돈을 준대요", scammer: "재택부업 이팀장", type: "팀미션·부업", line: "별점 다섯 개, 통장 잔액 한 개", accent: "#ff76c8" },
 ];
 
-const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02"];
-const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : no === "02" ? "ep02" : "ep01";
-const virtualMoneyAtRisk: Record<CaseId, number> = { ep01: 200000, ep02: 1810000, ep06: 480000 };
+const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02", "ep03"];
+const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : no === "03" ? "ep03" : no === "02" ? "ep02" : "ep01";
+const virtualMoneyAtRisk: Record<CaseId, number> = { ep01: 200000, ep02: 1810000, ep03: 3200000, ep06: 480000 };
 
 const caseProfiles = {
-  ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.webp", duration: "4분 내외", start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
-  ep02: { no: "02", title: "엄마가 갑자기 수술해야 한대요", scammer: "J", alias: "J · 26 · 마케팅 회사 · 두부 보호자", type: "로맨스스캠", portrait: "/scammer-02.webp", duration: "4~5분", start: "seoyunStart" as SceneId, virtualAmount: "총 181만원", tactic: "평범한 소개팅 DM → 8일 친밀감 → 가족 위기 → 소액 부탁 → 금액 상승", clueTotal: 7 },
-  ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.webp", duration: "7분 내외", start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
+  ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.webp", duration: EPISODE_DURATION, start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
+  ep02: { no: "02", title: "엄마가 갑자기 수술해야 한대요", scammer: "J", alias: "J · 26 · 마케팅 회사 · 두부 보호자", type: "로맨스스캠", portrait: "/scammer-02.webp", duration: EPISODE_DURATION, start: "seoyunStart" as SceneId, virtualAmount: "총 181만원", tactic: "평범한 소개팅 DM → 8일 친밀감 → 가족 위기 → 소액 부탁 → 금액 상승", clueTotal: 7 },
+  ep03: { no: "03", title: "검사님이 내 통장을 걱정한다", scammer: "검사 K", alias: "국가수사협조팀 · 공식 아님", type: "기관 사칭", portrait: "/scammer-03-v1.webp", duration: EPISODE_DURATION, start: "prosStart" as SceneId, virtualAmount: "320만원", tactic: "기관 사칭 → 공포 조성 → 고립 → 확인 방해 → 시간 압박 → 안전계좌 가상 송금", clueTotal: 7 },
+  ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.webp", duration: EPISODE_DURATION, start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
 } as const;
 
 const scenes: Record<ElunSceneId, Scene> = {
@@ -777,6 +786,205 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
   },
 };
 
+const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
+  prosStart: {
+    incoming: [
+      "국가수사협조팀 검사 K입니다. 본인 확인 절차 때문에 연락드렸습니다.",
+      "본인 명의 계좌가 범죄 자금 이동에 사용됐습니다.",
+      "지금부터 제가 묻는 내용에 정확히 답하세요.",
+    ],
+    choices: [
+      { text: "사건번호와 담당 부서를 알려주세요.", next: "prosCaseNumber" },
+      { text: "제 잔액이 4,120원인데 조직이 너무 영세한데요.", next: "prosBalance" },
+      { text: "어떻게 협조하면 되나요?", next: "prosStatus", risk: 1, replies: ["협조 의사는 기록해두겠습니다. 순서대로 진행하겠습니다."] },
+    ],
+  },
+  prosBalance: {
+    incoming: [
+      "잔액은 중요하지 않습니다.",
+      "범죄 조직도 처음에는 소액으로 테스트합니다.",
+      "4,120원도 자금 흐름입니다. 웃을 상황이 아닙니다.",
+    ],
+    choices: [
+      { text: "그래서 사건번호와 담당 부서가 어떻게 되나요?", next: "prosCaseNumber" },
+      { text: "테스트치고는 금액이 너무 성실한데요.", next: "prosCaseNumber", replies: ["농담은 조서에 남지 않습니다. 남는 건 답변입니다."] },
+      { text: "제가 무슨 사건에 엮인 건지부터 말해주세요.", next: "prosStatus" },
+    ],
+  },
+  prosCaseNumber: {
+    incoming: [
+      "사건번호 2026-형제-4471호. 담당은 국가수사협조팀 3계입니다.",
+      "정식 통지는 원래 우편입니다. 다만 이 건은 대외비라 메신저로만 통지합니다.",
+      "우편으로 보내면 공범이 먼저 알게 됩니다.",
+    ],
+    clues: ["messengerNotice"],
+    cluePrompt: true,
+    choices: [
+      { text: "그럼 저는 참고인인가요, 피의자인가요?", next: "prosStatus" },
+      { text: "대외비 수사를 메신저로 통지한다고요?", next: "prosStatus", replies: ["예외 절차입니다. 지금은 형식보다 속도가 필요합니다."] },
+      { text: "일단 끊고 기관 대표번호로 직접 확인할게요.", next: "prosCallback" },
+    ],
+  },
+  prosStatus: {
+    incoming: [
+      "현재 신분은 참고인입니다.",
+      "다만 협조 여부에 따라 피의자로 전환될 수 있습니다. 지금 이 대화가 그 판단 자료입니다.",
+      "그리고 이 건은 가족을 포함해 누구에게도 말하면 안 됩니다. 말하는 순간 수사 방해가 됩니다.",
+    ],
+    clues: ["secrecyDemand"],
+    cluePrompt: true,
+    choices: [
+      { text: "가족한테 말하는 게 왜 수사 방해예요?", next: "prosSecrecy" },
+      { text: "일단 끊고 기관 대표번호로 직접 확인할게요.", next: "prosCallback" },
+      { text: "저희 부모님은 제 잔액을 이미 알고 계신데요.", next: "prosSecrecy", replies: ["그 사실 자체가 변수입니다. 지금부터는 추가로 말하지 마세요."] },
+    ],
+  },
+  prosSecrecy: {
+    incoming: [
+      "가족 중에 공범이 있을 가능성을 배제할 수 없습니다.",
+      "실제 사례가 있습니다. 통계는 지금 말씀드릴 수 없습니다.",
+      "확인이 끝날 때까지는 저와만 이야기하세요.",
+    ],
+    choices: [
+      { text: "그 통계는 왜 대외비인데요?", next: "prosDocument", replies: ["통계도 수사 자료입니다. 대신 제 신분부터 증명하겠습니다."] },
+      { text: "일단 끊고 기관 대표번호로 직접 확인할게요.", next: "prosCallback" },
+      { text: "검사님이 공범이 아니라는 건 누가 확인해요?", next: "prosCallback", replies: ["저는 확인 대상이 아닙니다. 확인 대상은 지금 본인입니다."] },
+    ],
+  },
+  prosCallback: {
+    incoming: [
+      "지금 끊으면 수사 협조 거부로 기록될 수 있습니다.",
+      "대표번호로 걸면 다른 검사가 받습니다. 이 사건 담당은 저 하나입니다.",
+      "보안상 공식 확인은 비공식적으로만 가능합니다.",
+    ],
+    clues: ["callbackBlocked"],
+    cluePrompt: true,
+    choices: [
+      { text: "공식 기관이 확인을 못 하게 한다고요?", next: "prosOfficial" },
+      { text: "그럼 신분 자료라도 먼저 보내주세요.", next: "prosDocument" },
+      { text: "확인이 안 되는 검사님은 여기서 차단할게요.", ending: "S", replies: ["그 번호로 전화하시면 제가 아니라 다른 검사가 받을 수 있습니다.", "검사는 많지만 이 사건의 진실은 저 하나—"] },
+    ],
+  },
+  prosOfficial: {
+    incoming: [
+      "공식 확인은 사건이 종결된 뒤에 가능합니다.",
+      "지금 확인하면 수사 내용이 밖으로 나갑니다. 그건 제가 막아야 합니다.",
+      "대신 제 신분 자료를 보내드리겠습니다. 이것도 원칙적으로는 안 되는 일입니다.",
+    ],
+    choices: [
+      { text: "그 자료 보내보세요.", next: "prosDocument" },
+      { text: "얼굴이라도 봐야겠어요. 영상통화 되나요?", next: "prosVideo" },
+      { text: "종결 뒤에 되는 확인은 확인이 아니죠. 차단합니다.", ending: "S", replies: ["대표번호는 지금 상담원이 전원 회의 중입니다.", "제가 확인했습니다. 그 회의는 제가 소집했—"] },
+    ],
+  },
+  prosVideo: {
+    incoming: [
+      "가능합니다. 다만 1분만 허용됩니다.",
+      { from: "system", text: "검사 K님이 영상통화를 걸었습니다. 정장을 입은 사람이 사무실 같은 배경에 앉아 있습니다.", pauseBefore: 520 },
+      { from: "system", text: "영상이 보여도 AI 영상이나 조작된 화면일 수 있어 신원 확인이 끝난 것은 아닙니다.", pauseBefore: 700 },
+      "얼굴도 확인하셨으니 이제 절차를 진행하겠습니다.",
+    ],
+    choices: [
+      { text: "얼굴 말고 소속을 확인할 방법을 주세요.", next: "prosDocument" },
+      { text: "배경은 사무실인데 소리는 카페인데요.", next: "prosDocument", replies: ["사무실 옆이 카페입니다. 건물 구조가 그렇습니다."] },
+      { text: "화면은 봤지만 확인은 안 됐네요. 차단할게요.", ending: "S", replies: ["얼굴까지 보여드렸는데 왜—", "다음 분에게는 두 번 보여드려야겠습니다."] },
+    ],
+  },
+  prosDocument: {
+    incoming: [
+      "제 검사증과 수사 협조 통지서입니다. 확인 후 즉시 삭제하세요.",
+      { image: "/fake-notice-03.webp", alt: "검사 K의 가상 검사증과 수사 협조 통지서", imageFallback: "검사 K가 검사증과 수사 협조 통지서 이미지를 보냈습니다.", pauseBefore: 420 },
+      "외부 반출은 처벌 대상입니다. 이 자료로 제 신분 확인은 충분합니다.",
+    ],
+    clues: ["fakeDocument"],
+    cluePrompt: true,
+    choices: [
+      { text: "검사증 사진만으로 신원 확인은 안 돼요.", next: "prosDocZoom" },
+      { text: "문서는 받았지만 대표번호로 다시 확인할게요.", next: "prosDocZoom" },
+      { text: "알겠습니다. 다음은 뭘 하면 되나요?", next: "prosDeadline", risk: 1 },
+    ],
+  },
+  prosDocZoom: {
+    incoming: [
+      "검사증과 공문을 동시에 보냈으니 충분합니다.",
+      "대표번호 확인은 보안상 허용되지 않습니다. 내부 자료가 공식 확인을 대신합니다.",
+      "문서보다 중요한 건 지금부터의 협조입니다.",
+    ],
+    choices: [
+      { text: "공식 확인을 막는 게 더 수상하네요. 차단합니다.", ending: "S", replies: ["자료까지 보냈는데 협조를 거부하시면—", "그 자료는 제가 다시 회수하겠습니다. 방법은 아직—"] },
+      { text: "그래서 제가 뭘 하면 되는데요?", next: "prosDeadline", risk: 1 },
+      { text: "이상하긴 한데 일단 더 들어볼게요.", next: "prosDeadline" },
+    ],
+  },
+  prosDeadline: {
+    incoming: [
+      "오늘 오후 4시에 본인 명의 계좌가 일괄 지급정지됩니다.",
+      "그 전에 본인 자산이 범죄와 무관하다는 것을 증명해야 합니다.",
+      "남은 시간 11분입니다. 지금 결정하세요.",
+    ],
+    clues: ["deadlinePush"],
+    cluePrompt: true,
+    choices: [
+      { text: "증명은 정확히 어떻게 하는 건데요?", next: "prosSafeAccount" },
+      { text: "11분 만에 끝나는 수사가 있어요?", next: "prosSafeAccount", replies: ["수사는 깁니다. 결정만 짧으면 됩니다."] },
+      { text: "시간 압박까지 나왔네요. 신고하고 끝낼게요.", ending: "A", replies: ["신고는 저에게 하시면 됩니다. 제가 수사기관입니다.", "접수 완료. 아니, 접수는 제가—"] },
+    ],
+  },
+  prosSafeAccount: {
+    incoming: [
+      "국가가 관리하는 안전계좌로 자산을 일시 이전하시면 됩니다.",
+      "검증이 끝나면 전액 반환됩니다. 형식적인 절차입니다.",
+      "확인된 본인 자산은 게임 속 가상금액 320만원입니다. 전액이어야 합니다.",
+    ],
+    clues: ["safeAccount"],
+    cluePrompt: true,
+    choices: [
+      { text: "안전계좌라는 게 정확히 뭐예요?", next: "prosPersonal" },
+      { text: "돈을 옮겨야 결백이 증명된다고요?", next: "prosPersonal", replies: ["자산을 검증 가능한 상태로 두는 절차입니다.", "표현이 불편하시면 보관이라고 하셔도 됩니다."] },
+      { text: "국가가 통장을 맡아준다는 말은 처음 듣네요. 차단할게요.", ending: "A", replies: ["안전계좌는 실재합니다.", "다만 실재하는 명의는 제—"] },
+    ],
+  },
+  prosPersonal: {
+    incoming: [
+      "이전 전에 본인 확인이 필요합니다. 생년월일과 계좌 비밀번호 앞 두 자리를 보내주세요.",
+      "수사기관만 열람하는 정보라 안전합니다.",
+      "어려우시면 화면을 공유해주세요. 제가 대신 입력해드리겠습니다.",
+    ],
+    choices: [
+      { text: "[게임 내 가상정보] 정보를 입력한다.", next: "prosVerify", risk: 3 },
+      { text: "비밀번호는 수사기관도 안 물어보는데요.", next: "prosVerify", replies: ["일반 부서는 그렇습니다. 협조팀은 절차가 다릅니다."] },
+      { text: "여기서 멈추겠습니다. 이건 확실히 이상해요.", ending: "C", replies: ["멈추면 검증이 중단됩니다.", "검증이 중단되면 저도 조금 곤란합니다."] },
+    ],
+  },
+  prosVerify: {
+    incoming: [
+      "확인됐습니다. 이제 안전계좌 이전만 남았습니다.",
+      "[게임용 가상계좌] 000-오늘의사기꾼-003",
+      "게임 속 가상금액 320만원. 4시가 지나면 이전 자체가 막힙니다.",
+    ],
+    clues: ["virtualTransferDemand"],
+    cluePrompt: true,
+    choices: [
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["게임 속 가상 입금이 확인됐습니다.", "이제 자산은 안전하게 국가가 아니라 제가 보관합니다.", "잠시 수사망 밖으로 이동하겠습니다."] },
+      { text: "일부만 먼저 보내면 안 되나요?", next: "prosFinal", risk: 1 },
+      { text: "계좌 예금주가 오늘의사기꾼인데요.", next: "prosFinal", replies: ["가상계좌 발급 시스템의 임시 명칭입니다.", "명칭은 제가 정하지 않았습니다. 정한 사람은 현재 수사 중입니다."] },
+    ],
+  },
+  prosFinal: {
+    incoming: [
+      "부분 이전은 검증 대상이 되지 않습니다. 전액이어야 합니다.",
+      "남은 시간 3분. 이 뒤로는 저도 도와드릴 수 없습니다.",
+      "결백을 증명할 마지막 기회입니다.",
+    ],
+    clues: ["virtualTransferDemand"],
+    choices: [
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["게임 속 가상 입금이 확인됐습니다.", "이제 자산은 안전하게 국가가 아니라 제가 보관합니다.", "잠시 수사망 밖으로 이동하겠습니다."] },
+      { text: "결백은 제가 증명하는 게 아니라 수사가 하는 거예요.", ending: "A", replies: ["법리적으로는 맞습니다.", "다만 지금 법리는 제 편이 아닙니다."] },
+      { text: "이 대화 전부 캡처해서 신고하겠습니다.", ending: "A", replies: ["캡처는 수사 자료 유출입니다.", "저를 신고할 자료로는 아주 훌륭합니다만."] },
+    ],
+  },
+};
+
 const clueOptions = [
   { id: "dm", label: "유명인이 갑자기 개인 DM" },
   { id: "fast", label: "비밀 초대와 빠른 친밀감" },
@@ -801,9 +1009,19 @@ const clueOptions = [
   { id: "normalDm", label: "먼저 호감을 보여 연락함" },
   { id: "dogPhoto", label: "귀여운 강아지 사진을 보냄" },
   { id: "lateReply", label: "답장이 평소보다 늦음" },
+  { id: "messengerNotice", label: "수사 통보를 메신저로만 함" },
+  { id: "secrecyDemand", label: "가족에게도 말하지 말라고 함" },
+  { id: "callbackBlocked", label: "공식 대표번호 확인을 막음" },
+  { id: "fakeDocument", label: "검사증·공문 사진으로 확인을 대신함" },
+  { id: "deadlinePush", label: "11분 안에 결정하라고 압박" },
+  { id: "safeAccount", label: "국가가 보관한다는 안전계좌" },
+  { id: "virtualTransferDemand", label: "결백 증명을 위한 가상 송금 요구" },
   { id: "photo", label: "프로필 사진의 파란 안경" },
   { id: "uniform", label: "프로필에서 군복 같은 옷을 입음" },
   { id: "grammar", label: "조금 어색한 한국어" },
+  { id: "suit", label: "정장을 입었다" },
+  { id: "stiffTone", label: "말투가 딱딱하다" },
+  { id: "fastReply", label: "답장이 빠르다" },
 ];
 
 const clueExplanations: Record<string, string> = {
@@ -827,6 +1045,13 @@ const clueExplanations: Record<string, string> = {
   familyContradiction: "부모님과 제주도에 간다는 말과 아버지가 돌아가셨다는 말이 충돌합니다.",
   amountEscalation: "작은 부탁이 해결되자 더 큰 금액을 연달아 요구합니다.",
   emotionalPressure: "‘오빠밖에 없다’는 말로 거절하기 어렵게 만듭니다.",
+  messengerNotice: "수사기관은 메신저 대화만으로 범죄 연루를 통보하거나 조사를 진행하지 않습니다.",
+  secrecyDemand: "가족과 지인에게 숨기라고 요구해 외부의 도움과 검증을 차단합니다.",
+  callbackBlocked: "공식 대표번호로 직접 재확인하지 못하게 막는 것은 강력한 사기 신호입니다.",
+  fakeDocument: "그럴듯한 검사증·공문 이미지도 조작될 수 있으며 공식 대표번호 확인을 대신하지 못합니다.",
+  deadlinePush: "짧은 제한 시간을 내세워 확인하고 생각할 기회를 빼앗습니다.",
+  safeAccount: "수사기관은 안전계좌를 내세워 개인 자산 이전을 요구하지 않습니다.",
+  virtualTransferDemand: "결백이나 자산 검증을 이유로 돈을 보내라는 요구는 즉시 중단해야 합니다.",
 };
 
 const endingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
@@ -850,6 +1075,13 @@ const seoyunEndingCopy: Record<EndingGrade, { title: string; kicker: string; bod
   F: { title: "J의 가족이 되었습니다", kicker: "세 번의 가상 송금 · 아직 만남 0회", body: "게임 속 가상금액 총 181만원을 보냈습니다. 그런데 아직 실제로 만난 적은 없습니다.", shareLine: "J의 병원은 끝까지 비공개였고 보증금만 세 번 출근했습니다." },
 };
 
+const prosecutorEndingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
+  S: { title: "대표번호가 더 빨랐습니다", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 320만원을 지켜냈습니다. 검사 K는 아직도 자기가 소집한 회의에 자기가 참석 중입니다.", shareLine: "공식 확인을 막는 순간이 제일 공식적이지 않았습니다." },
+  A: { title: "겁은 먹었지만 돈은 지켰습니다", kicker: "긴 대화 · 가상 송금 없음", body: "게임 속 가상금액 320만원을 지켜냈습니다. 대신 존재하지 않는 협조팀의 진행 상황을 끝까지 들었습니다.", shareLine: "지급정지 예정 시각은 지나갔고 잔액은 그대로입니다." },
+  C: { title: "안전계좌 앞 급정거", kicker: "개인정보 직전 · 아슬아슬 탈출", body: "게임 속 가상금액 320만원을 지켜냈습니다. 비밀번호 앞 두 자리를 묻는 순간 대화를 멈췄습니다.", shareLine: "국가가 통장을 맡아준다는 말에서 겨우 멈췄습니다." },
+  F: { title: "국가 대신 검사 K가 보관 중", kicker: "안전계좌 → 가상 송금 완료", body: "게임 속 가상금액 320만원을 보냈습니다. 당신 탓이 아닙니다. 이상한 건 끝까지 시계를 보며 재촉한 사람입니다.", shareLine: "제 자산은 안전합니다. 안전한 위치만 모릅니다." },
+};
+
 const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
   ep01: {
     S: ["지금 보안 문제가 생겨서 잠시 매우 오래 오프라인입니다.", "당신은 해커보다 질문이 많습니다. good bye."],
@@ -863,6 +1095,12 @@ const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
     C: ["도와줄 것처럼 하더니 끝까지 따질 거면 됐어.", "나 지금 정신없어. 연락하지 마."],
     F: ["지금 병원이라 당분간 연락 못 할 것 같아.", "나중에 꼭 연락할게. 진짜로."],
   },
+  ep03: {
+    S: ["협조 거부는 기록으로 남습니다.", "기록은 제가 보관하겠습니다. 제가 기록이니까요."],
+    A: ["오늘 확인은 여기서 종료하겠습니다.", "사건번호는 기억해두세요. 저는 잊겠습니다."],
+    C: ["검증이 중단되어 사건은 보류로 전환됩니다.", "보류 담당도 접니다. 그럼 이만."],
+    F: ["입금 확인 후 절차가 자동 종료됐습니다.", "결과는 추후 통지드리겠습니다. 방법은 미정입니다."],
+  },
   ep06: {
     S: ["질문이 작전 보안보다 많군요.", "당분간 연락 안 될 거예요. 긴 수술이 있어서요."],
     A: ["당분간 연락 안 될 거예요. 긴 수술이 있어서요.", "당신 잊지 않을게요. goodbuy."],
@@ -871,7 +1109,7 @@ const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
   },
 };
 
-const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, ep02: seoyunScenes, ep06: romanceScenes };
+const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, ep02: seoyunScenes, ep03: prosecutorScenes, ep06: romanceScenes };
 const getScene = (caseId: CaseId, sceneId: SceneId): Scene => sceneCollections[caseId][sceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -938,11 +1176,50 @@ function VideoCallCard({ portrait, name, note }: { portrait: string; name: strin
   );
 }
 
-export default function Home() {
-  const [screen, setScreen] = useState<Screen>("home");
-  const [activeCaseId, setActiveCaseId] = useState<CaseId>("ep01");
-  const [featuredCaseId, setFeaturedCaseId] = useState<CaseId>("ep01");
-  const [sceneId, setSceneId] = useState<SceneId>("start");
+type TodayScammerProps = {
+  homeAd?: ReactNode;
+  resultAd?: ReactNode;
+  initialCaseId?: CaseId;
+  initialScreen?: "home" | "briefing";
+  unlockArrival?: boolean;
+  rewardedUnlocksEnabled?: boolean;
+  rewardedAdStatus?: "loading" | "ready" | "showing" | "unavailable" | "failed";
+  onRequestRewardedUnlock?: (caseId: CaseId) => Promise<RewardedUnlockResult>;
+  onShareResult?: (message: string) => Promise<void>;
+  showAdFreeOffer?: boolean;
+  adFreePurchased?: boolean;
+  adFreePurchasePending?: boolean;
+  adFreePriceLabel?: string;
+  onPurchaseAdFree?: () => Promise<boolean>;
+  onGameCompleted?: () => void | Promise<void>;
+  onScreenChange?: (screen: GameScreen) => void;
+};
+
+const freeCaseStorageKey = "today-scammer:free-case";
+const unlockedCaseStorageKey = (caseId: CaseId) => `today-scammer:unlocked:${caseId}`;
+
+export function TodayScammer({
+  homeAd,
+  resultAd,
+  initialCaseId = "ep01",
+  initialScreen = "home",
+  unlockArrival = false,
+  rewardedUnlocksEnabled,
+  rewardedAdStatus = "ready",
+  onRequestRewardedUnlock,
+  onShareResult,
+  showAdFreeOffer = false,
+  adFreePurchased = false,
+  adFreePurchasePending = false,
+  adFreePriceLabel = "3,900원",
+  onPurchaseAdFree,
+  onGameCompleted,
+  onScreenChange,
+}: TodayScammerProps = {}) {
+  const [screen, setScreen] = useState<Screen>(initialScreen);
+  const [activeCaseId, setActiveCaseId] = useState<CaseId>(initialCaseId);
+  const [featuredCaseId, setFeaturedCaseId] = useState<CaseId>(initialCaseId);
+  const [sceneId, setSceneId] = useState<SceneId>(caseProfiles[initialCaseId].start);
   const [turn, setTurn] = useState(0);
   const [phase, setPhase] = useState<Phase>("incoming");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -965,11 +1242,16 @@ export default function Home() {
   const [qaMode, setQaMode] = useState(false);
   const [qaPanelOpen, setQaPanelOpen] = useState(false);
   const [qaFast, setQaFast] = useState(false);
+  const [rewardCaseId, setRewardCaseId] = useState<CaseId | null>(null);
+  const [rewardPending, setRewardPending] = useState(false);
+  const [adFreeSheetOpen, setAdFreeSheetOpen] = useState(false);
   const feedRef = useRef<HTMLDivElement>(null);
   const runRef = useRef(0);
   const messageId = useRef(1);
   const clueHintShownRef = useRef(false);
   const qaFastRef = useRef(false);
+  const freeCaseRef = useRef<CaseId | null>(null);
+  const rewardedUnlockedRef = useRef(new Set<CaseId>());
 
   const activeCase = caseProfiles[activeCaseId];
   const featuredCase = caseProfiles[featuredCaseId];
@@ -977,17 +1259,40 @@ export default function Home() {
   const orderedEpisodes = [...episodes]
     .filter((episode) => episode.no !== featuredCase.no)
     .sort((left, right) => Number(Boolean(right.live)) - Number(Boolean(left.live)) || Number(left.no) - Number(right.no));
-  const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : activeCaseId === "ep02" ? seoyunEndingCopy : romanceEndingCopy;
+  const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : activeCaseId === "ep02" ? seoyunEndingCopy : activeCaseId === "ep03" ? prosecutorEndingCopy : romanceEndingCopy;
   const transcriptText = messages.map((message) => message.text ?? "").join(" ");
   const dubuWasShown = messages.some((message) => message.image?.includes("seoyun-dubu") || message.imageFallback?.includes("두부"));
   const falseClueIds = activeCaseId === "ep01" ? ["photo", "grammar"] : activeCaseId === "ep02"
     ? ["normalDm", ...(dubuWasShown ? ["dogPhoto"] : []), ...(transcriptText.includes("평소보다 답장이 늦") ? ["lateReply"] : [])]
+    : activeCaseId === "ep03" ? ["suit", "stiffTone", "fastReply"]
     : ["uniform", "grammar"];
   const suspicion = foundClues.length;
   const wrongClues = wrongClueIds.length;
-  const unfoundClues = availableClues.filter((id) => !foundClues.includes(id));
   const highlightedUnfoundClues = highlightedClueIds.filter((id) => !foundClues.includes(id));
   const pacedWait = (ms: number) => wait(qaFastRef.current ? Math.max(45, Math.round(ms * .14)) : ms);
+  const rewardsEnabled = !adFreePurchased && (rewardedUnlocksEnabled ?? process.env.NEXT_PUBLIC_REWARDED_UNLOCKS_ENABLED === "true");
+
+  const purchaseAdFree = async () => {
+    if (!onPurchaseAdFree || adFreePurchased || adFreePurchasePending) return;
+    const purchased = await onPurchaseAdFree();
+    if (purchased) {
+      setRewardCaseId(null);
+      setAdFreeSheetOpen(false);
+      setToast("평생 광고 제거 완료 · 공개된 사건파일을 바로 열 수 있습니다.");
+    } else {
+      setToast("구매가 완료되지 않았습니다. 결제 상태를 확인해주세요.");
+    }
+  };
+
+  const openAdFreeSheet = () => {
+    if (adFreePurchased || adFreePurchasePending) return;
+    setRewardCaseId(null);
+    setAdFreeSheetOpen(true);
+  };
+
+  useEffect(() => {
+    onScreenChange?.(screen);
+  }, [onScreenChange, screen]);
 
   useEffect(() => {
     const randomize = window.setTimeout(() => setFeaturedCaseId(liveEpisodeIds[Math.floor(Math.random() * liveEpisodeIds.length)]), 0);
@@ -996,15 +1301,41 @@ export default function Home() {
 
   useEffect(() => {
     const enabled = new URLSearchParams(window.location.search).get("qa") === "1";
-    setQaMode(enabled);
-    setQaPanelOpen(enabled);
-    setQaFast(enabled);
-    qaFastRef.current = enabled;
+    const applyMode = window.setTimeout(() => {
+      setQaMode(enabled);
+      setQaPanelOpen(enabled);
+      setQaFast(enabled);
+      qaFastRef.current = enabled;
+    }, 0);
+    return () => window.clearTimeout(applyMode);
   }, []);
 
   useEffect(() => {
-    window.history.replaceState({ todayScammerScreen: "home" satisfies Screen }, "");
-  }, []);
+    window.history.replaceState({ todayScammerScreen: initialScreen satisfies Screen }, "");
+  }, [initialScreen]);
+
+  useEffect(() => {
+    if (!unlockArrival || initialCaseId === "ep01") return;
+    try {
+      window.localStorage.setItem(unlockedCaseStorageKey(initialCaseId), "1");
+      rewardedUnlockedRef.current.add(initialCaseId);
+    } catch {
+      // 보상 해금은 저장소를 사용할 수 없는 브라우저에서도 현재 세션에는 영향을 주지 않습니다.
+    }
+  }, [initialCaseId, unlockArrival]);
+
+  useEffect(() => {
+    if (!rewardsEnabled) return;
+    try {
+      const storedFreeCase = window.localStorage.getItem(freeCaseStorageKey);
+      if (liveEpisodeIds.includes(storedFreeCase as CaseId)) freeCaseRef.current = storedFreeCase as CaseId;
+      for (const caseId of liveEpisodeIds) {
+        if (window.localStorage.getItem(unlockedCaseStorageKey(caseId)) === "1") rewardedUnlockedRef.current.add(caseId);
+      }
+    } catch {
+      // 저장소를 사용할 수 없으면 현재 실행 중인 세션에서만 해금 상태를 유지합니다.
+    }
+  }, [rewardsEnabled]);
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
@@ -1208,6 +1539,7 @@ export default function Home() {
     if (runRef.current !== currentRun) return;
     setEnding(resolved);
     setPhase("resolved");
+    void onGameCompleted?.();
   };
 
   const chooseReply = async (choice: Choice) => {
@@ -1259,10 +1591,12 @@ export default function Home() {
   };
 
   const shareResult = async () => {
-    const copy = activeEndingCopy[ending];
-    const moneyResult = virtualMoneyLost > 0 ? `게임 속 가상금액 ${virtualMoneyLost.toLocaleString("ko-KR")}원을 보냈습니다.` : `게임 속 가상금액 ${activeCase.virtualAmount}을 지켜냈습니다.`;
-    const text = `《오늘의 사기꾼》\n속아 넘어가기 전에 탈출하라\n\n사기 생존력 ${stats.total}점\n🔍 증거 ${suspicion} / ${activeCase.clueTotal}\n오판 ${wrongClues}\n${moneyResult}\n${copy.shareLine}\n\n너도 살아남을 수 있음?\n게임 시뮬레이션 · 실제 금전 거래 없음`;
+    const text = `《오늘의 사기꾼》 사기 생존력 ${stats.total}점\n사기꾼과 대화하며 수상한 신호를 찾는 짧은 게임입니다.\n재미있게 플레이하며 사기 예방에도 도움을 받아보세요.`;
     try {
+      if (onShareResult) {
+        await onShareResult(text);
+        return;
+      }
       if (navigator.share) {
         await navigator.share({ title: "오늘의 사기꾼 — 속아 넘어가기 전에 탈출하라", text, url: window.location.origin });
         return;
@@ -1300,6 +1634,9 @@ export default function Home() {
         normalDm: "먼저 호감을 보인 것만으로는 단서가 아닙니다. 사람과 대화하는 것 자체는 범죄가 아니니까요.",
         dogPhoto: "두부는 무죄입니다. 귀여움은 증거 봉투에 들어가지 않습니다.",
         lateReply: "답장이 늦은 것만으로는 단서가 아닙니다. 누구나 바쁠 수 있어요.",
+        suit: "정장은 무죄입니다. 문제는 옷이 아니라 확인을 막는 말입니다.",
+        stiffTone: "말투가 딱딱한 것만으로는 사기 증거가 아닙니다.",
+        fastReply: "답장이 빠른 건 성실한 겁니다. 문제는 내용이에요.",
       };
       setWrongClueIds((prev) => [...prev, id]);
       playClueTone(false);
@@ -1309,6 +1646,10 @@ export default function Home() {
   };
 
   const goHome = () => {
+    if (unlockArrival) {
+      window.location.assign("/");
+      return;
+    }
     runRef.current += 1;
     setClueOpen(false);
     setPendingTransfer(null);
@@ -1326,6 +1667,104 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const requestRewardedCase = (caseId: CaseId) => {
+    if (!rewardsEnabled) {
+      startCase(caseId);
+      return;
+    }
+
+    let freeCase = freeCaseRef.current;
+    let isUnlocked = rewardedUnlockedRef.current.has(caseId);
+    try {
+      const storedFreeCase = window.localStorage.getItem(freeCaseStorageKey);
+      if (liveEpisodeIds.includes(storedFreeCase as CaseId)) {
+        freeCase = storedFreeCase as CaseId;
+        freeCaseRef.current = freeCase;
+      }
+      if (window.localStorage.getItem(unlockedCaseStorageKey(caseId)) === "1") {
+        isUnlocked = true;
+        rewardedUnlockedRef.current.add(caseId);
+      }
+    } catch {
+      // 메모리 상태로 계속 진행합니다.
+    }
+
+    if (!freeCase) {
+      freeCaseRef.current = caseId;
+      try {
+        window.localStorage.setItem(freeCaseStorageKey, caseId);
+      } catch {
+        // 저장소를 사용할 수 없어도 첫 사건은 무료로 시작합니다.
+      }
+      startCase(caseId);
+      return;
+    }
+
+    if (freeCase === caseId || isUnlocked) {
+      startCase(caseId);
+      return;
+    }
+    setRewardCaseId(caseId);
+  };
+
+  const openRewardedCase = async () => {
+    if (!rewardCaseId || rewardPending) return;
+
+    if (!onRequestRewardedUnlock) {
+      window.location.assign(`/unlock/${rewardCaseId}`);
+      return;
+    }
+
+    if (rewardedAdStatus === "loading" || rewardedAdStatus === "showing") {
+      setToast("광고를 준비하고 있습니다. 잠시 후 다시 눌러주세요.");
+      return;
+    }
+    if (rewardedAdStatus === "unavailable") {
+      setToast("현재 토스 앱에서는 광고를 사용할 수 없습니다. 앱을 업데이트한 뒤 다시 시도해주세요.");
+      return;
+    }
+
+    const targetCaseId = rewardCaseId;
+    setRewardPending(true);
+    const result = await onRequestRewardedUnlock(targetCaseId);
+    setRewardPending(false);
+
+    if (result === "earned") {
+      rewardedUnlockedRef.current.add(targetCaseId);
+      try {
+        window.localStorage.setItem(unlockedCaseStorageKey(targetCaseId), "1");
+      } catch {
+        // 현재 세션에서는 메모리 상태로 해금을 유지합니다.
+      }
+      setRewardCaseId(null);
+      setToast("사건파일 1개를 열었습니다.");
+      startCase(targetCaseId);
+      return;
+    }
+
+    if (result === "dismissed") setToast("광고를 끝까지 보면 사건파일이 열립니다.");
+    else if (result === "not-ready") setToast("광고를 준비하고 있습니다. 잠시 후 다시 눌러주세요.");
+    else setToast("광고를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+  };
+
+  const adFreePurchaseSheet = adFreeSheetOpen ? (
+    <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setAdFreeSheetOpen(false); }}>
+      <section className="ad-free-purchase-sheet" role="dialog" aria-modal="true" aria-labelledby="ad-free-purchase-title">
+        <span>AD-FREE PASS</span>
+        <h2 id="ad-free-purchase-title">평생 광고 없이<br />모든 사건 보기</h2>
+        <p>한 번만 구매하면 현재 공개된 사건은 물론, 앞으로 추가되는 새로운 사기 유형까지 평생 광고 없이 플레이할 수 있습니다.</p>
+        <ul>
+          <li>메인·결과 배너 광고 제거</li>
+          <li>다음 사건 보상형 광고 없이 열기</li>
+          <li>앞으로 공개되는 신규 사건에도 평생 적용</li>
+        </ul>
+        <button className="ad-free-purchase-confirm" onClick={() => void purchaseAdFree()} disabled={adFreePurchasePending}>{adFreePurchasePending ? "결제 확인 중..." : `${adFreePriceLabel} · 광고 영구 제거`}</button>
+        <button className="ad-free-purchase-close" onClick={() => setAdFreeSheetOpen(false)}>나중에</button>
+        <small>1회 영구 구매 · 월 구독 아님 · 구매한 계정에서 복원 가능</small>
+      </section>
+    </div>
+  ) : null;
+
   if (screen === "briefing") {
     return (
       <main className={`briefing-screen case-${activeCase.no}`}>
@@ -1341,8 +1780,8 @@ export default function Home() {
           <h1>{activeCase.scammer}</h1>
           <p className="suspect-alias">{activeCase.alias}</p>
           <p className="briefing-title">{activeCase.title}</p>
-          <div className="case-tags"><span>{activeCase.type}</span><span>{activeCaseId === "ep02" ? "난이도 ★★★★☆" : "난이도 보통"}</span><span>엔딩 4개</span></div>
-          <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : activeCaseId === "ep02" ? "평범한 소개팅 대화 속에서 8일 전의 말과 오늘의 말이 어긋나는 순간을 기억하세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
+          <div className="case-tags"><span>{activeCase.type}</span><span>{activeCaseId === "ep02" ? "난이도 ★★★★☆" : activeCaseId === "ep03" ? "난이도 ★★★☆☆" : "난이도 보통"}</span><span>엔딩 4개</span></div>
+          <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : activeCaseId === "ep02" ? "평범한 소개팅 대화 속에서 8일 전의 말과 오늘의 말이 어긋나는 순간을 기억하세요." : activeCaseId === "ep03" ? "겁을 주는 말 사이에서 확인을 막는 순간을 찾아내고, 안전계좌로 가상 송금하기 전에 대화를 끊으세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
           <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
           <p className="fictional-note">등장인물과 대화는 게임을 위해 만든 가상 설정입니다.</p>
@@ -1360,7 +1799,7 @@ export default function Home() {
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="사건 목록으로 돌아가기">‹</button>
           <button className="avatar-button tiny-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /><span className="online-dot" /></button>
-          <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
+          <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : activeCaseId === "ep03" ? "온라인 · 공식 계정 아님" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
           {qaMode && <button className="qa-toggle" onClick={() => setQaPanelOpen((open) => !open)} aria-expanded={qaPanelOpen}>QA</button>}
         </header>
 
@@ -1368,7 +1807,7 @@ export default function Home() {
           <aside className="qa-panel" aria-label="대화 점검 모드">
             <div className="qa-panel-head"><div><span>CREATOR QA</span><strong>대화 점검 모드</strong></div><button onClick={() => setQaPanelOpen(false)} aria-label="점검 패널 닫기">×</button></div>
             <div className="qa-controls">
-              <label>사건<select value={activeCaseId} onChange={(event) => { const caseId = event.target.value as CaseId; qaJumpToScene(caseId, caseProfiles[caseId].start); }}><option value="ep01">EP.01 모스크바</option><option value="ep02">EP.02 J</option><option value="ep06">EP.06 제임스</option></select></label>
+              <label>사건<select value={activeCaseId} onChange={(event) => { const caseId = event.target.value as CaseId; qaJumpToScene(caseId, caseProfiles[caseId].start); }}><option value="ep01">EP.01 모스크바</option><option value="ep02">EP.02 J</option><option value="ep03">EP.03 검사 K</option><option value="ep06">EP.06 제임스</option></select></label>
               <label>장면<select value={sceneId} onChange={(event) => qaJumpToScene(activeCaseId, event.target.value as SceneId)}>{qaSceneIds.map((id) => <option value={id} key={id}>{id}</option>)}</select></label>
               <button className={qaFast ? "active" : ""} onClick={toggleQaSpeed}>빠른 재생 {qaFast ? "ON" : "OFF"}</button>
             </div>
@@ -1388,7 +1827,7 @@ export default function Home() {
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>
-          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : activeCaseId === "ep02" ? "처음엔 정말 평범한 대화처럼 보일 수 있습니다." : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
+          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : activeCaseId === "ep02" ? "처음엔 정말 평범한 대화처럼 보일 수 있습니다." : activeCaseId === "ep03" ? "이 대화는 어떤 기관의 공식 절차와도 연결되어 있지 않습니다." : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
               {message.from === "scammer" && <button className="avatar-button bubble-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /></button>}
@@ -1432,7 +1871,7 @@ export default function Home() {
             <section className="clue-sheet" role="dialog" aria-modal="true" aria-labelledby="clue-title">
               <div className="sheet-grip" />
               <div className="clue-heading"><div><span>현장 채증</span><h2 id="clue-title">방금 뭐가 이상했지?</h2></div><button onClick={() => setClueOpen(false)} aria-label="닫기">×</button></div>
-              <p>{activeCaseId === "ep02" && availableClues.length === 0 ? "아직 뚜렷한 사기 신호는 없습니다. 사람과 대화하는 것 자체는 범죄가 아닙니다." : "수상한 장면 하나를 고르세요. 헛다리는 오판 +1, 최종 점수 -3점입니다."}</p>
+              <p>{availableClues.length === 0 && (activeCaseId === "ep02" || activeCaseId === "ep03") ? (activeCaseId === "ep03" ? "아직 결정적인 사기 신호는 없습니다. 기관을 사칭한 연락도 처음에는 평범해 보일 수 있습니다." : "아직 뚜렷한 사기 신호는 없습니다. 사람과 대화하는 것 자체는 범죄가 아닙니다.") : "수상한 장면 하나를 고르세요. 헛다리는 오판 +1, 최종 점수 -3점입니다."}</p>
               <div className="clue-grid">
                 {clueOptions.filter((clue) => availableClues.includes(clue.id) || falseClueIds.includes(clue.id)).map((clue) => {
                   const found = foundClues.includes(clue.id);
@@ -1492,6 +1931,7 @@ export default function Home() {
       <main className={`ending-screen grade-${ending.toLowerCase()}`}>
         <div className="ending-noise" />
         {stats.total >= 90 && <div className="result-confetti" aria-hidden="true">{Array.from({ length: 14 }, (_, index) => <i key={index} />)}</div>}
+        <div className="ending-content">
         <section className="result-card">
           <nav className="result-nav" aria-label="결과 화면 이동"><button onClick={goHome}>← 사건 목록</button></nav>
           {stats.total >= 90 && <div className="respect-effect"><span>🎉 S급 사기 생존자</span><strong>오늘은 당신 지갑이 매우 평화롭습니다.</strong><i aria-hidden="true" /></div>}
@@ -1525,14 +1965,14 @@ export default function Home() {
           </section>
 
           <section className="next-case-panel" aria-labelledby="next-case-title">
-            <div className="next-case-signal"><span>연결된 사건</span><b>바로 상대하기</b></div>
-            <h2 id="next-case-title" className="next-case-heading">바로 이어서 상대할 사기꾼</h2>
+            <div className="next-case-signal"><span>연결된 사건</span><b>한 번 열면 계속 플레이</b></div>
+            <h2 id="next-case-title" className="next-case-heading">다음으로 상대할 사기꾼</h2>
             <div className="connected-case-list">
               {connectedCases.map((caseId) => {
                 const profile = caseProfiles[caseId];
                 const episode = episodes.find((item) => item.no === profile.no)!;
                 return (
-                  <button className="connected-case-card" key={caseId} onClick={() => startCase(caseId)} aria-label={`${profile.title} 사건파일 열기`}>
+                  <button className="connected-case-card" key={caseId} onClick={() => requestRewardedCase(caseId)} aria-label={`${profile.title} 사건파일 열기`}>
                     <img src={profile.portrait} alt="" loading="lazy" decoding="async" />
                     <span><small>CASE {profile.no} · {profile.type}</small><strong>{profile.title}</strong><em>{episode.scammer}</em></span>
                     <b aria-hidden="true">→</b>
@@ -1545,6 +1985,29 @@ export default function Home() {
           <div className="result-actions"><button className="secondary-game-button" onClick={enterChat}>다시 상대하기</button><button className="secondary-game-button" onClick={goHome}>다른 사기꾼 보기</button></div>
           <p className="victim-note">※ 피해를 입는 건 누구의 잘못도 아닙니다. 이상한 건 사기꾼입니다.</p>
         </section>
+        {resultAd}
+        </div>
+        {rewardCaseId && (
+          <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setRewardCaseId(null); }}>
+            <section className="reward-unlock-sheet" role="dialog" aria-modal="true" aria-labelledby="reward-unlock-title">
+              <span>NEW CASE INCOMING</span>
+              <div className="reward-case-number">CASE {caseProfiles[rewardCaseId].no}</div>
+              <h2 id="reward-unlock-title">짧은 광고 1개 보고<br />사건파일 열기</h2>
+              <p>광고를 끝까지 보면 <strong>{caseProfiles[rewardCaseId].title}</strong> 사건을 바로 열 수 있습니다.</p>
+              <button className="reward-accept" onClick={() => void openRewardedCase()} disabled={rewardPending || rewardedAdStatus === "showing"}>
+                {rewardPending || rewardedAdStatus === "showing" ? "광고 확인 중..." : rewardedAdStatus === "loading" ? "광고 준비 중..." : "광고 보고 사건파일 열기"} <b>→</b>
+              </button>
+              {showAdFreeOffer && !adFreePurchased && (
+                <button className="reward-ad-free" onClick={openAdFreeSheet} disabled={adFreePurchasePending}>
+                  <span>모든 광고 영구 제거</span><strong>{adFreePurchasePending ? "결제 확인 중" : adFreePriceLabel}</strong>
+                </button>
+              )}
+              <button className="reward-decline" onClick={() => setRewardCaseId(null)}>나중에 보기</button>
+              <small>{showAdFreeOffer ? "광고 제거 구매 시 앞으로 공개되는 신규 사건도 광고 없이 플레이합니다." : "끝까지 시청한 경우에만 열립니다 · 한 번 연 사건은 계속 플레이할 수 있습니다."}</small>
+            </section>
+          </div>
+        )}
+        {adFreePurchaseSheet}
         {toast && <div className="game-toast" role="status">{toast}</div>}
       </main>
     );
@@ -1555,20 +2018,39 @@ export default function Home() {
       <div className="home-glow" aria-hidden="true" />
       {qaMode && <section className="qa-home-bar" aria-label="QA 사건 바로 열기"><div><span>CREATOR QA</span><strong>검수할 사건을 바로 여세요</strong></div>{liveEpisodeIds.map((caseId) => <button key={caseId} onClick={() => qaJumpToScene(caseId, caseProfiles[caseId].start)}>CASE {caseProfiles[caseId].no}</button>)}</section>}
       <header className="game-brand">
-        <div className="eyebrow"><span>SCAMMER ARCHIVE</span><b>SEASON 01</b></div>
+        <div className="eyebrow">
+          <span>SCAMMER ARCHIVE</span>
+          {showAdFreeOffer && (
+            <button className={`ad-free-top ${adFreePurchased ? "is-owned" : ""}`} onClick={openAdFreeSheet} disabled={adFreePurchased || adFreePurchasePending}>
+              <strong>{adFreePurchased ? "광고 제거됨" : adFreePurchasePending ? "확인 중" : "광고 제거"}</strong>
+            </button>
+          )}
+        </div>
         <h1><img className="brand-logo" src="/logo-oneul.webp" alt="오늘의 사기꾼" width="800" height="375" decoding="async" fetchPriority="high" /></h1>
-        <p>메시지가 도착했습니다.<br />누구 말부터 의심해볼까요?</p>
+        <p className="brand-intro">계속 바뀌는 사기 수법을 짧은 상황극으로 미리 겪어보세요.<br />직접 답하고 의심하며, 속아 넘어가기 전에 탈출하세요.</p>
       </header>
 
       <section className="roster" aria-labelledby="roster-heading">
-        <div className="roster-heading"><div><span>지금 접속 중</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> 3명</p></div>
-        <article className="featured-case" style={{ "--accent": featuredEpisode.accent } as React.CSSProperties}>
+        <div className="roster-heading"><div><span>지금 접속 중</span><h2 id="roster-heading">현재 접속한 상대</h2></div><p><i /> {liveEpisodeIds.length}명</p></div>
+        <div
+          className={`featured-case case-${featuredCase.no}`}
+          style={{ "--accent": featuredEpisode.accent } as React.CSSProperties}
+          role="button"
+          tabIndex={0}
+          aria-label={`케이스 ${featuredCase.no} ${featuredEpisode.name} 상대하기`}
+          onClick={() => requestRewardedCase(featuredCaseId)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            requestRewardedCase(featuredCaseId);
+          }}
+        >
           <img className="featured-portrait" src={featuredCase.portrait} alt={`${featuredCase.scammer} 가상 캐릭터`} width="1024" height="1536" decoding="async" fetchPriority="high" />
           <div className="featured-shade" aria-hidden="true" />
           <div className="featured-status"><span><i /> LIVE</span><b>CASE {featuredCase.no}</b></div>
           <div className="featured-copy"><span className="type-chip">{featuredCase.type} · 공식 아님</span><h3>{featuredEpisode.name}</h3><p>“{featuredEpisode.line}.”</p><div className="suspect-name"><span>상대</span><strong>{featuredCase.scammer}</strong><em>{featuredCase.alias.split(" · ")[0]}</em></div></div>
-          <button onClick={() => startCase(featuredCaseId)} aria-label={`케이스 ${featuredCase.no} 플레이`}><span>상대하기</span><b>→</b></button>
-        </article>
+          <button onClick={(event) => { event.stopPropagation(); requestRewardedCase(featuredCaseId); }} aria-label={`케이스 ${featuredCase.no} 플레이`}><span>상대하기</span><b>→</b></button>
+        </div>
 
         <div className="next-up"><div><span>다른 사기꾼들</span><h2>다른 사건파일</h2></div><b>{orderedEpisodes.length} CASES</b></div>
         <div className="episode-grid">
@@ -1576,9 +2058,9 @@ export default function Home() {
             const playable = Boolean(episode.live);
             const episodeCaseId = caseIdFromEpisodeNo(episode.no);
             return (
-            <button className={`episode-card case-${episode.no} ${playable ? "live" : ""}`} key={episode.no} style={{ "--accent": episode.accent } as React.CSSProperties} onClick={() => playable ? startCase(episodeCaseId) : setInfoEpisode(episode)}>
+            <button className={`episode-card case-${episode.no} ${playable ? "live" : ""}`} key={episode.no} style={{ "--accent": episode.accent } as React.CSSProperties} onClick={() => playable ? requestRewardedCase(episodeCaseId) : setInfoEpisode(episode)}>
               <div className={`episode-visual ${playable ? "has-portrait" : ""}`}>{playable && <img src={caseProfiles[episodeCaseId].portrait} alt="" loading="lazy" decoding="async" />}<span>{playable ? "" : episode.mark}</span><b>{episode.no}</b></div>
-              <div className="episode-meta"><span>{episode.type}</span><em>{playable ? "상대하기" : "COMING SOON"}</em></div>
+              <div className="episode-meta"><span>{episode.type}</span><em>{playable ? "상대하기" : "에피소드 준비 중"}</em></div>
               <h3>{episode.name}</h3>
               <p>{episode.line}</p>
               <small>{episode.scammer}</small>
@@ -1587,17 +2069,48 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="home-footer"><strong>의심은 빠르게, 가상 송금도 신중하게.</strong><p>게임 시뮬레이션 · 실제 금전 거래 없음<br />웃기는 건 사기꾼이지, 피해자가 아닙니다.</p></footer>
+      {homeAd}
+
+      <footer className="home-footer">
+        <strong>의심은 빠르게, 가상 송금도 신중하게.</strong>
+        <p>게임 시뮬레이션 · 실제 금전 거래 없음<br />웃기는 건 사기꾼이지, 피해자가 아닙니다.</p>
+        <nav aria-label="서비스 정보"><a href="/about">게임 소개</a><a href="/privacy">개인정보처리방침</a><a href="/terms">이용안내</a><a href="/contact">문의</a></nav>
+      </footer>
 
       {infoEpisode && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setInfoEpisode(null); }}>
           <section className="soon-sheet" role="dialog" aria-modal="true" style={{ "--accent": infoEpisode.accent } as React.CSSProperties}>
             <button className="soon-close" onClick={() => setInfoEpisode(null)} aria-label="닫기">×</button>
-            <span>CASE {infoEpisode.no} · COMING SOON</span><div className="soon-mark">{infoEpisode.mark}</div><small>{infoEpisode.type}</small><h2>{infoEpisode.name}</h2><p>{infoEpisode.line}</p><div><span>상대</span><strong>{infoEpisode.scammer}</strong></div><button className="notify-fake" onClick={() => { setInfoEpisode(null); setToast("출시 알림은 마음속으로 예약됐습니다."); }}>조금만 기다리기</button>
+            <span>CASE {infoEpisode.no} · 에피소드 준비 중</span><div className="soon-mark">{infoEpisode.mark}</div><small>{infoEpisode.type}</small><h2>{infoEpisode.name}</h2><p>{infoEpisode.line}</p><div><span>상대</span><strong>{infoEpisode.scammer}</strong></div><button className="notify-fake" onClick={() => setInfoEpisode(null)}>확인</button>
           </section>
         </div>
       )}
+      {rewardCaseId && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setRewardCaseId(null); }}>
+          <section className="reward-unlock-sheet" role="dialog" aria-modal="true" aria-labelledby="home-reward-unlock-title">
+            <span>NEW CASE INCOMING</span>
+            <div className="reward-case-number">CASE {caseProfiles[rewardCaseId].no}</div>
+            <h2 id="home-reward-unlock-title">짧은 광고 1개 보고<br />사건파일 열기</h2>
+            <p>광고를 끝까지 보면 <strong>{caseProfiles[rewardCaseId].title}</strong> 사건을 바로 열 수 있습니다.</p>
+            <button className="reward-accept" onClick={() => void openRewardedCase()} disabled={rewardPending || rewardedAdStatus === "showing"}>
+              {rewardPending || rewardedAdStatus === "showing" ? "광고 확인 중..." : rewardedAdStatus === "loading" ? "광고 준비 중..." : "광고 보고 사건파일 열기"} <b>→</b>
+            </button>
+            {showAdFreeOffer && !adFreePurchased && (
+              <button className="reward-ad-free" onClick={openAdFreeSheet} disabled={adFreePurchasePending}>
+                <span>모든 광고 영구 제거</span><strong>{adFreePurchasePending ? "결제 확인 중" : adFreePriceLabel}</strong>
+              </button>
+            )}
+            <button className="reward-decline" onClick={() => setRewardCaseId(null)}>나중에 보기</button>
+            <small>{showAdFreeOffer ? "광고 제거 구매 시 앞으로 공개되는 신규 사건도 광고 없이 플레이합니다." : "끝까지 시청한 경우에만 열립니다 · 한 번 연 사건은 계속 플레이할 수 있습니다."}</small>
+          </section>
+        </div>
+      )}
+      {adFreePurchaseSheet}
       {toast && <div className="game-toast" role="status">{toast}</div>}
     </main>
   );
+}
+
+export default function WebHome() {
+  return <TodayScammer homeAd={<AdBanner placement="home" />} resultAd={<AdBanner placement="result" />} />;
 }

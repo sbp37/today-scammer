@@ -23,7 +23,7 @@ test("server-renders the scammer roster", async () => {
   assert.match(html, /<title>오늘의 사기꾼/);
   assert.match(html, /SCAMMER ARCHIVE/);
   assert.match(html, /억만장자가/);
-  assert.match(html, /COMING SOON/);
+  assert.match(html, /에피소드 준비 중/);
   assert.match(html, /og\.webp/);
 });
 
@@ -41,7 +41,8 @@ test("conversation graph has no broken, unreachable, or looping branches", async
   const blocks = [
     { root: "start", text: source.slice(source.indexOf("const scenes:"), source.indexOf("const romanceScenes:")) },
     { root: "romanceStart", text: source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:")) },
-    { root: "seoyunStart", text: source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const clueOptions")) },
+    { root: "seoyunStart", text: source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const prosecutorScenes:")) },
+    { root: "prosStart", text: source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const clueOptions")) },
   ];
 
   const validate = ({ root, text }) => {
@@ -105,8 +106,11 @@ test("conversation graph has no broken, unreachable, or looping branches", async
 
 test("virtual money, paced ending, sharing, and second episode are explicit", async () => {
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const rewardedRoute = await readFile(new URL("../app/unlock/[episode]/page.tsx", import.meta.url), "utf8");
+  const productionEnv = await readFile(new URL("../.env.production", import.meta.url), "utf8");
   const credentialAsset = await readFile(new URL("../public/fake-credentials-06.webp", import.meta.url));
   const dubuAsset = await readFile(new URL("../public/seoyun-dubu.webp", import.meta.url));
+  const prosecutorNoticeAsset = await readFile(new URL("../public/fake-notice-03.webp", import.meta.url));
   const failureChoices = source.match(/^.*ending: "F".*$/gm) ?? [];
 
   assert.ok(failureChoices.length >= 4);
@@ -119,8 +123,12 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(source, /CASE \$\{activeCase\.no\} 대화 기록 분석이 완료됐습니다/);
   assert.match(source, /phase === "resolved"/);
   assert.match(source, /친구도 살아남는지 보내보기/);
+  assert.match(source, /사기 예방에도 도움을 받아보세요/);
+  assert.doesNotMatch(source, /너도 살아남을 수 있음/);
   assert.match(source, /romanceScenes/);
   assert.match(source, /seoyunScenes/);
+  assert.match(source, /prosecutorScenes/);
+  assert.match(source, /fake-notice-03\.webp/);
   assert.match(source, /엄마가 갑자기 수술해야 한대요/);
   assert.match(source, /부모님이랑 제주도/);
   assert.match(source, /아빠는 돌아가셨고/);
@@ -149,7 +157,30 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.doesNotMatch(source, /서울/);
   assert.ok(credentialAsset.byteLength > 70_000 && credentialAsset.byteLength < 130_000);
   assert.ok(dubuAsset.byteLength > 20_000 && dubuAsset.byteLength < 100_000);
-  assert.doesNotMatch(source, /광고 보고 사건파일 열기|bannerAds|rewardedNextEpisode|ADVERTISEMENT/);
+  assert.ok(prosecutorNoticeAsset.byteLength > 20_000 && prosecutorNoticeAsset.byteLength < 130_000);
+  assert.match(source, /광고 보고 사건파일 열기/);
+  assert.match(source, /home-reward-unlock-title/);
+  assert.match(source, /onClick=\{\(\) => requestRewardedCase\(featuredCaseId\)\}/);
+  assert.match(source, /NEXT_PUBLIC_REWARDED_UNLOCKS_ENABLED/);
+  assert.match(rewardedRoute, /rewardedCases.*"ep02", "ep03", "ep06"/);
+  assert.match(rewardedRoute, /unlockArrival/);
+  assert.match(productionEnv, /NEXT_PUBLIC_REWARDED_UNLOCKS_ENABLED=false/);
+});
+
+test("Google Play privacy and real ad-removal purchase are clearly disclosed", async () => {
+  const privacy = await readFile(new URL("../app/privacy/page.tsx", import.meta.url), "utf8");
+  const terms = await readFile(new URL("../app/terms/page.tsx", import.meta.url), "utf8");
+
+  assert.match(privacy, /Google Mobile Ads SDK/);
+  assert.match(privacy, /IP 주소로 추정한 대략적인 위치/);
+  assert.match(privacy, /앱 상호작용/);
+  assert.match(privacy, /기기 식별자/);
+  assert.match(privacy, /Google Play 결제/);
+  assert.match(privacy, /카드번호나 결제수단 정보를 직접 수집하거나 저장하지 않습니다/);
+  assert.match(terms, /광고 영구 제거/);
+  assert.match(terms, /실제 결제가 이루어지는 일회성 디지털 상품/);
+  assert.match(terms, /게임 속 가상 송금과는 명확히 구분/);
+  assert.match(terms, /환불과 결제 취소는 Google Play 정책/);
 });
 
 test("uses lightweight WebP assets and deliberate clue signals", async () => {
@@ -197,7 +228,7 @@ test("uses lightweight WebP assets and deliberate clue signals", async () => {
   assert.match(source, /빠른 재생/);
   assert.match(styles, /onlinePulse/);
   assert.match(styles, /episode-visual\.has-portrait \{ height: 152px/);
-  assert.match(styles, /episode-card\.case-02 .*transform: scale\(1\.3\)/);
+  assert.match(styles, /episode-card\.case-02 .*transform: scale\(1\.42\)/);
   assert.match(styles, /brand-logo \{[^}]*width: min\(78\.2%, 391px\)/);
   assert.doesNotMatch(source, /\(뷰티풀\)|very|Very|Only you|coffee 하고|I need person/);
   assert.match(source, /beautiful합니다/);
@@ -208,11 +239,12 @@ test("dialogue audit rejects broken clues, premature money replies, and repetiti
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const ep01 = source.slice(source.indexOf("const scenes:"), source.indexOf("const romanceScenes:"));
   const ep06 = source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:"));
-  const ep02 = source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const clueOptions"));
+  const ep02 = source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const prosecutorScenes:"));
+  const ep03 = source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const clueOptions"));
   const clueBlock = source.slice(source.indexOf("const clueOptions"), source.indexOf("const clueExplanations"));
   const definedClues = new Set([...clueBlock.matchAll(/id: "([A-Za-z]+)"/g)].map((match) => match[1]));
 
-  for (const block of [ep01, ep06, ep02]) {
+  for (const block of [ep01, ep06, ep02, ep03]) {
     for (const match of block.matchAll(/clues: \[([^\]]+)\]/g)) {
       for (const id of [...match[1].matchAll(/"([A-Za-z]+)"/g)].map((item) => item[1])) {
         assert.equal(definedClues.has(id), true, `undefined clue id: ${id}`);

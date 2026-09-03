@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "noEmit": true
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "db",
+    "worker",
+    "examples",
+    "build",
+    "ait",
+    "drizzle.config.ts",
+    "vite.config.ts",
+    "vite.ait.config.ts",
+    "apps-in-toss.config.ts"
+  ]
+}
