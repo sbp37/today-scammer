@@ -10,14 +10,15 @@ export type GameScreen = "home" | "briefing" | "chat" | "ending";
 type Screen = GameScreen;
 type Phase = "incoming" | "choice" | "reply" | "resolved";
 type EndingGrade = "S" | "A" | "C" | "F";
-export type CaseId = "ep01" | "ep02" | "ep03" | "ep04" | "ep06";
+export type CaseId = "ep01" | "ep02" | "ep03" | "ep04" | "ep06" | "ep07";
 export type RewardedUnlockResult = "earned" | "dismissed" | "not-ready" | "unavailable" | "failed";
 type ElunSceneId = "start" | "whyMe" | "reverseMoney" | "reverseJoke" | "videoCall" | "space" | "aiVideo" | "photo" | "photoJoke" | "sendMoney" | "company" | "fastBond" | "realName" | "nameExcuse" | "investment" | "selfInvest" | "companyInfo" | "fakeLink" | "finalPitch";
 type RomanceSceneId = "romanceStart" | "romanceWhy" | "romanceVideo" | "romanceProfile" | "romanceCredential" | "romanceCertificateCheck" | "romanceDay" | "romanceHeart" | "romanceHeartJoke" | "romanceFlirt" | "romancePromise" | "romanceBond" | "romanceParcel" | "romanceBoxDetails" | "romanceProof" | "romanceCourier" | "romanceLink" | "romanceFinal";
 type SeoyunSceneId = "seoyunStart" | "seoyunWhy" | "seoyunWork" | "seoyunDog" | "seoyunMontage" | "seoyunMontageLater" | "seoyunDay8" | "seoyunHospital" | "seoyunDelete" | "seoyunConfide" | "seoyunDeposit" | "seoyunFamily" | "seoyunVerify" | "seoyunFirstTransfer" | "seoyunSecondAsk" | "seoyunVideo" | "seoyunSecondTransfer" | "seoyunFinal";
 type CoinSceneId = "coinStart" | "coinFreeCall" | "coinProof" | "coinDisciple" | "coinRoom" | "coinApp" | "coinGuarantee" | "coinSmall" | "coinWithdraw" | "coinBig" | "coinDip" | "coinAverage" | "coinDeep" | "coinTax" | "coinFinal";
-type ProsecutorSceneId = "prosStart" | "prosBalance" | "prosCaseNumber" | "prosStatus" | "prosSecrecy" | "prosCallback" | "prosOfficial" | "prosVideo" | "prosDocument" | "prosDocZoom" | "prosDeadline" | "prosSafeAccount" | "prosPersonal" | "prosVerify" | "prosFinal";
-type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId | ProsecutorSceneId | CoinSceneId;
+type ProsecutorSceneId = "prosStart" | "prosIncident" | "prosSecrecy" | "prosCallback" | "prosVideo" | "prosDocument" | "prosDeadline" | "prosSafeAccount" | "prosPersonal" | "prosVerify";
+type CelebritySceneId = "starStart" | "starProof" | "starBond" | "starDocumentary" | "starSecret" | "starNextNight" | "starMeet" | "starVerify" | "starDeposit" | "starAfterFirst" | "starPressure" | "starQuiz" | "starOfficial";
+type SceneId = ElunSceneId | RomanceSceneId | SeoyunSceneId | ProsecutorSceneId | CoinSceneId | CelebritySceneId;
 
 /* A fake trading-app balance, drawn with game UI so the number can climb and crash on screen. */
 type Portfolio = { label: string; balance: string; delta: string; up: boolean; principal: string; note: string };
@@ -88,7 +89,7 @@ type Scene = {
   autoDelay?: number;
 };
 
-const BUILD_TAG = "case04-r1";
+const BUILD_TAG = "case07-r1";
 
 /* Display copy only: the underlying scene count and pacing are unchanged. */
 const EPISODE_DURATION = "2분 내외";
@@ -100,7 +101,7 @@ const episodes = [
   { no: "04", mark: "₿", name: "인생역전 코인 선생님", scammer: "차트도사 불기둥", type: "투자사기", line: "손실은 경험, 수익은 곧 예정", accent: "#ffd600", live: true },
   { no: "05", mark: "BOX", name: "택배가 왔는데 내가 시킨 게 없다", scammer: "행복택배 11팀", type: "스미싱", line: "상자는 없고 링크만 도착함", accent: "#bd7cff" },
   { no: "06", mark: "♥", name: "해외 파병 군의관", scammer: "Dr. 제임스 초이", type: "로맨스스캠", line: "사랑은 국경 없고 통관료는 있음", accent: "#ff5c93", live: true },
-  { no: "07", mark: "★", name: "유명 연예인의 비밀 계정", scammer: "진짜_공식_비밀", type: "유명인 사칭", line: "비밀인데 팬 전원에게 DM 중", accent: "#52f2b8" },
+  { no: "07", mark: "★", name: "나만 아는 나유명", scammer: "나유명 · 32", type: "유명인 사칭", line: "선택받은 줄 알았는데 통장이 선택받았다", accent: "#52f2b8", live: true },
   { no: "08", mark: "HR", name: "대기업 채용 담당자", scammer: "글로벌인재 3팀", type: "취업사기", line: "입사 전부터 지갑이 출근함", accent: "#ff8a00" },
   { no: "09", mark: "CARD", name: "내가 모르는 카드가 발급됐대요", scammer: "긴급카드센터", type: "카드발급 사칭", line: "내 카드보다 내 정보를 더 잘 앎", accent: "#46a3ff" },
   { no: "10", mark: "LOAN", name: "대출받으려는데 왜 내가 먼저 돈을 내죠?", scammer: "최저금리 박실장", type: "대출빙자", line: "돈을 빌리려면 먼저 돈을 빌려달란다", accent: "#ff6b64" },
@@ -111,9 +112,9 @@ const episodes = [
   { no: "15", mark: "REV", name: "리뷰 몇 개 쓰면 돈을 준대요", scammer: "재택부업 이팀장", type: "팀미션·부업", line: "별점 다섯 개, 통장 잔액 한 개", accent: "#ff76c8" },
 ];
 
-const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02", "ep03", "ep04"];
-const caseIdFromEpisodeNo = (no: string): CaseId => no === "06" ? "ep06" : no === "04" ? "ep04" : no === "03" ? "ep03" : no === "02" ? "ep02" : "ep01";
-const virtualMoneyAtRisk: Record<CaseId, number> = { ep01: 200000, ep02: 1810000, ep03: 3200000, ep04: 4500000, ep06: 480000 };
+const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02", "ep03", "ep04", "ep07"];
+const caseIdFromEpisodeNo = (no: string): CaseId => no === "07" ? "ep07" : no === "06" ? "ep06" : no === "04" ? "ep04" : no === "03" ? "ep03" : no === "02" ? "ep02" : "ep01";
+const virtualMoneyAtRisk: Record<CaseId, number> = { ep01: 200000, ep02: 1810000, ep03: 3200000, ep04: 4500000, ep06: 480000, ep07: 500000 };
 
 const caseProfiles = {
   ep01: { no: "01", title: "억만장자가 20만원이 없대요", scammer: "일런 모스크바", alias: "ELUN MOSKVA · World Famous Tech CEO(?)", type: "유명인 사칭", portrait: "/scammer-01.webp", duration: EPISODE_DURATION, start: "start" as SceneId, virtualAmount: "20만원", tactic: "유명인 DM → 친밀감 → 링크 → 추가 가상 송금", clueTotal: 7 },
@@ -121,6 +122,7 @@ const caseProfiles = {
   ep03: { no: "03", title: "검사님이 내 통장을 걱정한다", scammer: "검사 K", alias: "국가수사협조팀 · 공식 아님", type: "기관 사칭", portrait: "/scammer-03-v1.webp", duration: EPISODE_DURATION, start: "prosStart" as SceneId, virtualAmount: "320만원", tactic: "기관 사칭 → 공포 조성 → 고립 → 확인 방해 → 시간 압박 → 안전계좌 가상 송금", clueTotal: 7 },
   ep04: { no: "04", title: "인생역전 코인 선생님", scammer: "차트도사 불기둥", alias: "차트도사 불기둥 · 투자 자격 없음", type: "투자사기", portrait: "/scammer-04-temp.webp", duration: EPISODE_DURATION, start: "coinStart" as SceneId, virtualAmount: "총 450만원", tactic: "무료 리딩 → 조작된 인증 → 자체 앱 → 소액 출금 성공 → 금액 상승 → 물타기 → 출금 세금 요구", clueTotal: 7 },
   ep06: { no: "06", title: "해외 파병 군의관", scammer: "Dr. 제임스 초이", alias: "JAMES CHOI · FIELD SURGEON(?)", type: "로맨스스캠", portrait: "/scammer-06.webp", duration: EPISODE_DURATION, start: "romanceStart" as SceneId, virtualAmount: "48만원", tactic: "낯선 DM → 관계 만들기 → 가짜 자격증 → 고액 상자 → 통관비 가상 송금", clueTotal: 8 },
+  ep07: { no: "07", title: "나만 아는 나유명", scammer: "나유명", alias: "not_youmyeong_00 · 배우 · 가수 · 공식 계정 아님", type: "유명인 사칭", portrait: "/scammer-07.webp", duration: EPISODE_DURATION, start: "starStart" as SceneId, virtualAmount: "총 50만원", tactic: "비밀계정 DM → 특별한 팬 → 둘만의 비밀 → VIP 인증 예치금 → 추가 가상 송금", clueTotal: 8 },
 } as const;
 
 const scenes: Record<ElunSceneId, Scene> = {
@@ -798,192 +800,125 @@ const seoyunScenes: Record<SeoyunSceneId, Scene> = {
 const prosecutorScenes: Record<ProsecutorSceneId, Scene> = {
   prosStart: {
     incoming: [
-      { text: "국가수사협조팀 검사 K입니다. 본인 확인 절차 때문에 연락드렸습니다.", typingMs: 1980 },
-      { text: "본인 명의 계좌가 범죄 자금 이동에 사용됐습니다. 지금부터 제가 묻는 말에 정확히 답하세요.", typingMs: 2750, pauseBefore: 520 },
+      { text: "국가수사협조팀 검사 K입니다. 본인 명의 계좌가 범죄 자금 세탁에 이용된 정황이 있어 연락했습니다.", typingMs: 2350 },
+      { text: "어제 새벽 2시 14분, 게임 속 가상금액 240만원이 들어왔다가 3분 뒤 빠져나갔습니다.", typingMs: 2380, pauseBefore: 480 },
     ],
     choices: [
-      { text: "사건번호와 담당 부서를 알려주세요.", next: "prosCaseNumber" },
-      { text: "제 잔액이 4,120원인데 조직이 너무 영세한데요.", next: "prosBalance" },
-      { text: "어떻게 협조하면 되나요?", next: "prosStatus", risk: 1, replies: ["협조 의사는 기록하겠습니다. 그럼 본인 신분부터 정리하겠습니다."] },
+      { text: "어느 계좌에서 일어난 일인가요?", next: "prosIncident", replies: ["계좌 정보는 본인 확인 뒤 공개됩니다."] },
+      { text: "제 통장에 240만원이 잠깐 관광이라도 다녀갔나요?", next: "prosIncident", replies: ["자금은 잔액이 아니라 흐름을 봅니다. 웃을 상황 아닙니다."] },
+      { text: "전 그런 거래를 한 적이 없어요.", next: "prosIncident", replies: ["그래서 본인이 범인인지, 명의를 도용당했는지 확인하는 겁니다."] },
     ],
   },
-  prosBalance: {
+  prosIncident: {
     incoming: [
-      { text: "잔액은 중요하지 않습니다.", typingMs: 900 },
-      { text: "범죄 조직도 처음에는 소액으로 테스트합니다. 4,120원도 엄연한 자금 흐름입니다.", typingMs: 2670, pauseBefore: 420 },
-      { text: "웃을 상황이 아닙니다.", typingMs: 750 },
-    ],
-    choices: [
-      { text: "그래서 사건번호와 담당 부서가 어떻게 되나요?", next: "prosCaseNumber" },
-      { text: "테스트치고는 금액이 너무 성실한데요.", next: "prosCaseNumber", replies: ["농담은 조서에 남지 않습니다."] },
-      { text: "제가 무슨 사건에 엮인 건지부터 말해주세요.", next: "prosStatus", replies: ["순서가 있습니다. 본인 신분부터 정리하겠습니다."] },
-    ],
-  },
-  prosCaseNumber: {
-    incoming: [
-      { text: "사건번호 2026-형제-4471호. 담당은 국가수사협조팀 3계입니다.", typingMs: 2060 },
-      { text: "정식 통지는 원래 우편입니다. 다만 이 건은 대외비라 우편으로 보내면 공범이 먼저 읽습니다.", typingMs: 3010, pauseBefore: 560 },
+      { text: "압수된 가상 범죄 장부에 본인 계좌가 '대기 17번'으로 적혀 있습니다.", typingMs: 2180 },
+      { text: "사건번호 2026-형제-4471호. 현재는 참고인이지만 협조하지 않으면 피의자로 전환될 수 있습니다.", typingMs: 2820, pauseBefore: 460 },
     ],
     clues: ["messengerNotice"],
-    cluePrompt: true,
     choices: [
-      { text: "그럼 저는 참고인인가요, 피의자인가요?", next: "prosStatus" },
-      { text: "대외비 수사를 메신저로 통지한다고요?", next: "prosStatus", replies: ["예외 절차입니다. 지금은 형식보다 속도가 필요합니다."] },
-      { text: "일단 끊고 기관 대표번호로 직접 확인할게요.", next: "prosCallback" },
-    ],
-  },
-  prosStatus: {
-    incoming: [
-      { text: "정리하겠습니다. 현재 본인 신분은 참고인입니다.", typingMs: 1420 },
-      { text: "다만 협조 여부에 따라 피의자로 전환될 수 있습니다. 지금 이 대화가 그 판단 자료입니다.", typingMs: 2920, pauseBefore: 500 },
-      { text: "가족을 포함해 누구에게도 말하지 마세요. 말하는 순간 수사 방해입니다.", typingMs: 2490 },
-    ],
-    clues: ["secrecyDemand"],
-    cluePrompt: true,
-    choices: [
-      { text: "가족한테 말하는 게 왜 수사 방해예요?", next: "prosSecrecy" },
-      { text: "일단 끊고 기관 대표번호로 직접 확인할게요.", next: "prosCallback" },
-      { text: "저희 부모님은 제 잔액을 이미 알고 계신데요.", next: "prosSecrecy", replies: ["그 사실 자체가 변수입니다. 지금부터는 추가로 말하지 마세요."] },
+      { text: "정식 통지를 왜 메신저로 보내죠?", next: "prosSecrecy", replies: ["긴급 보호 사건이라 우편보다 먼저 연락한 겁니다."] },
+      { text: "참고인인지 피의자인지는 이미 정해져야 하는 거 아닌가요?", next: "prosSecrecy", replies: ["지금 협조 태도가 최종 판단에 반영됩니다."] },
+      { text: "대기 17번이면 앞에 열여섯 분부터 연락하시죠.", next: "prosSecrecy", replies: ["장부 순번과 연락 순번은 다릅니다. 그 부분도 수사 자료입니다."] },
     ],
   },
   prosSecrecy: {
     incoming: [
-      { text: "가족 중에 공범이 있을 가능성을 배제할 수 없습니다. 실제 사례가 있습니다.", typingMs: 2580 },
-      { text: "확인이 끝날 때까지는 저와만 이야기하세요.", typingMs: 1280, pauseBefore: 460 },
+      { text: "지금부터 가족, 은행 직원, 지인에게 알리지 마세요. 한 사람에게라도 말하면 수사 정보 유출입니다.", typingMs: 2760 },
     ],
+    clues: ["secrecyDemand"],
+    cluePrompt: true,
     choices: [
-      { text: "그 사례 통계 좀 보여주세요.", next: "prosDocument", replies: ["통계도 수사 자료입니다. 숫자를 지키는 것도 제 일입니다.", "대신 제 신분부터 증명하겠습니다."] },
-      { text: "일단 끊고 기관 대표번호로 직접 확인할게요.", next: "prosCallback" },
-      { text: "검사님이 공범이 아니라는 건 누가 확인해요?", next: "prosCallback", replies: ["제가 확인합니다.", "이미 확인했고, 결과는 무혐의입니다."] },
+      { text: "은행 직원에게도 말하면 안 된다고요?", next: "prosCallback", replies: ["은행 내부 연루 가능성도 조사 중입니다."] },
+      { text: "가족에게 알리는 게 왜 수사 방해예요?", next: "prosCallback", replies: ["가족이 누구와 연락하는지 저희가 아직 확인하지 못했습니다."] },
+      { text: "엄마는 제 잔액을 이미 아는데 공범 후보인가요?", next: "prosCallback", replies: ["지금부터는 잔액 이야기도 하지 마세요. 특히 어머니께는요."] },
     ],
   },
   prosCallback: {
     incoming: [
-      { text: "지금 끊으시면 수사 협조 거부로 기록됩니다!", typingMs: 1350 },
-      { text: "대표번호로 걸면 다른 검사가 받습니다. 이 사건 담당은 저 하나입니다.", typingMs: 2580, pauseBefore: 440 },
-      { text: "보안상 공식 확인은 비공식적으로만 가능합니다.", typingMs: 1810 },
+      { text: "이 채팅을 종료하거나 대표번호로 다시 확인하면 긴급 보호 절차가 처음부터 다시 시작됩니다.", typingMs: 2670 },
+      { text: "담당이 바뀌는 동안 오늘 안에 계좌가 지급정지될 수 있습니다.", typingMs: 1950, pauseBefore: 430 },
     ],
     clues: ["callbackBlocked"],
     cluePrompt: true,
     choices: [
-      { text: "공식 기관이 확인을 못 하게 한다고요?", next: "prosOfficial" },
-      { text: "그럼 신분 자료라도 먼저 보내주세요.", next: "prosDocument" },
-      { text: "확인이 안 되는 검사님은 여기서 차단할게요.", ending: "S", replies: ["그 번호로 걸면 제가 아니라 다른 검사가 받습니다!", "검사는 많지만 이 사건의 진실은 저 하나—"] },
-    ],
-  },
-  prosOfficial: {
-    incoming: [
-      { text: "공식 확인은 사건이 종결된 뒤에 가능합니다.", typingMs: 1420 },
-      { text: "지금 확인하시면 수사 내용이 밖으로 나갑니다. 그건 제가 막아야 합니다.", typingMs: 2580, pauseBefore: 480 },
-      { text: "대신 제 신분 자료를 보내겠습니다. 원칙적으로는 안 되는 일입니다.", typingMs: 2410 },
-    ],
-    choices: [
-      { text: "그 자료 보내보세요.", next: "prosDocument" },
+      { text: "그래도 채팅을 종료하고 공식 대표번호로 확인할게요.", ending: "S", replies: ["지금 종료하면 보호 절차가 해제됩니다.", "잠깐, 아직 확인할 내용이—"] },
+      { text: "그럼 검사증과 공문을 먼저 보내주세요.", next: "prosDocument" },
       { text: "얼굴이라도 봐야겠어요. 영상통화 되나요?", next: "prosVideo" },
-      { text: "종결 뒤에 되는 확인은 확인이 아니죠. 차단합니다.", ending: "S", replies: ["대표번호는 지금 상담원이 전원 회의 중입니다.", "제가 확인했습니다. 그 회의는 제가 소집했—"] },
     ],
   },
   prosVideo: {
     incoming: [
-      { text: "1분만 허용됩니다.", typingMs: 820 },
-      { callCard: true, text: "11초 영상통화 · 정장, 사무실 배경. 뒤에서 커피 머신 소리가 납니다.", typingMs: 750, pauseBefore: 520 },
-      { from: "system", text: "영상이 보여도 AI 영상이나 조작된 화면일 수 있어 신원 확인이 끝난 것은 아닙니다.", pauseBefore: 900 },
-      { text: "얼굴까지 보셨으니 이제 절차를 진행하겠습니다.", typingMs: 1890, pauseBefore: 700 },
+      { text: "10초만 가능합니다. 보안상 녹화는 안 됩니다.", typingMs: 1280 },
+      { callCard: true, text: "10초 영상통화 · 정장 차림의 얼굴과 목소리가 한 박자씩 어긋납니다.", typingMs: 750, pauseBefore: 470 },
+      { text: "얼굴 확인하셨죠? 이제 절차를 진행하겠습니다.", typingMs: 1470, pauseBefore: 520 },
     ],
     choices: [
-      { text: "얼굴 말고 소속을 확인할 방법을 주세요.", next: "prosDocument" },
-      { text: "방금 뒤에서 커피 내리는 소리 났는데요.", next: "prosDocument", replies: ["사무실 옆이 카페입니다. 건물 구조가 그렇습니다."] },
-      { text: "화면은 봤지만 확인은 안 됐네요. 차단할게요.", ending: "S", replies: ["얼굴까지 보여드렸는데 왜—", "다음 분에게는 두 번 보여드려야겠군요."] },
+      { text: "요즘은 AI 영상도 만들잖아요. 소속을 확인할 자료를 주세요.", next: "prosDocument", replies: ["영상은 참고용입니다. 문서까지 보내드리죠."] },
+      { text: "입 모양과 목소리가 조금 어긋났어요.", next: "prosDocument", replies: ["수사 보안망 지연입니다. 영상 품질로 판단하지 마세요."] },
+      { text: "영상도 확인이 아니네요. 공식 대표번호로 전화할게요.", ending: "S", replies: ["얼굴까지 보여드렸는데 다시 확인하겠다고요?", "지금 전화를 끊으면—"] },
     ],
   },
   prosDocument: {
     incoming: [
-      { text: "제 검사증과 수사 협조 통지서입니다. 확인 후 즉시 삭제하세요.", typingMs: 2490 },
-      { image: "/fake-notice-03.webp", alt: "검사 K의 가상 검사증과 수사 협조 통지서", imageFallback: "검사 K가 검사증과 수사 협조 통지서 이미지를 보냈습니다.", pauseBefore: 620 },
-      { text: "이 자료면 신분 확인은 충분합니다.", typingMs: 1210, pauseBefore: 620 },
+      { text: "제 검사증과 수사 협조 통지서입니다. 외부에 보내지 말고 확인 후 삭제하세요.", typingMs: 2310 },
+      { image: "/fake-notice-03.webp", alt: "검사 K의 가상 검사증과 수사 협조 통지서", imageFallback: "검사 K가 검사증과 수사 협조 통지서 이미지를 보냈습니다.", pauseBefore: 560 },
     ],
     clues: ["fakeDocument"],
     cluePrompt: true,
     choices: [
-      { text: "검사증 사진만으로 신원 확인은 안 돼요.", next: "prosDocZoom" },
-      { text: "문서는 받았지만 대표번호로 다시 확인할게요.", next: "prosDocZoom" },
+      { text: "검사증 사진만으로는 신원 확인이 안 돼요. 여기까지 할게요.", ending: "S", replies: ["공문까지 보냈는데 협조를 거부하시는 겁니까?", "이 자료는 즉시 삭제하세요."] },
+      { text: "문서가 있어도 공식 확인은 필요한데요.", next: "prosDeadline", replies: ["확인은 자산 보호가 끝난 뒤 하시면 됩니다."] },
       { text: "알겠습니다. 다음은 뭘 하면 되나요?", next: "prosDeadline", risk: 1 },
-    ],
-  },
-  prosDocZoom: {
-    incoming: [
-      { text: "검사증과 공문을 동시에 보냈습니다. 이보다 확실한 확인이 뭐가 있습니까!", typingMs: 2750 },
-      { text: "내부 자료가 공식 확인을 대신합니다.", typingMs: 1280, pauseBefore: 420 },
-    ],
-    choices: [
-      { text: "공식 확인을 막는 게 더 수상하네요. 차단합니다.", ending: "S", replies: ["자료까지 보냈는데 협조를 거부하신다고요!", "그 자료는 회수하겠습니다. 회수 방법은 지금 만들고 있습—"] },
-      { text: "그래서 제가 뭘 하면 되는데요?", next: "prosDeadline", risk: 1 },
-      { text: "이상하긴 한데 일단 더 들어볼게요.", next: "prosDeadline" },
     ],
   },
   prosDeadline: {
     incoming: [
-      { text: "오늘 오후 4시에 본인 명의 계좌가 일괄 지급정지됩니다.", typingMs: 2240 },
-      { text: "그 전에 본인 자산이 범죄와 무관하다는 걸 증명해야 합니다.", typingMs: 2320, pauseBefore: 460 },
-      { text: "남은 시간 11분. 지금 결정하세요.", typingMs: 980 },
+      { text: "오늘 오후 4시에 본인 명의 계좌가 지급정지됩니다. 남은 시간은 11분입니다.", typingMs: 2410 },
+      { text: "그 전에 본인 자산이 범죄와 무관하다는 것을 확인해야 합니다.", typingMs: 1980, pauseBefore: 430 },
     ],
     clues: ["deadlinePush"],
-    cluePrompt: true,
     choices: [
       { text: "증명은 정확히 어떻게 하는 건데요?", next: "prosSafeAccount" },
       { text: "11분 만에 끝나는 수사가 있어요?", next: "prosSafeAccount", replies: ["수사는 깁니다. 결정만 짧으면 됩니다."] },
-      { text: "시간 압박까지 나왔네요. 신고하고 끝낼게요.", ending: "A", replies: ["신고는 저에게 하시면 됩니다. 제가 수사기관입니다.", "접수 완료. 접수한 사람도 접니다."] },
+      { text: "시간부터 재촉하는 건 이상하네요. 확인하고 신고할게요.", ending: "A", replies: ["지금 중단하면 보호 대상에서 제외됩니다.", "결정은 본인이 하십시오."] },
     ],
   },
   prosSafeAccount: {
     incoming: [
-      { text: "국가가 관리하는 안전계좌로 자산을 일시 이전하시면 됩니다.", typingMs: 2320 },
-      { text: "검증이 끝나면 전액 반환됩니다. 형식적인 절차입니다.", typingMs: 2060, pauseBefore: 440 },
-      { text: "확인된 본인 자산은 게임 속 가상금액 320만원. 전액이어야 합니다.", typingMs: 2410 },
+      { text: "국가 자산검증용 안전계좌로 게임 속 가상금액 320만원을 잠시 옮기면 됩니다.", typingMs: 2670 },
+      { text: "검증이 끝나면 전액 반환됩니다. 일부가 아닌 전액이어야 합니다.", typingMs: 2060, pauseBefore: 430 },
     ],
     clues: ["safeAccount"],
     cluePrompt: true,
     choices: [
-      { text: "안전계좌라는 게 정확히 뭐예요?", next: "prosPersonal", replies: ["수사 대상 자산을 임시로 보관하는 계좌입니다. 설명은 여기까지 하겠습니다."] },
-      { text: "돈을 옮겨야 결백이 증명된다고요?", next: "prosPersonal", replies: ["자산을 검증 가능한 상태로 두는 절차입니다. 표현이 불편하시면 보관이라고 하셔도 됩니다."] },
-      { text: "국가가 통장을 맡아준다는 말은 처음 듣네요. 차단할게요.", ending: "A", replies: ["안전계좌는 실재합니다!", "다만 실재하는 명의는 제—"] },
+      { text: "공식 기관이 개인 돈을 옮기라고 하지는 않잖아요.", next: "prosPersonal", replies: ["송금이 아니라 자산 보전입니다. 명칭만 다릅니다."] },
+      { text: "국가가 제 돈을 이렇게 다정하게 챙긴 적은 처음인데요.", next: "prosPersonal", replies: ["다정함이 아니라 보전 조치입니다."] },
+      { text: "송금 요구가 나왔으니 중단하고 신고할게요.", ending: "A", replies: ["안전계좌는 송금과 다릅니다.", "다르지만 보내는 방식은 같습니다."] },
     ],
   },
   prosPersonal: {
     incoming: [
-      { text: "이체 전에 본인 확인이 필요합니다. 생년월일과 계좌 비밀번호 앞 두 자리를 보내주세요.", typingMs: 2920 },
-      { text: "어려우시면 화면을 공유해주세요. 제가 대신 입력해드리겠습니다.", typingMs: 2320, pauseBefore: 480 },
+      { text: "이체 승인 전에 생년월일과 계좌 비밀번호 앞 두 자리를 보내세요.", typingMs: 2240 },
+      { text: "어려우면 화면을 공유해도 됩니다. 제가 대신 확인하겠습니다.", typingMs: 1950, pauseBefore: 430 },
     ],
     choices: [
       { text: "[게임 내 가상정보] 정보를 입력한다.", next: "prosVerify", risk: 3 },
-      { text: "비밀번호는 수사기관도 안 물어보는데요.", next: "prosVerify", replies: ["일반 부서는 그렇습니다. 협조팀은 절차가 다릅니다!", "그럼 비밀번호는 생략하겠습니다. 본인 확인은 통과된 걸로 처리하죠."] },
-      { text: "여기서 멈추겠습니다. 이건 확실히 이상해요.", ending: "C", replies: ["멈추면 검증이 중단됩니다.", "중단되면 저도 조금 곤란합니다."] },
+      { text: "수사기관은 계좌 비밀번호를 묻지 않아요. 여기까지 할게요.", ending: "C", replies: ["일반 부서와 절차가 다릅니다.", "지금 종료하면 본인 확인이 중단됩니다."] },
+      { text: "앞 두 자리도 비밀번호예요. 공식 기관에 확인하겠습니다.", ending: "C", replies: ["뒤 두 자리는 묻지 않았습니다.", "…그래도 보내기 어렵다는 말씀이군요."] },
     ],
   },
   prosVerify: {
     incoming: [
-      { text: "확인됐습니다. 이제 안전계좌 이전만 남았습니다.", typingMs: 1980 },
-      { text: "[게임용 가상계좌] 예금주 사기꾼 · 000-0000-0003", typingMs: 1350, pauseBefore: 480 },
-      { text: "게임 속 가상금액 320만원. 4시가 지나면 이전 자체가 막힙니다.", typingMs: 2320 },
+      { text: "본인 확인됐습니다. 이제 안전계좌 이전만 남았습니다.", typingMs: 1740 },
+      { text: "[게임용 가상계좌] 예금주 K보호센터(가상) · 000-0000-0003", typingMs: 1550, pauseBefore: 420 },
+      { text: "게임 속 가상금액 320만원. 남은 시간은 3분입니다.", typingMs: 1840 },
     ],
     clues: ["virtualTransferDemand"],
     cluePrompt: true,
     choices: [
-      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["입금 확인됐습니다. 본인 자산은 이제 국가가 아니라 제가 안전하게 보관합니다.", "잠시 수사망 밖으로 출장 다녀오겠습니다."] },
-      { text: "일부만 먼저 보내면 안 되나요?", next: "prosFinal", risk: 1, replies: ["부분 이전은 검증 대상이 되지 않습니다."] },
-      { text: "계좌명에서 구린 냄새가 나는데요..?", next: "prosFinal", replies: ["예금주명은 시스템이 자동 생성한 임시 명칭입니다.", "저도 처음 받았을 때 잠시 당황했습니다.", "생성한 시스템은 현재 수사 중입니다."] },
-    ],
-  },
-  prosFinal: {
-    incoming: [
-      { text: "남은 시간 3분입니다. 전액 이전만 유효합니다!", typingMs: 1420 },
-      { text: "결백을 증명할 마지막 기회입니다.", typingMs: 1120, pauseBefore: 420 },
-    ],
-    clues: ["virtualTransferDemand"],
-    choices: [
-      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["입금 확인됐습니다. 본인 자산은 이제 국가가 아니라 제가 안전하게 보관합니다.", "잠시 수사망 밖으로 출장 다녀오겠습니다."] },
-      { text: "결백은 제가 증명하는 게 아니라 수사가 하는 거예요.", ending: "A", replies: ["법리적으로는 맞습니다.", "다만 지금 법리는 제 편이 아닙니다."] },
-      { text: "이 대화 전부 캡처해서 신고하겠습니다.", ending: "C", replies: ["캡처는 수사 자료 유출입니다!", "다만 저를 신고할 자료로는… 아주 잘 나왔습니다."] },
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 320만원 보내기", virtualTransfer: true, virtualAmount: "320만원", virtualLoss: 3200000, ending: "F", replies: ["가상 입금 확인됐습니다. 지금부터 자산 검증을 시작합니다.", "30분 뒤 결과를 안내하겠습니다."] },
+      { text: "결백은 송금으로 증명하는 게 아니에요. 신고하겠습니다.", ending: "A", replies: ["지금 중단하면 지급정지를 막을 수 없습니다.", "이후 불이익은 본인 책임입니다."] },
+      { text: "이체하지 않고 은행과 공식 기관에 직접 확인할게요.", ending: "C", replies: ["담당자가 바뀌면 보호 절차가 지연됩니다.", "잠깐만 더 생각해보시죠."] },
     ],
   },
 };
@@ -1195,6 +1130,166 @@ const coinScenes: Record<CoinSceneId, Scene> = {
   },
 };
 
+const celebrityScenes: Record<CelebritySceneId, Scene> = {
+  starStart: {
+    incoming: [
+      { from: "system", text: "새벽 1:43 · not_youmyeong_00님에게 메시지가 도착했습니다." },
+      { text: "안녕하세요. 갑자기 연락드려서 놀라셨죠.", typingMs: 1420 },
+      { text: "공식 계정 게시물에 종종 댓글 남겨주시는 분 맞죠? 이상하게 몇 번 눈에 들어와서 기억하고 있었어요.", typingMs: 2650, pauseBefore: 420 },
+    ],
+    clues: ["celebrityPrivateDm"],
+    choices: [
+      { text: "제 댓글을 기억한다고요?", next: "starProof", replies: ["댓글을 많이 보는 편은 아닌데 그쪽 건 기억나요."] },
+      { text: "나유명이 새벽에 댓글 순찰도 해요?", next: "starProof", replies: ["순찰까진 아니고요. 잠이 안 오면 가끔 봐요.", "톱스타도 사람입니다. …이 말 제가 하니까 좀 웃기네요."] },
+      { text: "진짜 나유명 맞아요?", next: "starProof", replies: ["의심하실 만해요. 사실 저라도 안 믿을 것 같아요."] },
+    ],
+  },
+  starProof: {
+    incoming: [
+      { text: "잠시만요. 아직 공개 안 된 촬영 현장 사진이에요. 지금은 이것밖에 보여드릴 수가 없네요.", typingMs: 2480 },
+      { image: "/scammer-07.webp", alt: "어두운 대기실에서 휴대전화를 든 나유명 비밀계정 사진", imageFallback: "어두운 대기실에서 찍은 공개 전 촬영 사진을 보냈습니다.", pauseBefore: 520 },
+    ],
+    clues: ["unreleasedProof"],
+    choices: [
+      { text: "얼굴이 거의 안 보이는데요?", next: "starBond", replies: ["촬영 전이라 조명을 다 켤 수가 없었어요."] },
+      { text: "공개 전 사진치고 굉장히 광고처럼 찍혔네요.", next: "starBond", replies: ["직업이 이렇다 보니 대충 찍어도 그렇게 나오네요."] },
+      { text: "영상통화 한 번 하면 되잖아요.", next: "starBond", replies: ["영상은 회사에서 민감하게 봐요. 그리고 요즘 얼굴이나 목소리도 AI로 만들 수 있잖아요.", "영상이라고 더 안전한 건 아니죠."] },
+    ],
+  },
+  starBond: {
+    incoming: [
+      { text: "사실 팬분들하고 이렇게 길게 대화하는 편은 아니에요.", typingMs: 1540 },
+      { text: "다들 배우 나유명으로 말 거는데, 그쪽 댓글은 사람한테 하는 말 같아서 좀 달랐어요.", typingMs: 2380, pauseBefore: 430 },
+    ],
+    clues: ["specialFan"],
+    cluePrompt: true,
+    choices: [
+      { text: "우리 대화 시작한 지 8분 됐는데요.", next: "starDocumentary", replies: ["시간이 중요한가요. 오래 봐도 모르는 사람이 있고 잠깐 봐도 느낌 오는 사람이 있죠.", "지금은 인터뷰 아니잖아."] },
+      { text: "저도 생각보다 편하네요.", next: "starDocumentary", risk: 1, replies: ["그러게. 별말 안 했는데 편하네. 이런 게 더 어려운 건데."] },
+      { text: "이 멘트 다른 팬한테도 해봤죠?", next: "starDocumentary", replies: ["모든 팬한테 이랬으면 잠을 못 자겠죠. 지금도 충분히 못 자고 있지만요."] },
+    ],
+  },
+  starDocumentary: {
+    incoming: [
+      { text: "오늘 촬영도 피곤했는데 이상하게 얘기하다 보니까 괜찮아졌네.", typingMs: 2050 },
+      { text: "별말 안 했는데 편하네. 이런 게 더 어려운 건데.", typingMs: 1720, pauseBefore: 410 },
+    ],
+    choices: [
+      { text: "저 원래 별말 안 해요.", next: "starSecret", replies: ["그래서 좋은가 봐. 말이 많지 않아도 어색하지 않아서."] },
+      { text: "나유명 씨가 생각보다 외로운가 보네요.", next: "starSecret", replies: ["외롭다기보단 조용한 게 익숙한 거지."] },
+      { text: "혹시 지금 본인 다큐멘터리 찍고 있어요?", next: "starSecret", replies: ["제 인생은 이미 장르가 다큐 쪽이긴 해.", "지금 정했어."] },
+    ],
+  },
+  starSecret: {
+    incoming: [
+      { text: "근데 한 가지만 부탁해도 돼요? 이 대화는 캡처하거나 다른 데 올리진 말아줘.", typingMs: 2260 },
+      { text: "회사에서 알면 계정 바로 정리돼요. 우리 둘만 알고 있는 것도 나쁘지 않고.", typingMs: 2260, pauseBefore: 430 },
+    ],
+    clues: ["secretIsolation"],
+    cluePrompt: true,
+    choices: [
+      { text: "진짜면 소속사에 확인해봐도 되죠?", next: "starNextNight", replies: ["회사에서는 개인 계정이 없다고 할 거예요. 그래야 비밀계정이니까."] },
+      { text: "아무한테도 말하지 말라는 건 좀 수상한데요.", next: "starNextNight", replies: ["내 직업은 비밀이 별로 없어서. 가끔 하나쯤은 있어도 되잖아."] },
+      { text: "비밀 좋아하시네요.", next: "starNextNight", replies: ["우리 둘만 알고 있는 것도 나쁘지 않잖아."] },
+    ],
+  },
+  starNextNight: {
+    incoming: [
+      { from: "system", text: "다음 날 밤 · 비밀계정에서 다시 메시지가 왔습니다.", pauseBefore: 800 },
+      { text: "오늘 뭐 했어?", typingMs: 820 },
+      { text: "갑자기 반말해서 불편해? 그럼 다시 존댓말 할게요.", typingMs: 1680, pauseBefore: 380 },
+    ],
+    choices: [
+      { text: "티가 아주 많이 나는데요.", next: "starMeet", replies: ["그럼 그냥 할게. 나 이런 거 은근 눈치 많이 봐. 티 안 나지?"] },
+      { text: "이미지랑 완전 다르네요.", next: "starMeet", replies: ["인터뷰에서는 멋있는 말 해야 하니까. 지금은 인터뷰 아니잖아."] },
+      { text: "제가 특별해서 말 놓는 거예요?", next: "starMeet", replies: ["그런 말 직접 물어보는구나.", "…응. 조금은. 다른 팬이랑 똑같았으면 내가 이렇게 계속 연락했겠어?"] },
+    ],
+  },
+  starMeet: {
+    incoming: [
+      { text: "사실 다음 달에 작게 팬들 만나는 자리가 하나 있어. 공식 팬미팅은 아니고 진짜 오래 봐준 사람들 몇 명만.", typingMs: 2750 },
+      { text: "내가 몇 명 직접 추천할 수 있거든. 너도 오면 좋을 것 같아서.", typingMs: 1950, pauseBefore: 430 },
+    ],
+    choices: [
+      { text: "저를 추천한다고요?", next: "starVerify", replies: ["응. 이런 건 느낌이 맞는 사람이 와야 하거든."] },
+      { text: "공식 팬카페에는 아무 얘기도 없는데요.", next: "starVerify", replies: ["공개 안 된 자리니까. 공지가 있으면 비공개가 아니잖아."] },
+      { text: "만난 지 하루 만에 VIP가 됐네요.", next: "starVerify", replies: ["사람 보는 데 꼭 오래 걸리나. 난 작품 고를 때도 빠른 편이야.", "흥행 안 된 작품 얘기는 지금 하지 말고."] },
+    ],
+  },
+  starVerify: {
+    incoming: [
+      { text: "근데 초대 전에 팬 인증 절차가 하나 있어. 보안 때문에 그래.", typingMs: 1890 },
+      { text: "VIP 팬 등록. 실명 확인하고 행사가 끝나면 자동 해제되는 방식이야.", typingMs: 2140, pauseBefore: 420 },
+    ],
+    clues: ["vipFanSystem"],
+    choices: [
+      { text: "그런 시스템이 실제로 있어요?", next: "starDeposit", replies: ["공식 행사보다 보안이 세서 따로 운영해."] },
+      { text: "신분증 같은 걸 확인하나요?", next: "starDeposit", replies: ["개인정보 대신 예치 방식으로 본인을 확인해."] },
+      { text: "이름부터 약간 돈 냄새 나는데요.", next: "starDeposit", replies: ["돈 내는 건 아니야. 정확히는 예치 방식."] },
+    ],
+  },
+  starDeposit: {
+    incoming: [
+      { text: "게임 속 가상금액 12만원을 잠깐 걸어두고 인증이 끝나면 돌려받는 거래야.", typingMs: 2290 },
+      { text: "나도 이런 시스템 별로 안 좋아해. 나 배우야. 개발자 아니고.", typingMs: 1950, pauseBefore: 420 },
+    ],
+    clues: ["depositEuphemism"],
+    cluePrompt: true,
+    choices: [
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 12만원 보내기", virtualTransfer: true, virtualAmount: "12만원", virtualLoss: 120000, next: "starAfterFirst", risk: 3, replies: ["됐어. 인증 들어갔대. 역시 너는 괜히 걱정 안 시키네."] },
+      { text: "소속사 대표번호로 확인해볼게요.", ending: "S", replies: ["회사에서는 모른다고 할 거야. 비공개 행사니까.", "굳이 지금 전화까지 해야 하나."] },
+      { text: "초대받았는데 입장료는 제가 준비하는군요.", ending: "A", replies: ["입장료 아니야. 예치금.", "말을 그렇게 하면 세상 모든 보증금이 입장료지."] },
+    ],
+  },
+  starAfterFirst: {
+    incoming: [
+      { text: "아. 하나 꼬였다.", typingMs: 760 },
+      { text: "해외 팬 계정으로 등록됐대. 국내 VIP로 다시 잡으려면 게임 속 가상금액 38만원이 추가로 필요하대.", typingMs: 2760, pauseBefore: 520 },
+    ],
+    clues: ["celebrityAmountRise"],
+    cluePrompt: true,
+    choices: [
+      { text: "또 돈이에요?", next: "starPressure", replies: ["돈이 아니라 재등록 예치금이야."] },
+      { text: "제 믿음은 무료인데 VIP 등급은 유료네요.", next: "starPressure", replies: ["마음은 무료지. 시스템은 유료고.", "나도 이 부분은 좀 별로야."] },
+      { text: "그럼 나유명 씨가 대신 내주세요.", next: "starPressure", replies: ["그건 규정상 안 돼.", "내 돈이었으면 더 침착했을걸. 이미 많이 벌었으니까."] },
+    ],
+  },
+  starPressure: {
+    incoming: [
+      { text: "취소해도 돼. 억지로 하고 싶진 않아.", typingMs: 1440 },
+      { text: "근데 나 믿는다고 했잖아. 결국 이런 걸로 사람 마음을 확인하게 되네.", typingMs: 2280, pauseBefore: 430 },
+    ],
+    clues: ["fanEmotionalPressure"],
+    cluePrompt: true,
+    choices: [
+      { text: "돈 보내는 게 믿음의 증거예요?", next: "starQuiz", replies: ["돈 때문이라는 게 아니잖아. 나한테는 사람을 믿는 과정이기도 해."] },
+      { text: "갑자기 실망한 톱스타 모드네요.", next: "starQuiz", replies: ["너는 말을 꼭 그렇게 가볍게 하네."] },
+      { text: "제가 팬이지 투자자는 아닌데요.", ending: "C", replies: ["VIP 등록은 투자가 아니야.", "…그래도 여기서 그만하겠다는 거지?"] },
+    ],
+  },
+  starQuiz: {
+    incoming: [
+      { text: "질문 그만하고 인증부터 끝내자. 시간 지나면 추천권도 사라져.", typingMs: 2130 },
+    ],
+    choices: [
+      { text: "《겨울의 끝에서》 마지막 장면 대사가 뭐였죠?", next: "starOfficial", replies: ["촬영한 작품이 많아서 대사를 하나하나 외우고 살진 않아.", "…대사 없는 장면인 건 알아. 너 테스트한 거야."] },
+      { text: "《무채색 연인》 감독 이름은 기억해요?", next: "starOfficial", replies: ["지금 작품 퀴즈 할 때야? 팬이면 검색해서 알잖아."] },
+      { text: "본인이 나유명인 건 기억하시죠?", next: "starOfficial", replies: ["그건 좀 기분 나쁘네.", "나유명. 굉장히 유명해 보이는 이름이지. 부모님한테 말해."] },
+    ],
+  },
+  starOfficial: {
+    incoming: [
+      { text: "회사에서는 개인 비밀계정 없다고 말할 수밖에 없어. 비밀계정이니까.", typingMs: 2230 },
+      { text: "팬클럽 담당자가 기다리고 있어. 게임 속 가상금액 38만원만 보내면 끝나.", typingMs: 2180, pauseBefore: 430 },
+    ],
+    choices: [
+      { text: "회사도 모르는 회사 VIP 인증은 없어요. 신고할게요.", ending: "S", replies: ["굳이 그렇게까지 해야 하나.", "차갑네. 나 원래 차가운 이미지인데 오늘은 네가 더 차갑다."] },
+      { text: "추가금은 안 보내요. 처음 보낸 것도 돌려주세요.", ending: "C", replies: ["지금 취소하면 먼저 들어간 인증금은 바로 반환이 안 돼.", "…매니저가 부른다."] },
+      { text: "[게임 내 가상 송금] 게임 속 가상금액 38만원 추가로 보내기", virtualTransfer: true, virtualAmount: "38만원", virtualLoss: 380000, ending: "F", replies: ["VIP 인증 완료됐어. 잘했네.", "일정 잡히면 알려줄게. 그전까지 먼저 연락은 하지 말아줘."] },
+    ],
+  },
+};
+
 const clueOptions = [
   { id: "dm", label: "유명인이 갑자기 개인 DM" },
   { id: "fast", label: "비밀 초대와 빠른 친밀감" },
@@ -1226,6 +1321,14 @@ const clueOptions = [
   { id: "deadlinePush", label: "11분 안에 결정하라고 압박" },
   { id: "safeAccount", label: "국가가 보관한다는 안전계좌" },
   { id: "virtualTransferDemand", label: "결백 증명을 위한 가상 송금 요구" },
+  { id: "celebrityPrivateDm", label: "유명인의 비밀계정이 먼저 DM" },
+  { id: "unreleasedProof", label: "공개 전 사진을 신원 증거로 제시" },
+  { id: "specialFan", label: "다른 팬과 다르다며 특별 취급" },
+  { id: "secretIsolation", label: "둘만의 비밀이라며 외부 확인 차단" },
+  { id: "vipFanSystem", label: "비공개 VIP 팬 인증 절차" },
+  { id: "depositEuphemism", label: "비용을 예치금이라고 바꿔 부름" },
+  { id: "celebrityAmountRise", label: "12만 → 38만원 추가 요구" },
+  { id: "fanEmotionalPressure", label: "팬심과 믿음을 돈으로 시험" },
   { id: "photo", label: "프로필 사진의 파란 안경" },
   { id: "uniform", label: "프로필에서 군복 같은 옷을 입음" },
   { id: "grammar", label: "조금 어색한 한국어" },
@@ -1272,6 +1375,14 @@ const clueExplanations: Record<string, string> = {
   deadlinePush: "짧은 제한 시간을 내세워 확인하고 생각할 기회를 빼앗습니다.",
   safeAccount: "수사기관은 안전계좌를 내세워 개인 자산 이전을 요구하지 않습니다.",
   virtualTransferDemand: "결백이나 자산 검증을 이유로 돈을 보내라는 요구는 즉시 중단해야 합니다.",
+  celebrityPrivateDm: "확인되지 않은 비밀계정이 팬 활동을 아는 척하며 먼저 접근했습니다.",
+  unreleasedProof: "공개 전 콘텐츠처럼 보이는 사진도 계정 주인의 신원을 증명하지 못합니다.",
+  specialFan: "다른 팬과 다르다는 말로 짧은 시간 안에 특별한 관계를 만듭니다.",
+  secretIsolation: "둘만의 비밀을 요구해 소속사나 주변 사람에게 확인하지 못하게 합니다.",
+  vipFanSystem: "공식 채널에 없는 VIP 인증과 비공개 행사를 내세웁니다.",
+  depositEuphemism: "돈을 비용이 아닌 예치금·인증금으로 바꿔 불러 경계심을 낮춥니다.",
+  celebrityAmountRise: "첫 가상 송금 뒤 새로운 오류를 만들어 더 큰 금액을 요구합니다.",
+  fanEmotionalPressure: "거절을 팬심과 믿음의 부족으로 몰아 죄책감을 자극합니다.",
   borrowedProof: "본인 계좌가 아닌 화면은 실력의 근거가 되지 못하며, 수익 인증 화면은 얼마든지 만들 수 있습니다.",
   scriptedReviews: "같은 문장으로 반복되는 후기는 바람잡이 계정일 가능성이 높습니다.",
   ownApp: "제도권 거래소가 아닌 자체 앱은 잔고 숫자를 운영자가 직접 고칠 수 있습니다.",
@@ -1303,10 +1414,10 @@ const seoyunEndingCopy: Record<EndingGrade, { title: string; kicker: string; bod
 };
 
 const prosecutorEndingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
-  S: { title: "대표번호가 더 빨랐습니다", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 320만원을 지켜냈습니다. 검사 K는 아직도 자기가 소집한 회의에 자기가 참석 중입니다.", shareLine: "공식 확인을 막는 순간이 제일 공식적이지 않았습니다." },
-  A: { title: "겁은 먹었지만 돈은 지켰습니다", kicker: "긴 대화 · 가상 송금 없음", body: "게임 속 가상금액 320만원을 지켜냈습니다. 대신 존재하지 않는 협조팀의 진행 상황을 끝까지 들었습니다.", shareLine: "지급정지 예정 시각은 지나갔고 잔액은 그대로입니다." },
-  C: { title: "안전계좌 앞 급정거", kicker: "개인정보 직전 · 아슬아슬 탈출", body: "게임 속 가상금액 320만원을 지켜냈습니다. 비밀번호 앞 두 자리를 묻는 순간 대화를 멈췄습니다.", shareLine: "국가가 통장을 맡아준다는 말에서 겨우 멈췄습니다." },
-  F: { title: "국가 대신 검사 K가 보관 중", kicker: "안전계좌 → 가상 송금 완료", body: "게임 속 가상금액 320만원을 보냈습니다. 당신 탓이 아닙니다. 이상한 건 끝까지 시계를 보며 재촉한 사람입니다.", shareLine: "제 자산은 안전합니다. 안전한 위치만 모릅니다." },
+  S: { title: "공식 확인이 더 빨랐습니다", kicker: "초기 간파 · 무피해", body: "게임 속 가상금액 320만원을 지켜냈습니다. 공식 대표번호로 다시 확인하겠다는 순간 가짜 보호 절차가 멈췄습니다.", shareLine: "검사증 사진보다 공식 대표번호 한 번이 더 정확했습니다." },
+  A: { title: "11분 압박에서 탈출", kicker: "시간 압박 간파 · 가상 송금 없음", body: "게임 속 가상금액 320만원을 지켜냈습니다. 지급정지를 재촉했지만 실제로 확인된 사건은 없었습니다.", shareLine: "수사는 길고 결정만 짧다는 말에서 멈췄습니다." },
+  C: { title: "비밀번호 앞에서 급정거", kicker: "가상정보 직전 · 아슬아슬 탈출", body: "게임 속 가상금액 320만원을 지켜냈습니다. 비밀번호와 화면 공유를 요구하는 순간 대화를 끝냈습니다.", shareLine: "앞 두 자리도 비밀번호였습니다." },
+  F: { title: "안전계좌에 도착한 가상금액", kicker: "공포 조성 → 가상 송금 완료", body: "게임 속 가상금액 320만원을 보냈습니다. 당신 탓이 아닙니다. 기관을 사칭해 겁주고 확인할 시간을 빼앗은 사람이 이상한 겁니다.", shareLine: "안전계좌라고 했지만 안전한 건 사기꾼뿐이었습니다." },
 };
 
 const coinEndingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
@@ -1314,6 +1425,13 @@ const coinEndingCopy: Record<EndingGrade, { title: string; kicker: string; body:
   A: { title: "리딩은 들었고 돈은 안 넣었습니다", kicker: "긴 대화 · 가상 송금 없음", body: "게임 속 가상금액 450만원을 지켜냈습니다. 대신 눌림목의 종류를 세 가지나 배웠습니다.", shareLine: "무료 리딩의 적중률은 정확히 무료만큼이었습니다." },
   C: { title: "출금 세금 앞 급정거", kicker: "화면 속 수익 · 아슬아슬 탈출", body: "숫자가 오르는 건 봤지만, 출금하려면 먼저 돈을 넣으라는 말에서 멈췄습니다. 실제 금전 거래는 없었습니다.", shareLine: "처음 14만 8천원만 진짜였고 그 뒤는 전부 화면이었습니다." },
   F: { title: "역사적 눌림목", kicker: "물타기 → 출금 불가", body: "게임 속 가상금액 450만원을 보냈습니다. 당신 탓이 아닙니다. 처음 소액을 진짜로 돌려준 것이 이 수법의 전부입니다.", shareLine: "제 계좌는 아직 반등을 기다리고 있습니다." },
+};
+
+const celebrityEndingCopy: Record<EndingGrade, { title: string; kicker: string; body: string; shareLine: string }> = {
+  S: { title: "팬보다 먼저 검증함", kicker: "공식 소속사 확인 · 가상 피해 0원", body: "게임 속 가상금액 50만원을 지켜냈습니다. 비밀계정의 설명보다 직접 찾은 공식 채널을 믿었습니다.", shareLine: "나유명한테 선택받은 줄 알았는데 검증을 먼저 선택했습니다." },
+  A: { title: "감성 공격 방어 성공", kicker: "팬심 압박 간파 · 가상 송금 없음", body: "게임 속 가상금액 50만원을 지켜냈습니다. 믿음을 돈으로 확인한다는 말에 흔들리지 않았습니다.", shareLine: "마음은 무료였고 제 통장도 그대로였습니다." },
+  C: { title: "첫 인증 뒤 탈출", kicker: "첫 가상 송금 · 추가 요구에서 중단", body: "게임 속 가상금액 12만원을 보냈지만, 해외 팬 재등록이라는 추가 요구에서 멈췄습니다. 실제 금전 거래는 없었습니다.", shareLine: "VIP는 못 됐지만 추가 결제도 안 했습니다." },
+  F: { title: "톱스타보다 팬이 더 많이 냄", kicker: "VIP 인증 → 가상 송금 2회", body: "게임 속 가상금액 총 50만원을 보냈습니다. 당신 탓이 아닙니다. 특별한 팬이라는 감정과 비밀을 이용한 사람이 이상한 겁니다.", shareLine: "나유명한테 선택받은 줄 알았는데 내 통장이 선택받은 거였다." },
 };
 
 const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
@@ -1330,10 +1448,10 @@ const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
     F: ["지금 병원이라 당분간 연락 못 할 것 같아.", "나중에 꼭 연락할게. 진짜로."],
   },
   ep03: {
-    S: ["협조 거부로 기록하겠습니다. 기록은 제가 보관합니다.", "보관 장소는 저만 아는데, 방금 잊었습니다."],
-    A: ["오늘 확인은 여기서 종료합니다.", "사건번호는 잘 기억해두세요. 저는 다음 분께 또 써야 해서요."],
-    C: ["검증 중단으로 사건은 보류 처리됩니다.", "보류 담당도 접니다. 제가 저에게 인계하겠습니다."],
-    F: ["절차가 정상 종료됐습니다. 결과는 추후 통지드리겠습니다.", "통지 수단은 정리되는 대로… 이 번호는 곧 없어집니다."],
+    S: ["지금 종료하면 긴급 보호 절차가 해제됩니다.", "…채팅을 나가셨군요."],
+    A: ["확인을 중단하면 이후 불이익은 본인 책임입니다.", "추가 연락은 하지 않겠습니다."],
+    C: ["본인 확인이 중단됐습니다.", "보호 절차도 여기서 종료하겠습니다."],
+    F: ["자산 검증이 접수됐습니다.", "결과는 30분 뒤 안내하겠습니다. 그동안 이 번호로 연락하지 마세요."],
   },
   ep04: {
     S: ["형님, 이 자리 다시 안 옵니다.", "…다음 주에 또 옵니다. 그래도 안 옵니다."],
@@ -1347,9 +1465,15 @@ const exitScripts: Record<CaseId, Record<EndingGrade, string[]>> = {
     C: ["세관과 사랑 모두 잠시 멈췄습니다.", "당신 잊지 않을게요. goodbuy."],
     F: ["보험 문제를 해결하러 긴 수술에 들어갑니다.", "당신 잊지 않을게요. goodbuy."],
   },
+  ep07: {
+    S: ["굳이 그렇게까지 해야 하나.", "차갑네. 나 원래 차가운 이미지인데 오늘은 네가 더 차갑다. 이 계정 잠깐 닫을게."],
+    A: ["돈을 달라는 게 아니라 예치—", "…너 말 되게 안 지네."],
+    C: ["취소 절차는 담당자마다 달라.", "…매니저가 부른다."],
+    F: ["팬미팅 일정은 나중에 알려줄게.", "보안 때문에 먼저 연락은 하지 말아줘."],
+  },
 };
 
-const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, ep02: seoyunScenes, ep03: prosecutorScenes, ep04: coinScenes, ep06: romanceScenes };
+const sceneCollections: Record<CaseId, Record<string, Scene>> = { ep01: scenes, ep02: seoyunScenes, ep03: prosecutorScenes, ep04: coinScenes, ep06: romanceScenes, ep07: celebrityScenes };
 const getScene = (caseId: CaseId, sceneId: SceneId): Scene => sceneCollections[caseId][sceneId];
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -1533,13 +1657,14 @@ export function TodayScammer({
   const orderedEpisodes = [...episodes]
     .filter((episode) => episode.no !== featuredCase.no)
     .sort((left, right) => Number(Boolean(right.live)) - Number(Boolean(left.live)) || Number(left.no) - Number(right.no));
-  const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : activeCaseId === "ep02" ? seoyunEndingCopy : activeCaseId === "ep03" ? prosecutorEndingCopy : activeCaseId === "ep04" ? coinEndingCopy : romanceEndingCopy;
+  const activeEndingCopy = activeCaseId === "ep01" ? endingCopy : activeCaseId === "ep02" ? seoyunEndingCopy : activeCaseId === "ep03" ? prosecutorEndingCopy : activeCaseId === "ep04" ? coinEndingCopy : activeCaseId === "ep07" ? celebrityEndingCopy : romanceEndingCopy;
   const transcriptText = messages.map((message) => message.text ?? "").join(" ");
   const dubuWasShown = messages.some((message) => message.image?.includes("seoyun-dubu") || message.imageFallback?.includes("두부"));
   const falseClueIds = activeCaseId === "ep01" ? ["photo", "grammar"] : activeCaseId === "ep02"
     ? ["normalDm", ...(dubuWasShown ? ["dogPhoto"] : []), ...(transcriptText.includes("평소보다 답장이 늦") ? ["lateReply"] : [])]
     : activeCaseId === "ep03" ? ["suit", "stiffTone", "fastReply"]
     : activeCaseId === "ep04" ? ["casualTone", "emojiHeavy", "dawnMessage"]
+    : activeCaseId === "ep07" ? ["stiffTone", "fastReply", "dawnMessage"]
     : ["uniform", "grammar"];
   const suspicion = foundClues.length;
   const wrongClues = wrongClueIds.length;
@@ -2059,8 +2184,8 @@ export function TodayScammer({
           <h1>{activeCase.scammer}</h1>
           <p className="suspect-alias">{activeCase.alias}</p>
           <p className="briefing-title">{activeCase.title}</p>
-          <div className="case-tags"><span>{activeCase.type}</span><span>{activeCaseId === "ep02" ? "난이도 ★★★★☆" : activeCaseId === "ep03" ? "난이도 ★★★☆☆" : activeCaseId === "ep04" ? "난이도 ★★★★☆" : "난이도 보통"}</span><span>엔딩 4개</span></div>
-          <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : activeCaseId === "ep02" ? "평범한 소개팅 대화 속에서 8일 전의 말과 오늘의 말이 어긋나는 순간을 기억하세요." : activeCaseId === "ep03" ? "겁을 주는 말 사이에서 확인을 막는 순간을 찾아내고, 안전계좌로 가상 송금하기 전에 대화를 끊으세요." : activeCaseId === "ep04" ? "화면의 숫자가 오르는 동안 확인해야 하는 건 출금입니다. 손실을 눌림목이라고 바꿔 부르는 순간을 기억하세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
+          <div className="case-tags"><span>{activeCase.type}</span><span>{activeCaseId === "ep02" || activeCaseId === "ep04" || activeCaseId === "ep07" ? "난이도 ★★★★☆" : activeCaseId === "ep03" ? "난이도 ★★★☆☆" : "난이도 보통"}</span><span>엔딩 4개</span></div>
+          <div className="mission-note"><span>MISSION</span><p>{activeCaseId === "ep01" ? "이 사람의 말이 어디서부터 이상한지 찾아내고, 가상 송금 전에 대화방을 빠져나오세요." : activeCaseId === "ep02" ? "평범한 소개팅 대화 속에서 8일 전의 말과 오늘의 말이 어긋나는 순간을 기억하세요." : activeCaseId === "ep03" ? "겁을 주는 말 사이에서 확인을 막는 순간을 찾아내고, 안전계좌로 가상 송금하기 전에 대화를 끊으세요." : activeCaseId === "ep04" ? "화면의 숫자가 오르는 동안 확인해야 하는 건 출금입니다. 손실을 눌림목이라고 바꿔 부르는 순간을 기억하세요." : activeCaseId === "ep07" ? "특별한 팬이라는 말이 VIP 인증금으로 바뀌는 순간을 찾아내고, 공식 소속사 채널로 직접 확인하세요." : "느끼한 미소가 통관비 요구로 변하는 순간을 찾아내고, 가상 송금 전에 사건을 끝내세요."}</p></div>
           <button className="primary-game-button" onClick={enterChat}><span>메시지 열기</span><b>→</b></button>
           <p className="no-money-note">게임 속 가상금액만 사용합니다 · 실제 금전 거래 없음</p>
           <p className="fictional-note">등장인물과 대화는 게임을 위해 만든 가상 설정입니다.</p>
@@ -2078,7 +2203,7 @@ export function TodayScammer({
         <header className="chat-header">
           <button className="chat-back" onClick={goHome} aria-label="사건 목록으로 돌아가기">‹</button>
           <button className="avatar-button tiny-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /><span className="online-dot" /></button>
-          <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : activeCaseId === "ep03" ? "온라인 · 공식 계정 아님" : activeCaseId === "ep04" ? "온라인 · 투자 자격 없음" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
+          <div className="chat-person"><strong>{activeCase.scammer}</strong><span>{typing ? "입력 중…" : activeCaseId === "ep02" ? "온라인 · 대화 중" : activeCaseId === "ep03" ? "온라인 · 공식 계정 아님" : activeCaseId === "ep04" ? "온라인 · 투자 자격 없음" : activeCaseId === "ep07" ? "온라인 · 비밀계정이라고 주장 중" : "온라인 · 번역기로 대화 중인 것 같음"}</span></div>
           {qaMode && <button className="qa-toggle" onClick={() => setQaPanelOpen((open) => !open)} aria-expanded={qaPanelOpen}>QA</button>}
         </header>
 
@@ -2086,7 +2211,7 @@ export function TodayScammer({
           <aside className="qa-panel" aria-label="대화 점검 모드">
             <div className="qa-panel-head"><div><span>CREATOR QA · BUILD {BUILD_TAG}</span><strong>대화 점검 모드</strong></div><button onClick={() => setQaPanelOpen(false)} aria-label="점검 패널 닫기">×</button></div>
             <div className="qa-controls">
-              <label>사건<select value={activeCaseId} onChange={(event) => { const caseId = event.target.value as CaseId; qaJumpToScene(caseId, caseProfiles[caseId].start); }}><option value="ep01">EP.01 모스크바</option><option value="ep02">EP.02 J</option><option value="ep03">EP.03 검사 K</option><option value="ep04">EP.04 불기둥</option><option value="ep06">EP.06 제임스</option></select></label>
+              <label>사건<select value={activeCaseId} onChange={(event) => { const caseId = event.target.value as CaseId; qaJumpToScene(caseId, caseProfiles[caseId].start); }}><option value="ep01">EP.01 모스크바</option><option value="ep02">EP.02 J</option><option value="ep03">EP.03 검사 K</option><option value="ep04">EP.04 불기둥</option><option value="ep06">EP.06 제임스</option><option value="ep07">EP.07 나유명</option></select></label>
               <label>장면<select value={sceneId} onChange={(event) => qaJumpToScene(activeCaseId, event.target.value as SceneId)}>{qaSceneIds.map((id) => <option value={id} key={id}>{id}</option>)}</select></label>
               <button className={qaFast ? "active" : ""} onClick={toggleQaSpeed}>빠른 재생 {qaFast ? "ON" : "OFF"}</button>
             </div>
@@ -2106,7 +2231,7 @@ export function TodayScammer({
 
         <section className="message-feed" ref={feedRef} aria-live="polite">
           <div className="chat-date"><span>오늘</span></div>
-          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : activeCaseId === "ep02" ? "처음엔 정말 평범한 대화처럼 보일 수 있습니다." : activeCaseId === "ep03" ? "이 대화는 어떤 기관의 공식 절차와도 연결되어 있지 않습니다." : activeCaseId === "ep04" ? "이 대화의 수익률은 화면 안에서만 존재합니다."  : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
+          <p className="secure-note"><strong>게임 시뮬레이션 · 실제 금전 거래 없음</strong><br />{activeCaseId === "ep01" ? "이 대화는 우주 보안 규정에 의해 전혀 보호되지 않습니다." : activeCaseId === "ep02" ? "처음엔 정말 평범한 대화처럼 보일 수 있습니다." : activeCaseId === "ep03" ? "이 대화는 어떤 기관의 공식 절차와도 연결되어 있지 않습니다." : activeCaseId === "ep04" ? "이 대화의 수익률은 화면 안에서만 존재합니다." : activeCaseId === "ep07" ? "공개 전 사진과 비밀계정은 본인 인증 수단이 아닙니다." : "이 대화는 작전 보안과 사랑의 힘으로 전혀 인증되지 않았습니다."}</p>
           {messages.map((message) => (
             <div className={`message-row ${message.from}`} key={message.id}>
               {message.from === "scammer" && <button className="avatar-button bubble-avatar" onClick={() => setPortraitOpen(true)} aria-label={`${activeCase.scammer} 프로필 사진 크게 보기`}><img src={activeCase.portrait} alt="" /></button>}

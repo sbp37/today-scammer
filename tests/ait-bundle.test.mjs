@@ -41,7 +41,7 @@ test("builds an uploadable today-scammer Apps in Toss bundle", async () => {
   assert.match(bundledScripts, /getCompletedOrRefundedOrders/);
   assert.match(html, /today-scammer\.apps\.tossmini\.com/);
 
-  for (const asset of ["logo-oneul.webp", "scammer-01.webp", "scammer-02.webp", "scammer-06.webp", "seoyun-dubu.webp", "fake-credentials-06.webp"]) {
+  for (const asset of ["logo-oneul.webp", "scammer-01.webp", "scammer-02.webp", "scammer-03-v1.webp", "scammer-06.webp", "scammer-07.webp", "seoyun-dubu.webp", "fake-credentials-06.webp"]) {
     const assetInfo = await stat(new URL(`ait-dist/${asset}`, root));
     assert.ok(assetInfo.size > 0, `${asset} should be included in the Toss bundle`);
   }

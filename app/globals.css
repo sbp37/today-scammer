@@ -41,8 +41,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .featured-case { --accent: var(--red); position: relative; height: min(128vw, 570px); min-height: 470px; overflow: hidden; border: 1px solid #5a627f55; border-radius: 26px; background: #101525; box-shadow: 0 24px 70px #0008; cursor: pointer; }
 .featured-case:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 78%, white); outline-offset: 4px; }
 .featured-portrait { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; transform: scale(1.01); }
-.featured-case.case-02 .featured-portrait { object-position: center 20%; transform: scale(1.06); transform-origin: 50% 92%; }
-.featured-case.case-03 .featured-portrait { object-position: center 0%; transform: none; }
+.featured-case.case-02 .featured-portrait { object-position: center 20%; transform: scale(1.10); transform-origin: 50% 92%; }
+.featured-case.case-03 .featured-portrait { object-position: center 0%; transform: scale(1.08); transform-origin: 50% 18%; }
 .featured-shade { position: absolute; inset: 0; background: linear-gradient(180deg, #05081215 5%, transparent 35%, #080b15a8 63%, #080a12 92%), linear-gradient(90deg, #0b0e1818, transparent 60%); }
 .featured-status { position: absolute; top: 18px; left: 18px; right: 18px; display: flex; align-items: center; justify-content: space-between; color: #e9ebf3; font-size: 12px; font-weight: 800; letter-spacing: .08em; }
 .featured-status span { display: flex; align-items: center; padding: 8px 10px; border: 1px solid #ffffff2b; border-radius: 999px; background: #090b13a6; backdrop-filter: blur(10px); }

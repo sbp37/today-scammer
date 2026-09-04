@@ -43,7 +43,8 @@ test("conversation graph has no broken, unreachable, or looping branches", async
     { root: "romanceStart", text: source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:")) },
     { root: "seoyunStart", text: source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const prosecutorScenes:")) },
     { root: "prosStart", text: source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const coinDiscipleBalance")) },
-    { root: "coinStart", text: source.slice(source.indexOf("const coinScenes:"), source.indexOf("const clueOptions")) },
+    { root: "coinStart", text: source.slice(source.indexOf("const coinScenes:"), source.indexOf("const celebrityScenes:")) },
+    { root: "starStart", text: source.slice(source.indexOf("const celebrityScenes:"), source.indexOf("const clueOptions")) },
   ];
 
   const validate = ({ root, text }) => {
@@ -112,6 +113,7 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   const credentialAsset = await readFile(new URL("../public/fake-credentials-06.webp", import.meta.url));
   const dubuAsset = await readFile(new URL("../public/seoyun-dubu.webp", import.meta.url));
   const prosecutorNoticeAsset = await readFile(new URL("../public/fake-notice-03.webp", import.meta.url));
+  const celebrityAsset = await readFile(new URL("../public/scammer-07.webp", import.meta.url));
   const failureChoices = source.match(/^.*ending: "F".*$/gm) ?? [];
 
   assert.ok(failureChoices.length >= 4);
@@ -159,11 +161,12 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.ok(credentialAsset.byteLength > 70_000 && credentialAsset.byteLength < 130_000);
   assert.ok(dubuAsset.byteLength > 20_000 && dubuAsset.byteLength < 100_000);
   assert.ok(prosecutorNoticeAsset.byteLength > 20_000 && prosecutorNoticeAsset.byteLength < 130_000);
+  assert.ok(celebrityAsset.byteLength > 30_000 && celebrityAsset.byteLength < 200_000);
   assert.match(source, /광고 보고 사건파일 열기/);
   assert.match(source, /home-reward-unlock-title/);
   assert.match(source, /onClick=\{\(\) => requestRewardedCase\(featuredCaseId\)\}/);
   assert.match(source, /NEXT_PUBLIC_REWARDED_UNLOCKS_ENABLED/);
-  assert.match(rewardedRoute, /rewardedCases.*"ep02", "ep03", "ep06"/);
+  assert.match(rewardedRoute, /rewardedCases.*"ep02", "ep03", "ep04", "ep06", "ep07"/);
   assert.match(rewardedRoute, /unlockArrival/);
   assert.match(productionEnv, /NEXT_PUBLIC_REWARDED_UNLOCKS_ENABLED=false/);
 });
@@ -255,11 +258,12 @@ test("dialogue audit rejects broken clues, premature money replies, and repetiti
   const ep06 = source.slice(source.indexOf("const romanceScenes:"), source.indexOf("const seoyunScenes:"));
   const ep02 = source.slice(source.indexOf("const seoyunScenes:"), source.indexOf("const prosecutorScenes:"));
   const ep03 = source.slice(source.indexOf("const prosecutorScenes:"), source.indexOf("const coinDiscipleBalance"));
-  const ep04 = source.slice(source.indexOf("const coinScenes:"), source.indexOf("const clueOptions"));
+  const ep04 = source.slice(source.indexOf("const coinScenes:"), source.indexOf("const celebrityScenes:"));
+  const ep07 = source.slice(source.indexOf("const celebrityScenes:"), source.indexOf("const clueOptions"));
   const clueBlock = source.slice(source.indexOf("const clueOptions"), source.indexOf("const clueExplanations"));
   const definedClues = new Set([...clueBlock.matchAll(/id: "([A-Za-z]+)"/g)].map((match) => match[1]));
 
-  for (const block of [ep01, ep06, ep02, ep03, ep04]) {
+  for (const block of [ep01, ep06, ep02, ep03, ep04, ep07]) {
     for (const match of block.matchAll(/clues: \[([^\]]+)\]/g)) {
       for (const id of [...match[1].matchAll(/"([A-Za-z]+)"/g)].map((item) => item[1])) {
         assert.equal(definedClues.has(id), true, `undefined clue id: ${id}`);
@@ -277,6 +281,21 @@ test("dialogue audit rejects broken clues, premature money replies, and repetiti
   assert.match(ep02, /프로필 사진은 본인 사진 맞죠\?/);
   assert.match(ep02, /산책 다녀오면 저렇게 소파에서 안 움직여요/);
   assert.doesNotMatch(ep02, /말투 편해 보여서요|프로필은 직접 쓴 거 맞죠\?|확인 안 되면 돈도 못 보내/);
+
+  assert.match(ep03, /어제 새벽 2시 14분, 게임 속 가상금액 240만원/);
+  assert.match(ep03, /'대기 17번'/);
+  assert.match(ep03, /이 채팅을 종료하거나 대표번호로 다시 확인하면/);
+  assert.match(ep03, /요즘은 AI 영상도 만들잖아요/);
+  assert.doesNotMatch(ep03, /예금주 사기꾼|국가가 아니라 제가|시스템은 현재 수사|공식 확인은 비공식적으로만/);
+
+  const ep03OfficialCheckChoices = [...ep03.matchAll(/\{ text: "[^"]*(?:공식 대표번호|대표번호로)[^"]*"/g)];
+  assert.ok(ep03OfficialCheckChoices.length <= 4, `EP.03 repeats official verification ${ep03OfficialCheckChoices.length} times`);
+
+  assert.match(ep07, /not_youmyeong_00/);
+  assert.match(ep07, /마음은 무료지\. 시스템은 유료고/);
+  assert.match(ep07, /나 배우야\. 개발자 아니고/);
+  assert.match(ep07, /회사도 모르는 회사 VIP 인증은 없어요/);
+  assert.doesNotMatch(ep07, /실제 송금|실제 결제/);
 
   const ep01VideoChoices = [...ep01.matchAll(/\{ text: "[^"]*(?:영상통화 한 번 해주세요|영상(?:통화)?[^".]*켜봐요|영상 켜줘)[^"]*"/g)];
   const ep01NameChoices = [...ep01.matchAll(/\{ text: "[^"]*(?:본명|이름)[^"]*"/g)];
