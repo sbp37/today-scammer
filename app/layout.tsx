@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import { WebTracker } from "./components/web-tracker";
 
 const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
@@ -52,7 +53,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           />
         )}
       </head>
-      <body>{children}</body>
+      <body>
+        <WebTracker />
+        {children}
+      </body>
     </html>
   );
 }
