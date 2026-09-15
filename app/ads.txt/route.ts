@@ -1,4 +1,4 @@
-const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID ?? "";
+const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9269666926580954";
 
 export async function GET() {
   const publisherId = clientId.replace(/^ca-/, "");

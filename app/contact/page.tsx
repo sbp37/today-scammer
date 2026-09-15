@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { InfoPage } from "../info-page";
 
 export const metadata: Metadata = {
-  title: "문의 및 오류 제보 | 오늘의 사기꾼",
+  title: "문의·제보 | 오늘의 사기꾼",
   description: "오늘의 사기꾼 오류 제보, 콘텐츠 및 개인정보 문의 창구입니다.",
 };
 
@@ -19,8 +19,8 @@ export default function ContactPage() {
         </ul>
       </section>
       <section>
-        <h2>공식 문의 창구</h2>
-        <p><a className="info-action" href="https://github.com/sbp37/today-scammer/issues" target="_blank" rel="noreferrer">GitHub에서 문의 남기기 ↗</a></p>
+        <h2>문의·제보 메일</h2>
+        <p><a className="info-action" href="mailto:takea@naver.com?subject=%EC%98%A4%EB%8A%98%EC%9D%98%20%EC%82%AC%EA%B8%B0%EA%BE%BC%20%EB%AC%B8%EC%9D%98%C2%B7%EC%A0%9C%EB%B3%B4">takea@naver.com으로 메일 보내기 ↗</a></p>
         <p>오류 제보 시 사용한 기기, 브라우저, 사건 번호와 문제가 발생한 대사를 함께 적어주면 확인이 빨라집니다. 계좌번호, 전화번호와 같은 실제 개인정보는 작성하지 마세요.</p>
       </section>
     </InfoPage>

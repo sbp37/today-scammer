@@ -21,11 +21,13 @@ const rewardedAdId = viteEnvironment?.VITE_ADMOB_REWARDED_ID || testRewardedId;
 const adFreeProductId = viteEnvironment?.VITE_PLAY_AD_FREE_PRODUCT_ID || "today_scammer_ad_free";
 const isTesting = viteEnvironment?.VITE_ADMOB_TEST_MODE !== "false";
 const adFreeStorageKey = "today-scammer:google-play:ad-free";
+const isNoAdsTestMode = () => new URLSearchParams(window.location.search).get("no-ads") === "1";
 
 type RewardedAdStatus = "loading" | "ready" | "showing" | "unavailable" | "failed";
 
 function GooglePlayTodayScammer() {
   const isAndroid = Capacitor.getPlatform() === "android";
+  const [noAdsTestMode] = useState(isNoAdsTestMode);
   const [screen, setScreen] = useState<GameScreen>("home");
   const [adMobReady, setAdMobReady] = useState(false);
   const [rewardedAdStatus, setRewardedAdStatus] = useState<RewardedAdStatus>(() => isAndroid ? "loading" : "unavailable");
@@ -51,6 +53,7 @@ function GooglePlayTodayScammer() {
   }, []);
 
   const restoreAdFreePurchase = useCallback(async () => {
+    if (noAdsTestMode) return;
     if (!isAndroid) return;
     try {
       const { purchases } = await NativePurchases.getPurchases({ productType: PURCHASE_TYPE.INAPP });
@@ -68,9 +71,10 @@ function GooglePlayTodayScammer() {
     } catch (error) {
       console.warn("광고 제거 구매 복원 실패", error);
     }
-  }, [grantAdFree, isAndroid]);
+  }, [grantAdFree, isAndroid, noAdsTestMode]);
 
   const loadAdFreeProduct = useCallback(async () => {
+    if (noAdsTestMode) return;
     if (!isAndroid) return;
     try {
       const { products } = await NativePurchases.getProducts({
@@ -82,9 +86,10 @@ function GooglePlayTodayScammer() {
     } catch (error) {
       console.warn("광고 제거 상품 정보 조회 실패", error);
     }
-  }, [isAndroid]);
+  }, [isAndroid, noAdsTestMode]);
 
   const preloadRewardedAd = useCallback(async () => {
+    if (noAdsTestMode) return false;
     if (!isAndroid || !adMobReady || adFreePurchased || rewardLoadingRef.current) return false;
     rewardLoadingRef.current = true;
     setRewardedAdStatus("loading");
@@ -99,9 +104,10 @@ function GooglePlayTodayScammer() {
     } finally {
       rewardLoadingRef.current = false;
     }
-  }, [adFreePurchased, adMobReady, isAndroid]);
+  }, [adFreePurchased, adMobReady, isAndroid, noAdsTestMode]);
 
   useEffect(() => {
+    if (noAdsTestMode) return;
     if (!isAndroid) return;
 
     let cancelled = false;
@@ -129,7 +135,7 @@ function GooglePlayTodayScammer() {
       cancelled = true;
       void AdMob.removeBanner().catch(() => undefined);
     };
-  }, [isAndroid, loadAdFreeProduct, restoreAdFreePurchase]);
+  }, [isAndroid, loadAdFreeProduct, noAdsTestMode, restoreAdFreePurchase]);
 
   useEffect(() => {
     if (!adMobReady || adFreePurchased) return;
@@ -140,6 +146,7 @@ function GooglePlayTodayScammer() {
   useEffect(() => {
     if (!isAndroid || !adMobReady) return;
     const shouldShowBanner = !adFreePurchased && (screen === "home" || screen === "ending");
+    if (noAdsTestMode) return;
 
     if (shouldShowBanner && !bannerVisibleRef.current) {
       bannerVisibleRef.current = true;
@@ -163,10 +170,11 @@ function GooglePlayTodayScammer() {
       delete document.documentElement.dataset.nativeBanner;
       void AdMob.removeBanner().catch(() => undefined);
     }
-  }, [adFreePurchased, adMobReady, isAndroid, screen]);
+  }, [adFreePurchased, adMobReady, isAndroid, noAdsTestMode, screen]);
 
   const requestRewardedUnlock = useCallback(async (_caseId: CaseId): Promise<RewardedUnlockResult> => {
     void _caseId;
+    if (noAdsTestMode) return "earned";
     if (adFreePurchased) return "earned";
     if (!isAndroid || !adMobReady) return "unavailable";
 
@@ -185,9 +193,10 @@ function GooglePlayTodayScammer() {
       window.setTimeout(() => void preloadRewardedAd(), 350);
       return "dismissed";
     }
-  }, [adFreePurchased, adMobReady, isAndroid, preloadRewardedAd, rewardedAdStatus]);
+  }, [adFreePurchased, adMobReady, isAndroid, noAdsTestMode, preloadRewardedAd, rewardedAdStatus]);
 
   const purchaseAdFree = useCallback(async () => {
+    if (noAdsTestMode) return false;
     if (!isAndroid || adFreePurchasePending) return false;
     setAdFreePurchasePending(true);
     try {
@@ -209,15 +218,15 @@ function GooglePlayTodayScammer() {
     } finally {
       setAdFreePurchasePending(false);
     }
-  }, [adFreePurchasePending, grantAdFree, isAndroid, restoreAdFreePurchase]);
+  }, [adFreePurchasePending, grantAdFree, isAndroid, noAdsTestMode, restoreAdFreePurchase]);
 
   return (
     <TodayScammer
       rewardedUnlocksEnabled
-      rewardedAdStatus={rewardedAdStatus}
+      rewardedAdStatus={noAdsTestMode ? "ready" : rewardedAdStatus}
       onRequestRewardedUnlock={requestRewardedUnlock}
-      showAdFreeOffer
-      adFreePurchased={adFreePurchased}
+      showAdFreeOffer={!noAdsTestMode}
+      adFreePurchased={adFreePurchased || noAdsTestMode}
       adFreePurchasePending={adFreePurchasePending}
       adFreePriceLabel={adFreePriceLabel}
       onPurchaseAdFree={purchaseAdFree}

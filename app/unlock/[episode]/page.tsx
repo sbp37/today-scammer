@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { AdBanner } from "../../components/ad-banner";
 import { TodayScammer, type CaseId } from "../../page";
 
-const rewardedCases = new Set<CaseId>(["ep02", "ep03", "ep04", "ep06", "ep07"]);
+const rewardedCases = new Set<CaseId>(["ep02", "ep03", "ep06", "ep07", "ep16", "ep19"]);
 
 export default async function RewardedEpisodePage({ params }: { params: Promise<{ episode: string }> }) {
   const { episode } = await params;

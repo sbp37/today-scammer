@@ -19,7 +19,7 @@ export default function AboutPage() {
         <ul>
           <li><strong>CASE 01</strong> 유명 테크 억만장자를 어설프게 사칭하는 ‘일런 모스크바’</li>
           <li><strong>CASE 02</strong> 평범한 소개팅 DM이 가족 위기와 송금 부탁으로 바뀌는 ‘J’</li>
-          <li><strong>CASE 06</strong> 사랑과 고액 상자를 함께 보내겠다는 해외 파병 군의관 ‘Dr. 제임스 초이’</li>
+          <li><strong>CASE 06</strong> 사랑과 고액 택배를 함께 보내겠다는 해외 파병 군의관 ‘Dr. 제임스 초이’</li>
         </ul>
       </section>
       <section>

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 
-const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9269666926580954";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -28,13 +28,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "오늘의 사기꾼",
       description: "속아 넘어가기 전에 탈출하라",
       type: "website",
-      images: [{ url: `${origin}/og.webp`, width: 1727, height: 911, alt: "오늘의 사기꾼 CASE 01 캐릭터 셀렉트" }],
+      images: [{ url: `${origin}/og.webp?v=tone-and-clue-r2`, width: 1727, height: 911, alt: "오늘의 사기꾼 CASE 01 캐릭터 셀렉트" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "오늘의 사기꾼",
       description: "속아 넘어가기 전에 탈출하라",
-      images: [`${origin}/og.webp`],
+      images: [`${origin}/og.webp?v=tone-and-clue-r2`],
     },
   };
 }

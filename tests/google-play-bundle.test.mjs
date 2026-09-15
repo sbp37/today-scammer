@@ -48,4 +48,5 @@ assert.match(game, /속아 넘어가기 전에 탈출하세요/);
   assert.ok(publicAssets.includes("scammer-01.webp"));
   assert.ok(publicAssets.includes("scammer-02.webp"));
   assert.ok(publicAssets.includes("scammer-06.webp"));
+  assert.ok(publicAssets.includes("celebrity-selfie-07.webp"));
 });

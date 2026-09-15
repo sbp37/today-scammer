@@ -1,0 +1,11 @@
+.env*
+!.env.example
+.vercel/
+.playwright-cli/
+deliverables/
+output/
+outputs/
+tsconfig.tsbuildinfo
+ait-dist/
+google-play-dist/
+android/

@@ -8,11 +8,12 @@ import "../app/globals.css";
 const viteEnvironment = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
 const rewardedAdGroupId = viteEnvironment?.VITE_TOSS_REWARDED_AD_GROUP_ID || "ait.v2.live.6141fea128c44f43";
 const bannerAdGroupId = viteEnvironment?.VITE_TOSS_BANNER_AD_GROUP_ID || "ait.v2.live.72cbbf1ba4fb488b";
-const tossAdFreeProductId = viteEnvironment?.VITE_TOSS_AD_FREE_PRODUCT_ID || "today_scammer_ad_free";
+const tossAdFreeProductId = viteEnvironment?.VITE_TOSS_AD_FREE_PRODUCT_ID || "ait.0000067248.7f2a9b8a.308820a07b.8678318855";
 const tossPromotionCode = viteEnvironment?.VITE_TOSS_PROMOTION_CODE || "01M1HCH8T18CN3A7AT6XFS70TN";
-const tossShareOgImageUrl = "https://today-scammer.vercel.app/og.webp";
+const tossShareOgImageUrl = "https://today-scammer.vercel.app/og.webp?v=tone-and-clue-r2";
 const tossAdFreeStorageKey = "today-scammer:toss:ad-free";
 const tossPromotionClaimedStorageKey = "today-scammer:toss:first-game-promotion-claimed";
+const isNoAdsTestMode = () => new URLSearchParams(window.location.search).get("no-ads") === "1";
 
 type RewardedAdStatus = "loading" | "ready" | "showing" | "unavailable" | "failed";
 type TossBannerPlacement = "home" | "result";
@@ -75,6 +76,7 @@ function isTossIapSupported() {
 }
 
 function TossTodayScammer() {
+  const [noAdsTestMode] = useState(isNoAdsTestMode);
   const [rewardedAdStatus, setRewardedAdStatus] = useState<RewardedAdStatus>("loading");
   const [bannerAdsReady, setBannerAdsReady] = useState(false);
   const [iapSupported] = useState(isTossIapSupported);
@@ -114,6 +116,7 @@ function TossTodayScammer() {
   }, []);
 
   useEffect(() => {
+    if (noAdsTestMode) return;
     if (!iapSupported) return;
     let active = true;
 
@@ -152,9 +155,10 @@ function TossTodayScammer() {
       iapCleanupRef.current?.();
       iapCleanupRef.current = null;
     };
-  }, [grantTossAdFree, iapSupported, revokeTossAdFree]);
+  }, [grantTossAdFree, iapSupported, noAdsTestMode, revokeTossAdFree]);
 
   useEffect(() => {
+    if (noAdsTestMode) return;
     let active = true;
 
     try {
@@ -182,7 +186,7 @@ function TossTodayScammer() {
         // 구형 토스 앱이나 브라우저 미리보기에서는 제거 API가 없을 수 있습니다.
       }
     };
-  }, []);
+  }, [noAdsTestMode]);
 
   useEffect(() => {
     const playTapSound = () => {
@@ -228,6 +232,7 @@ function TossTodayScammer() {
   }, []);
 
   const loadRewardedAd = useCallback(() => {
+    if (noAdsTestMode) return;
     if (adFreePurchased) return;
     if (!isRewardedAdSupported()) {
       rewardedAdReadyRef.current = false;
@@ -258,7 +263,7 @@ function TossTodayScammer() {
         loadCleanupRef.current = null;
       },
     });
-  }, [adFreePurchased]);
+  }, [adFreePurchased, noAdsTestMode]);
 
   useEffect(() => {
     const preloadId = window.setTimeout(loadRewardedAd, 0);
@@ -273,6 +278,10 @@ function TossTodayScammer() {
     void _caseId;
     return new Promise<RewardedUnlockResult>((resolve) => {
       if (adFreePurchased) {
+        resolve("earned");
+        return;
+      }
+      if (noAdsTestMode) {
         resolve("earned");
         return;
       }
@@ -338,9 +347,10 @@ function TossTodayScammer() {
       });
       showCleanupRef.current = unregister;
     });
-  }, [adFreePurchased, loadRewardedAd]);
+  }, [adFreePurchased, loadRewardedAd, noAdsTestMode]);
 
   const purchaseTossAdFree = useCallback(() => {
+    if (noAdsTestMode) return Promise.resolve(false);
     if (!iapSupported || adFreePurchased || adFreePurchasePending) return Promise.resolve(false);
     setAdFreePurchasePending(true);
 
@@ -377,7 +387,7 @@ function TossTodayScammer() {
         finish(false);
       }
     });
-  }, [adFreePurchasePending, adFreePurchased, grantTossAdFree, iapSupported]);
+  }, [adFreePurchasePending, adFreePurchased, grantTossAdFree, iapSupported, noAdsTestMode]);
 
   const grantFirstGamePromotion = useCallback(async () => {
     if (promotionClaimingRef.current) return;
@@ -422,15 +432,16 @@ function TossTodayScammer() {
 
   return (
     <TodayScammer
-      homeAd={<TossBannerAd enabled={bannerAdsReady && !adFreePurchased} placement="home" />}
-      resultAd={<TossBannerAd enabled={bannerAdsReady && !adFreePurchased} placement="result" />}
+      homeAd={<TossBannerAd enabled={bannerAdsReady && !adFreePurchased && !noAdsTestMode} placement="home" />}
+      resultAd={<TossBannerAd enabled={bannerAdsReady && !adFreePurchased && !noAdsTestMode} placement="result" />}
       rewardedUnlocksEnabled
-      rewardedAdStatus={rewardedAdStatus}
+      rewardedAdStatus={noAdsTestMode ? "ready" : rewardedAdStatus}
       onRequestRewardedUnlock={requestRewardedUnlock}
       onShareResult={shareTossResult}
       onGameCompleted={grantFirstGamePromotion}
-      showAdFreeOffer={false}
-      adFreePurchased={adFreePurchased}
+      showAdFreeOffer={!noAdsTestMode}
+      legalVariant="toss"
+      adFreePurchased={adFreePurchased || noAdsTestMode}
       adFreePurchasePending={adFreePurchasePending}
       adFreePriceLabel={adFreePriceLabel}
       onPurchaseAdFree={purchaseTossAdFree}
@@ -444,4 +455,5 @@ if (!root) {
   throw new Error("오늘의 사기꾼 앱 루트 요소를 찾지 못했습니다.");
 }
 
+document.documentElement.dataset.runtime = "toss";
 createRoot(root).render(<TossTodayScammer />);
