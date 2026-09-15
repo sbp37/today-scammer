@@ -193,14 +193,14 @@ test("AdSense-facing static pages exist, are crawlable, and match the live episo
   // Every live episode needs an article, and no article may invent an episode.
   const liveIds = (source.match(/const liveEpisodeIds: CaseId\[\] = \[([^\]]+)\]/) ?? [])[1] ?? "";
   const liveNos = [...liveIds.matchAll(/"ep(\d+)"/g)].map((m) => m[1]).sort();
-  const articleNos = [...cases.matchAll(/^    no: "(\d+)",$/gm)].map((m) => m[1]).sort();
+  const articleNos = [...cases.matchAll(/^ {4}no: "(\d+)",$/gm)].map((m) => m[1]).sort();
   assert.deepEqual(articleNos, liveNos, "app/lib/cases.ts must cover exactly the live episodes");
 
   // Titles and scammer names are duplicated from caseProfiles, so they must not drift.
-  for (const [, no, title] of cases.matchAll(/^    no: "(\d+)",\n    title: "([^"]+)",\n    scammer: "([^"]+)",$/gm)) {
+  for (const [, no, title] of cases.matchAll(/^ {4}no: "(\d+)",\n {4}title: "([^"]+)",\n {4}scammer: "([^"]+)",$/gm)) {
     assert.ok(source.includes(`no: "${no}", title: "${title}"`), `CASE ${no} title is out of sync with caseProfiles`);
   }
-  for (const [, no, , scammer] of cases.matchAll(/^    no: "(\d+)",\n    title: "([^"]+)",\n    scammer: "([^"]+)",$/gm)) {
+  for (const [, no, , scammer] of cases.matchAll(/^ {4}no: "(\d+)",\n {4}title: "([^"]+)",\n {4}scammer: "([^"]+)",$/gm)) {
     assert.ok(source.includes(`scammer: "${scammer}"`), `CASE ${no} scammer is out of sync with caseProfiles`);
   }
 
@@ -223,9 +223,12 @@ test("AdSense-facing static pages exist, are crawlable, and match the live episo
   }
 
   // The home footer links the content pages with same-site relative hrefs.
-  assert.match(source, /<a href="\/guide">플레이 방법<\/a>/);
-  assert.match(source, /<a href="\/cases">사건 해설<\/a>/);
+  assert.match(source, /\["\/guide", "플레이 방법"\]/);
+  assert.match(source, /\["\/cases", "사건 해설"\]/);
+  assert.match(source, /href=\{`\$\{infoLinkBase\}\$\{href\}`\}/);
   assert.doesNotMatch(source, /today-scammer\.vercel\.app\/(about|terms|privacy)/);
+  // Only the packaged Capacitor shell, which has no such routes, falls back to absolute URLs.
+  assert.match(source, /const infoLinkBase = isNativeShell\(\) \? "https:\/\/todaycase\.kr" : "";/);
 });
 
 test("Google Play privacy and real ad-removal purchase are clearly disclosed", async () => {

@@ -318,7 +318,7 @@ html[data-native-banner="visible"] .home-screen, html[data-native-banner="visibl
 .info-nav span { color: #8f97ad; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
 .info-card { margin-top: 34px; padding: clamp(22px, 6vw, 42px); border: 1px solid #ffffff14; border-radius: 26px; background: linear-gradient(150deg, #141a2a, #0d1019 58%); box-shadow: 0 28px 80px #0007; }
 .info-eyebrow { margin: 0; color: #98a3ff; font-size: 11px; font-weight: 900; letter-spacing: .13em; }
-.info-card > h1 { margin: 8px 0 13px; font-size: clamp(32px, 8vw, 52px); line-height: 1.05; letter-spacing: -.07em; }
+.info-card > h1 { margin: 8px 0 13px; font-size: clamp(32px, 8vw, 52px); line-height: 1.05; letter-spacing: -.07em; word-break: keep-all; }
 .info-summary { margin: 0; color: #c8ccd8; font-size: 17px; line-height: 1.65; word-break: keep-all; }
 /* Shared text menu. Muted on purpose: it is for crawlers and for people who want it, not a banner. */
 .site-nav { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px 14px; width: min(100%, 720px); margin-inline: auto; }
