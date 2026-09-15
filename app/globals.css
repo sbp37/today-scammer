@@ -320,6 +320,43 @@ html[data-native-banner="visible"] .home-screen, html[data-native-banner="visibl
 .info-eyebrow { margin: 0; color: #98a3ff; font-size: 11px; font-weight: 900; letter-spacing: .13em; }
 .info-card > h1 { margin: 8px 0 13px; font-size: clamp(32px, 8vw, 52px); line-height: 1.05; letter-spacing: -.07em; }
 .info-summary { margin: 0; color: #c8ccd8; font-size: 17px; line-height: 1.65; word-break: keep-all; }
+/* Shared text menu. Muted on purpose: it is for crawlers and for people who want it, not a banner. */
+.site-nav { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px 14px; width: min(100%, 720px); margin-inline: auto; }
+.site-nav a, .site-nav span { color: #7e869b; font-size: 13px; font-weight: 650; letter-spacing: -.02em; text-decoration: none; }
+.site-nav a:hover { color: #cfd4e2; text-decoration: underline; }
+.site-nav span[aria-current] { color: #cfd4e2; }
+.site-nav-top { margin-top: 20px; }
+.site-nav-bottom { margin-top: 26px; padding-top: 18px; border-top: 1px solid #ffffff12; }
+.home-screen .site-nav { justify-content: center; margin-top: 22px; padding-top: 18px; border-top: 1px solid #ffffff10; }
+
+/* FAQ and long sections stay collapsed until tapped; the text is still in the HTML. */
+.faq-list { display: grid; gap: 8px; }
+.faq-item { border: 1px solid #ffffff14; border-radius: 14px; background: #ffffff06; }
+.faq-item > summary { padding: 15px 16px; color: #e7eaf2; font-size: 15px; font-weight: 750; line-height: 1.5; letter-spacing: -.03em; cursor: pointer; list-style: none; word-break: keep-all; }
+.faq-item > summary::-webkit-details-marker { display: none; }
+.faq-item > summary::after { content: "+"; float: right; margin-left: 10px; color: #8e96ab; font-weight: 800; }
+.faq-item[open] > summary::after { content: "\2212"; }
+.faq-item[open] > summary { color: #fff; }
+.faq-answer { padding: 0 16px 15px; }
+.faq-answer p { margin: 0 0 9px; }
+.faq-answer p:last-child { margin-bottom: 0; }
+
+.case-index { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.case-index li { margin: 0; }
+.case-index a { display: grid; gap: 4px; padding: 15px 16px; border: 1px solid #ffffff14; border-radius: 14px; background: #ffffff06; text-decoration: none; }
+.case-index a:hover { border-color: #ffffff2c; background: #ffffff0c; }
+.case-index strong { color: #edf0f7; font-size: 15px; line-height: 1.4; letter-spacing: -.035em; word-break: keep-all; }
+.case-index span { color: #8b93a8; font-size: 12px; font-weight: 700; }
+.case-index em { color: #a7aec0; font-size: 13.5px; font-style: normal; line-height: 1.6; word-break: keep-all; }
+.case-tell { margin-top: 14px; padding: 13px 15px; border-left: 3px solid #ff5368; border-radius: 0 10px 10px 0; background: #ff53680f; color: #e4e7f0; }
+.case-more { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.case-more li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin: 0; }
+.case-more a { color: #b8bfd2; font-size: 14px; font-weight: 700; text-decoration: none; }
+.case-more a:hover { color: #fff; text-decoration: underline; }
+
+.case-more span { color: #798197; font-size: 12px; }
+.info-operator { color: #6f7789; font-size: 12px; }
+
 .info-body { display: grid; gap: 12px; margin-top: 28px; }
 .info-body section { padding: 19px 0; border-top: 1px solid #ffffff10; }
 .info-body h2 { margin: 0 0 10px; color: #f0f2f8; font-size: 20px; letter-spacing: -.045em; }

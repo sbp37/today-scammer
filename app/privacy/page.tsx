@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { InfoPage } from "../info-page";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "개인정보처리방침 | 오늘의 사기꾼",
   description: "오늘의 사기꾼 서비스의 개인정보 처리, 광고 SDK와 기기 저장 정보 안내입니다.",
 };
 
 export default function PrivacyPage() {
   return (
-    <InfoPage eyebrow="PRIVACY FILE" title="개인정보처리방침" summary="오늘의 사기꾼은 회원가입 없이 플레이할 수 있으며, 게임 속 답변에 실제 개인정보를 입력받지 않습니다.">
+    <InfoPage current="/privacy" eyebrow="PRIVACY FILE" title="개인정보처리방침" summary="오늘의 사기꾼은 회원가입 없이 플레이할 수 있으며, 게임 속 답변에 실제 개인정보를 입력받지 않습니다.">
       <section>
         <h2>1. 수집하는 정보</h2>
         <p>현재 서비스는 이름, 전화번호, 주소, 계좌번호와 같은 개인정보를 직접 입력받거나 별도의 회원 계정을 만들지 않습니다.</p>

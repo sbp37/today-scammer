@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { InfoPage } from "../info-page";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: "문의·제보 | 오늘의 사기꾼",
   description: "오늘의 사기꾼 오류 제보, 콘텐츠 및 개인정보 문의 창구입니다.",
 };

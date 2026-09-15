@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { InfoPage } from "../info-page";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/terms" },
   title: "이용안내 및 약관 | 오늘의 사기꾼",
   description: "오늘의 사기꾼 웹게임의 이용 조건과 가상금액 안내입니다.",
 };
 
 export default function TermsPage() {
   return (
-    <InfoPage eyebrow="PLAYER RULES" title="이용안내 및 약관" summary="게임을 시작하기 전에 이것만은 확실합니다. 화면 속 송금은 전부 가상이고, 현실의 돈은 한 푼도 움직이지 않습니다.">
+    <InfoPage current="/terms" eyebrow="PLAYER RULES" title="이용안내 및 약관" summary="게임을 시작하기 전에 이것만은 확실합니다. 화면 속 송금은 전부 가상이고, 현실의 돈은 한 푼도 움직이지 않습니다.">
       <section>
         <h2>1. 서비스 성격</h2>
         <p>오늘의 사기꾼은 사기 수법을 소재로 만든 선택형 상황극 게임입니다. 제공되는 대사와 결과는 일반적인 정보이며, 특정 상황에 대한 법률·금융·수사 자문을 대신하지 않습니다.</p>
