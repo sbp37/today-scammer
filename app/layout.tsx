@@ -23,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "오늘의 사기꾼 — 속아 넘어가기 전에 탈출하라",
     description: "속아 넘어가기 전에 탈출하라. 수상한 사기꾼과 실제 메신저처럼 대화하고 사기 신호를 찾는 짧은 상황극 게임.",
     applicationName: "오늘의 사기꾼",
+    icons: { icon: "/logo-oneul.webp", apple: "/logo-oneul.webp" },
     formatDetection: { telephone: false, address: false, email: false },
     appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "오늘의 사기꾼" },
     openGraph: {
