@@ -127,6 +127,8 @@ const episodes = [
   { no: "19", mark: "TICKET", name: "매진인데 이 사람만\n표가 있대요", scammer: "앵콜한번더", type: "티켓 거래 사기", line: "정가라더니 입금만 앵콜", accent: "#ff7fac", live: true },
 ];
 
+const infoPageLinks: [string, string][] = [["/about", "게임 소개"], ["/guide", "플레이 방법"], ["/cases", "사건 해설"], ["/faq", "FAQ"], ["/terms", "이용약관"], ["/privacy", "개인정보"]];
+const isNativeShell = () => typeof window !== "undefined" && Boolean((window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
 const liveEpisodeIds: CaseId[] = ["ep01", "ep06", "ep02", "ep03", "ep07", "ep04", "ep19", "ep16"];
 // Editorial release flags, visible to first-time visitors as well as returning players.
 const recentEpisodeNos = ["01", "02", "03", "04", "06", "07", "16", "17", "18", "19"];
@@ -1958,6 +1960,8 @@ export function TodayScammer({
   onScreenChange,
   legalVariant = "web",
 }: TodayScammerProps = {}) {
+  // The packaged Capacitor shell has no /about, /guide … routes of its own, so it opens them on the web instead.
+  const infoLinkBase = isNativeShell() ? "https://todaycase.kr" : "";
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [activeCaseId, setActiveCaseId] = useState<CaseId>(initialCaseId);
   const [featuredCaseId, setFeaturedCaseId] = useState<CaseId>(initialCaseId);
@@ -2900,7 +2904,9 @@ export function TodayScammer({
           {legalVariant === "toss" ? (
             <><button onClick={() => setFooterInfoPage("about")}>게임 소개</button><button onClick={() => setFooterInfoPage("privacy")}>개인정보처리방침</button><button onClick={() => setFooterInfoPage("terms")}>이용안내</button></>
           ) : (
-            <><a href="/about">게임 소개</a><a href="/guide">플레이 방법</a><a href="/cases">사건 해설</a><a href="/faq">FAQ</a><a href="/terms">이용약관</a><a href="/privacy">개인정보</a></>
+            <>{infoPageLinks.map(([href, label]) => (
+              <a key={href} href={`${infoLinkBase}${href}`} {...(infoLinkBase ? { target: "_blank", rel: "noreferrer" } : {})}>{label}</a>
+            ))}</>
           )}
           <a href="mailto:takea@naver.com?subject=%EC%98%A4%EB%8A%98%EC%9D%98%20%EC%82%AC%EA%B8%B0%EA%BE%BC%20%EB%AC%B8%EC%9D%98%C2%B7%EC%A0%9C%EB%B3%B4">문의·제보</a>
         </nav>
