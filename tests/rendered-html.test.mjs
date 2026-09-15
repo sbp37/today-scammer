@@ -180,6 +180,54 @@ test("virtual money, paced ending, sharing, and second episode are explicit", as
   assert.match(exampleEnv, /NEXT_PUBLIC_REWARDED_UNLOCKS_ENABLED=false/);
 });
 
+test("AdSense-facing static pages exist, are crawlable, and match the live episodes", async () => {
+  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const cases = await readFile(new URL("../app/lib/cases.ts", import.meta.url), "utf8");
+  const adsTxt = await readFile(new URL("../public/ads.txt", import.meta.url), "utf8");
+  const robots = await readFile(new URL("../public/robots.txt", import.meta.url), "utf8");
+
+  assert.equal(adsTxt.trim(), "google.com, pub-9269666926580954, DIRECT, f08c47fec0942fa0");
+  assert.match(robots, /^User-agent: \*/m);
+  assert.match(robots, /Sitemap: https:\/\/todaycase\.kr\/sitemap\.xml/);
+
+  // Every live episode needs an article, and no article may invent an episode.
+  const liveIds = (source.match(/const liveEpisodeIds: CaseId\[\] = \[([^\]]+)\]/) ?? [])[1] ?? "";
+  const liveNos = [...liveIds.matchAll(/"ep(\d+)"/g)].map((m) => m[1]).sort();
+  const articleNos = [...cases.matchAll(/^    no: "(\d+)",$/gm)].map((m) => m[1]).sort();
+  assert.deepEqual(articleNos, liveNos, "app/lib/cases.ts must cover exactly the live episodes");
+
+  // Titles and scammer names are duplicated from caseProfiles, so they must not drift.
+  for (const [, no, title] of cases.matchAll(/^    no: "(\d+)",\n    title: "([^"]+)",\n    scammer: "([^"]+)",$/gm)) {
+    assert.ok(source.includes(`no: "${no}", title: "${title}"`), `CASE ${no} title is out of sync with caseProfiles`);
+  }
+  for (const [, no, , scammer] of cases.matchAll(/^    no: "(\d+)",\n    title: "([^"]+)",\n    scammer: "([^"]+)",$/gm)) {
+    assert.ok(source.includes(`scammer: "${scammer}"`), `CASE ${no} scammer is out of sync with caseProfiles`);
+  }
+
+  // Articles carry real body copy, not a stub.
+  for (const block of cases.split("    slug: \"").slice(1)) {
+    const prose = (block.match(/"([^"]{40,})"/g) ?? []).join("");
+    assert.ok(prose.length > 550, "each case article needs substantial body copy");
+  }
+
+  // The shared menu links every required page, and the pages are plain server-rendered articles.
+  const nav = await readFile(new URL("../app/site-nav.tsx", import.meta.url), "utf8");
+  for (const href of ["/", "/about", "/guide", "/cases", "/faq", "/terms", "/privacy"]) {
+    assert.ok(nav.includes(`href: "${href}"`), `site menu is missing ${href}`);
+  }
+  assert.doesNotMatch(nav, /"use client"/);
+  for (const page of ["../app/guide/page.tsx", "../app/faq/page.tsx", "../app/cases/page.tsx", "../app/cases/[slug]/page.tsx"]) {
+    const text = await readFile(new URL(page, import.meta.url), "utf8");
+    assert.doesNotMatch(text, /"use client"/, `${page} must stay server-rendered for crawlers`);
+    assert.match(text, /alternates: \{ canonical|generateMetadata/, `${page} needs a canonical URL`);
+  }
+
+  // The home footer links the content pages with same-site relative hrefs.
+  assert.match(source, /<a href="\/guide">플레이 방법<\/a>/);
+  assert.match(source, /<a href="\/cases">사건 해설<\/a>/);
+  assert.doesNotMatch(source, /today-scammer\.vercel\.app\/(about|terms|privacy)/);
+});
+
 test("Google Play privacy and real ad-removal purchase are clearly disclosed", async () => {
   const privacy = await readFile(new URL("../app/privacy/page.tsx", import.meta.url), "utf8");
   const terms = await readFile(new URL("../app/terms/page.tsx", import.meta.url), "utf8");
