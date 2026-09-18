@@ -26,7 +26,13 @@
 
 ## 개인정보처리방침
 
-https://today-scammer.vercel.app/privacy
+https://todaycase.kr/privacy
+
+## 출시 노트
+
+### 1.1 (versionCode 2)
+
+사건파일 8건을 모두 열었습니다. 유명인 사칭, 로맨스스캠, 기관 사칭, 투자사기, 삼자사기, 티켓 거래까지 한 번에 플레이할 수 있습니다. 대화 속도와 인물 화면도 손봤습니다.
 
 ## 광고 및 결제
 
